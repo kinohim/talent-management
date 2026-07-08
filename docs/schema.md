@@ -7,6 +7,9 @@ created_at, created_by, created_program,
 updated_at, updated_by, updated_program,
 deleted_at, deleted_by, deleted_program   -- 論理削除。NULL=有効、日付あり=削除済
 ```
+
+**実装メモ（`prisma/schema.prisma`）**: `created_by`/`updated_by`/`deleted_by`は操作者の`employee_id`を保持するVARCHAR(6)だが、監査目的のため`employee`への外部キー制約は張らない。`created_program`/`updated_program`/`deleted_program`はVARCHAR(50)（画面ID等を記録）。本ドキュメントの「ENUM」型はPostgreSQLのネイティブENUM型として実装し、格納値は英語のsnake_case（例: `employment_status`は`active`/`retired`）。
+
 ---
 
 ## organization_unit（組織単位マスタ：事業部／部署／Gr）
