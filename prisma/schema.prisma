@@ -1,0 +1,11 @@
+// テーブル定義は docs/schema.md を正とする。
+// スキーマ変更時は .claude/skills/db-migration の手順に従うこと。
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
