@@ -1,6 +1,5 @@
+import { Tile } from "@/components/ui/Tile";
 import { UserRole } from "@/generated/prisma/client";
-
-import { Tile } from "./Tile";
 
 type TileDef = {
   key: string;
@@ -13,9 +12,7 @@ const TILE_DEFS: TileDef[] = [
   {
     key: "mypage",
     label: "マイページ",
-    // 本来の遷移先はREF004(マイページ)だが今回のスコープでは未実装のため、
-    // 一時的にEDT001(基本情報登録)へ直接遷移する。REF004実装時に差し替える。
-    href: "/register",
+    href: "/mypage",
     roles: [UserRole.EMPLOYEE, UserRole.MANAGER],
   },
   {

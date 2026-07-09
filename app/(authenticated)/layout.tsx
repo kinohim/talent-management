@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { LogoutButton } from "@/components/auth/LogoutButton";
+import { BackLink } from "@/components/layout/BackLink";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { auth } from "@/lib/auth";
 import { roleLabel } from "@/lib/role-label";
 
@@ -26,7 +28,13 @@ export default async function AuthenticatedLayout({
           <LogoutButton />
         </div>
       </header>
-      <div className="flex flex-1 flex-col">{children}</div>
+      <Breadcrumbs />
+      <div className="flex flex-1 flex-col">
+        <div className="px-6 pt-4">
+          <BackLink />
+        </div>
+        {children}
+      </div>
     </div>
   );
 }

@@ -65,7 +65,7 @@ export async function saveBasicInfo(
     };
   }
 
-  // 本来の保存後遷移先はREF004(マイページ)だが、今回のスコープではREF004が
-  // 未実装のため一時的にREF001(トップ)へ戻す。REF004実装時にここを変更する。
-  redirect("/");
+  // 保存後はREF004(マイページ)へ遷移する(docs/screens.md「保存後の遷移先
+  // (共通ルール)」参照)。
+  redirect("/mypage");
 }
