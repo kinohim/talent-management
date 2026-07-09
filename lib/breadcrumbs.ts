@@ -6,6 +6,7 @@ export const BREADCRUMB_MAP: Record<string, BreadcrumbNode> = {
   "/": { label: "トップ", parentPath: null },
   "/mypage": { label: "マイページ", parentPath: "/" },
   "/register": { label: "基本情報登録", parentPath: "/mypage" },
+  "/career-summary": { label: "経歴概要・自己PR登録", parentPath: "/mypage" },
 };
 
 export type BreadcrumbItem = { label: string; path: string };

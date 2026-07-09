@@ -22,6 +22,14 @@ describe("getBreadcrumbTrail", () => {
     ]);
   });
 
+  it("経歴概要・自己PR登録はトップ→マイページ→経歴概要・自己PR登録の3件を返す", () => {
+    expect(getBreadcrumbTrail("/career-summary")).toEqual([
+      { path: "/", label: "トップ" },
+      { path: "/mypage", label: "マイページ" },
+      { path: "/career-summary", label: "経歴概要・自己PR登録" },
+    ]);
+  });
+
   it("未登録パスは空配列を返す", () => {
     expect(getBreadcrumbTrail("/unknown")).toEqual([]);
   });
