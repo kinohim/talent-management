@@ -36,6 +36,15 @@
             "command": "bash .claude/hooks/post-edit.sh"
           }
         ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-exit-plan-mode.sh"
+          }
+        ]
       }
     ],
     "Stop": [
