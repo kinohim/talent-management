@@ -19,19 +19,28 @@ describe("findDevLoginUser", () => {
     findUniqueMock.mockReset();
   });
 
-  it("employeeIdが未入力ならnullを返す", async () => {
-    expect(await findDevLoginUser(undefined)).toBeNull();
-    expect(await findDevLoginUser("")).toBeNull();
+  it("employeeIdが未入力なら EMPTY_EMPLOYEE_ID を返す", async () => {
+    expect(await findDevLoginUser(undefined)).toEqual({
+      ok: false,
+      reason: "EMPTY_EMPLOYEE_ID",
+    });
+    expect(await findDevLoginUser("")).toEqual({
+      ok: false,
+      reason: "EMPTY_EMPLOYEE_ID",
+    });
     expect(findUniqueMock).not.toHaveBeenCalled();
   });
 
-  it("該当するUserがなければnullを返す", async () => {
+  it("該当するUserがなければ NOT_REGISTERED を返す", async () => {
     findUniqueMock.mockResolvedValue(null);
 
-    expect(await findDevLoginUser("000001")).toBeNull();
+    expect(await findDevLoginUser("000001")).toEqual({
+      ok: false,
+      reason: "NOT_REGISTERED",
+    });
   });
 
-  it("退職済みの社員ならnullを返す", async () => {
+  it("退職済みの社員なら RETIRED を返す", async () => {
     findUniqueMock.mockResolvedValue({
       id: "cuid_000001",
       employeeId: "000001",
@@ -40,7 +49,10 @@ describe("findDevLoginUser", () => {
       employee: { name: "山田太郎", employmentStatus: "RETIRED" },
     } as never);
 
-    expect(await findDevLoginUser("000001")).toBeNull();
+    expect(await findDevLoginUser("000001")).toEqual({
+      ok: false,
+      reason: "RETIRED",
+    });
   });
 
   it("現職の社員ならユーザー情報を返す", async () => {
@@ -53,11 +65,14 @@ describe("findDevLoginUser", () => {
     } as never);
 
     expect(await findDevLoginUser("000001")).toEqual({
-      id: "cuid_000001",
-      employeeId: "000001",
-      role: "EMPLOYEE",
-      name: "山田太郎",
-      email: "taro@example.com",
+      ok: true,
+      user: {
+        id: "cuid_000001",
+        employeeId: "000001",
+        role: "EMPLOYEE",
+        name: "山田太郎",
+        email: "taro@example.com",
+      },
     });
   });
 
@@ -71,6 +86,7 @@ describe("findDevLoginUser", () => {
     } as never);
 
     const result = await findDevLoginUser("000002");
-    expect(result?.name).toBe("000002");
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.user.name).toBe("000002");
   });
 });

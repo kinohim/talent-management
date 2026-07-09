@@ -2,7 +2,10 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
+import { UserRole } from "@/generated/prisma/client";
+import { NotRegisteredError, RetiredEmployeeError } from "@/lib/auth-errors";
 import { findDevLoginUser } from "@/lib/dev-login";
+import { isProduction } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 
 // 実SSO実装時のTODO(docs/schema.md「ログイン判定ロジック」・docs/screens.md AUTH001参照):
@@ -25,16 +28,24 @@ const devEmployeeIdLogin = Credentials({
     employeeId: { label: "社員ID", type: "text" },
   },
   async authorize(credentials) {
-    return findDevLoginUser(credentials?.employeeId);
+    const result = await findDevLoginUser(credentials?.employeeId);
+    if (result.ok) return result.user;
+
+    if (result.reason === "RETIRED") throw new RetiredEmployeeError();
+    // EMPTY_EMPLOYEE_ID/NOT_REGISTEREDはどちらも「未登録」文言に丸める
+    // (社員ID空欄は開発用ログイン固有のUXで、仕様上の文言に対応がないため)
+    throw new NotRegisteredError();
   },
 });
-
-const isProduction = process.env.NODE_ENV === "production";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: isProduction ? "database" : "jwt" },
   providers: isProduction ? [] : [devEmployeeIdLogin],
+  // Auth.js標準の英語signin画面(/api/auth/signin)を自前の日本語画面(AUTH001)に
+  // 差し替える(docs/README.md「ライブラリのデフォルト画面は自前の日本語画面に
+  // 差し替える」参照)。
+  pages: { signIn: "/login" },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -51,6 +62,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = role;
       }
       return session;
+    },
+  },
+  events: {
+    // 人事・営業(HR_SALES)は経歴書を作成しないため、EDT001を経ずisRegisteredを
+    // 自動でTRUEにする(docs/screens.md AUTH001参照)。employee.nameへのSSO表示名
+    // 設定は、開発用ログインには対応する情報源がないため実SSO実装時に対応する。
+    async signIn({ user }) {
+      const employeeId = (user as { employeeId?: string }).employeeId;
+      const role = (user as { role?: UserRole }).role;
+      if (employeeId && role === UserRole.HR_SALES) {
+        await prisma.employee.updateMany({
+          where: { employeeId, isRegistered: false },
+          data: {
+            isRegistered: true,
+            updatedBy: employeeId,
+            updatedProgram: "AUTH001",
+          },
+        });
+      }
     },
   },
 });

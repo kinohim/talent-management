@@ -103,6 +103,42 @@ async function main() {
       ...audit,
     },
   });
+
+  // 未登録アカウント(EDT001初回登録導線・AUTH001初回ログイン分岐の動作確認用)
+  await prisma.employee.create({
+    data: {
+      employeeId: "000005",
+      isRegistered: false,
+      organizationUnitId: group.id,
+      ...audit,
+    },
+  });
+  await prisma.user.create({
+    data: {
+      employeeId: "000005",
+      email: "mitouroku@example.com",
+      role: "EMPLOYEE",
+      ...audit,
+    },
+  });
+
+  // 未登録の人事・営業(初回ログインでisRegisteredが自動TRUEになる導線の確認用)
+  await prisma.employee.create({
+    data: {
+      employeeId: "000006",
+      isRegistered: false,
+      organizationUnitId: division.id,
+      ...audit,
+    },
+  });
+  await prisma.user.create({
+    data: {
+      employeeId: "000006",
+      email: "jinjieigyo@example.com",
+      role: "HR_SALES",
+      ...audit,
+    },
+  });
 }
 
 main()
