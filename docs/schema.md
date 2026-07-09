@@ -1,6 +1,6 @@
 # スキーマ定義
 
-全16テーブル。命名規則: スネークケース。**サロゲートキーのPKはカラム名`id`（SERIAL）で統一する**。例外はemployeeのみ: 業務上の社員ID（VARCHAR(6)、管理職採番）をそのままPKとするため`employee_id`。FKカラム名は`<参照先テーブル名>_id`とする（例: `skill_id`は`skill.id`を参照）。全テーブル共通で以下のシステムカラムを持つ（以下、各テーブル定義では省略）。
+全19テーブル。命名規則: スネークケース。**サロゲートキーのPKはカラム名`id`（SERIAL）で統一する**。例外は`users`のみ（Auth.jsアダプタの要件でTEXT/cuidとするため`id`はTEXT）。FKカラム名は`<参照先テーブル名>_id`とする（例: `skill_id`は`skill.id`を参照）。ただし`employee`は業務上の社員ID`employee_id`（VARCHAR(6)、管理職採番）をUNIQUE制約付きの非PKカラムとして持ち、他テーブルからのFKは`employee.id`ではなく`employee.employee_id`を参照する（人間可読なFK値にするため。理由はdocs/decisions.md「命名規則」参照）。全テーブル共通で以下のシステムカラムを持つ（以下、各テーブル定義では省略）。accounts/sessions/verification_tokensの3テーブルは例外でシステムカラムを持たない（該当節参照）。
 
 ```
 created_at, created_by, created_program,
@@ -33,7 +33,8 @@ deleted_at, deleted_by, deleted_program   -- 論理削除。NULL=有効、日付
 
 | 列名 | 型 | 制約 | 説明 |
 |---|---|---|---|
-| employee_id | VARCHAR(6) | PK | 管理職が新規登録時に採番 |
+| id | SERIAL | PK | サロゲートキー。他テーブルからは参照されない（FKは`employee_id`を使う） |
+| employee_id | VARCHAR(6) | UK, NOT NULL | 管理職が新規登録時に採番。他テーブルのFK参照先 |
 | is_registered | BOOLEAN | NOT NULL, DEFAULT FALSE | 初期登録完了フラグ。EDT001完了でTRUEに更新 |
 | employment_status | ENUM | NOT NULL, DEFAULT 1 | **1:現職, 2:退職**。退職判定はこのカラムで行う |
 | organization_unit_id | INT | FK→organization_unit.id, NULL可 | 事業部／部署／Grいずれかの行を指す |
@@ -54,25 +55,49 @@ deleted_at, deleted_by, deleted_program   -- 論理削除。NULL=有効、日付
 
 ---
 
-## user_account（ログインアカウント）
+## users（ログインアカウント）
+
+Auth.js（`@auth/prisma-adapter`）標準の`User`モデル・テーブル名にそのまま合わせている（Prismaモデル名`User`、`@@map("users")`）。**id列はSERIALではなくTEXT（cuid）**、**created_by/created_program/updated_by/updated_programはNULL可**という、他テーブルと異なる例外を持つ（理由はdocs/decisions.md「認証」参照）。
 
 | 列名 | 型 | 制約 | 説明 |
 |---|---|---|---|
-| id | SERIAL | PK | |
+| id | TEXT | PK | cuid。Auth.jsアダプタの要件 |
 | employee_id | VARCHAR(6) | FK→employee.employee_id, UK, NOT NULL | 1社員1アカウント |
 | email | VARCHAR(100) | UK, NOT NULL | 会社メールアドレス。管理職が事前登録し、ログイン時の照合キーとして使う（プロバイダ問わず） |
-| external_id | VARCHAR(255) | UK, NULL可 | Azure AD/Google/GitHubいずれかの外部ID。初回ログイン時にNULLから確定値へ更新 |
-| auth_provider | ENUM | NULL可 | azure_ad / google / github。初回ログイン時に確定 |
+| email_verified | TIMESTAMP | NULL可 | Auth.js標準カラム |
+| name | VARCHAR(100) | NULL可 | Auth.js標準カラム。SSOの表示名 |
+| image | VARCHAR(255) | NULL可 | Auth.js標準カラム。未使用 |
 | role | ENUM | NOT NULL | 1:一般社員, 2:人事・営業, 3:管理職 |
 | last_login_at | TIMESTAMP | | |
 
+旧`external_id`/`auth_provider`カラムは廃止し、`accounts`テーブル（`provider`/`provider_account_id`）に置き換えた。
+
 **ログイン判定ロジック**:
 1. 選択したプロバイダ（Azure AD/Google/GitHub）で認証し、確認済みメールアドレスを取得する
-2. そのメールアドレスで`user_account.email`を検索
+2. そのメールアドレスで`users.email`を検索
 3. 該当レコードなし → 「未登録」エラー（プロバイダ側の確認済みメールが事前登録メールと一致しない場合もこれに該当。例：GitHub個人アカウントで会社メールと紐付いていない場合）
 4. 該当employeeの`employment_status = 2（退職）` → 「無効化済み」エラー
-5. 該当あり・現職 → `external_id`がNULLなら今回の値と`auth_provider`を確定（初回ログイン）。遷移先はロールにより異なる: 一般社員／管理職は`is_registered=false`ならEDT001（初回登録）へ、trueならREF001（トップ）へ。**人事・営業は経歴書を作成しないため常にREF001へ直行し、初回ログイン成立時に`is_registered`を自動でTRUE、`name`にSSO表示名を設定する**
-6. 2回目以降のログインで、認証に使われたプロバイダが登録済みの`auth_provider`と異なる場合（メールは一致するが`external_id`が不一致の場合を含む）は、ログインさせず「プロバイダ不一致」エラーを表示する（AUTH001参照）。途中でのプロバイダ変更は非対応
+5. 該当あり・現職 → 紐付き済みの`accounts`レコードがなければ今回のプロバイダで新規に紐付ける（初回ログイン）。遷移先はロールにより異なる: 一般社員／管理職は`is_registered=false`ならEDT001（初回登録）へ、trueならREF001（トップ）へ。**人事・営業は経歴書を作成しないため常にREF001へ直行し、初回ログイン成立時に`is_registered`を自動でTRUE、`name`にSSO表示名を設定する**
+6. 2回目以降のログインで、認証に使われたプロバイダが紐付き済みの`accounts.provider`と異なる場合は、ログインさせず「プロバイダ不一致」エラーを表示する（AUTH001参照）。途中でのプロバイダ変更は非対応
+
+## accounts / sessions / verification_tokens（Auth.jsセッション管理テーブル）
+
+`@auth/prisma-adapter`標準スキーマ（テーブル名も複数形でAuth.js標準に合わせる）。**監査カラム（created_at等）を持たない**（Auth.jsアダプタが直接read/write/hard-deleteするシステム管理テーブルのため。docs/decisions.md「認証」参照）。
+
+| テーブル | 列名 | 型 | 制約 | 説明 |
+|---|---|---|---|---|
+| accounts | id | TEXT | PK | cuid |
+| accounts | user_id | TEXT | FK→users.id, NOT NULL | |
+| accounts | provider | TEXT | NOT NULL | 例: `azure-ad` / `google` / `github` / `dev-employee-id` |
+| accounts | provider_account_id | TEXT | NOT NULL | プロバイダ側のユーザーID。(provider, provider_account_id)でUK |
+| accounts | その他 | - | - | OAuthトークン等（Auth.js標準、詳細は`prisma/schema.prisma`参照） |
+| sessions | id | TEXT | PK | cuid |
+| sessions | session_token | TEXT | UK, NOT NULL | |
+| sessions | user_id | TEXT | FK→users.id, NOT NULL | |
+| sessions | expires | TIMESTAMP | NOT NULL | |
+| verification_tokens | identifier | TEXT | NOT NULL | (identifier, token)でUK |
+| verification_tokens | token | TEXT | NOT NULL | |
+| verification_tokens | expires | TIMESTAMP | NOT NULL | |
 
 ---
 

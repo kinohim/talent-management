@@ -55,6 +55,11 @@ model OrganizationUnit {
 
 // ---------------------------------------------------------------------------
 // 社員基本情報
+//
+// PKはサロゲートキーの`id`(SERIAL、他テーブルと同じ命名規則)。`employeeId`は
+// 管理職が採番する業務上の社員ID(VARCHAR(6))で、UNIQUE制約を持つ非PKカラムと
+// して残し、他テーブルからのFK参照・画面上での入力/表示・ログイン照合の
+// キーとして引き続き使う(docs/decisions.md「命名規則」参照)。
 // ---------------------------------------------------------------------------
 
 enum EmploymentStatus {
@@ -90,7 +95,8 @@ enum GraduationStatus {
 }
 
 model Employee {
-  employeeId          String            @id @map("employee_id") @db.VarChar(6)
+  id                  Int               @id @default(autoincrement())
+  employeeId          String            @unique @map("employee_id") @db.VarChar(6)
   isRegistered        Boolean           @default(false) @map("is_registered")
   employmentStatus    EmploymentStatus  @default(ACTIVE) @map("employment_status")
   organizationUnitId  Int?              @map("organization_unit_id")
@@ -110,7 +116,7 @@ model Employee {
   graduationStatus    GraduationStatus? @map("graduation_status")
 
   organizationUnit       OrganizationUnit?       @relation(fields: [organizationUnitId], references: [id])
-  userAccount            UserAccount?
+  user                   User?
   employeeSkills         EmployeeSkill[]
   employeeCertifications EmployeeCertification[]
   projects               Project[]
@@ -130,15 +136,22 @@ model Employee {
 
 // ---------------------------------------------------------------------------
 // ログインアカウント
+//
+// User/Account/Session/VerificationTokenはAuth.js (@auth/prisma-adapter)標準
+// スキーマにモデル名・テーブル名とも完全に合わせる(テーブル名は複数形
+// users/accounts/sessions/verification_tokens。Auth.js公式ドキュメントの
+// 推奨命名例に準拠)。他の業務テーブルの単数形命名規則とは異なるが、
+// Auth.js標準に寄せることを優先した例外(docs/decisions.md「認証」参照)。
+// UserにはemployeeId/role/lastLoginAtという業務カラムを同居させている。
+// 旧auth_provider/external_idカラムはAccountモデル(provider/providerAccountId)
+// に置き換えたため廃止した。
+//
+// Userのid はAuth.jsアダプタの要件によりString(cuid)とする。他テーブルの
+// SERIAL PK統一方針(docs/decisions.md「命名規則」)の例外。
+// createdBy等の監査カラムはEDT006(管理職による事前登録)実行時のみ設定され、
+// Auth.js自身によるupdateUser呼び出し(ログイン時のname/emailVerified更新等)は
+// 監査情報を持たないためnull許容とする(この4カラムのみ他テーブルと異なる)。
 // ---------------------------------------------------------------------------
-
-enum AuthProvider {
-  AZURE_AD @map("azure_ad")
-  GOOGLE   @map("google")
-  GITHUB   @map("github")
-
-  @@map("auth_provider")
-}
 
 enum UserRole {
   EMPLOYEE @map("employee") // 1:一般社員
@@ -148,28 +161,76 @@ enum UserRole {
   @@map("user_role")
 }
 
-model UserAccount {
-  id           Int           @id @default(autoincrement())
-  employeeId   String        @unique @map("employee_id") @db.VarChar(6)
-  email        String        @unique @db.VarChar(100)
-  externalId   String?       @unique @map("external_id") @db.VarChar(255)
-  authProvider AuthProvider? @map("auth_provider")
-  role         UserRole
-  lastLoginAt  DateTime?     @map("last_login_at")
+model User {
+  id            String    @id @default(cuid())
+  employeeId    String    @unique @map("employee_id") @db.VarChar(6)
+  email         String    @unique @db.VarChar(100)
+  emailVerified DateTime? @map("email_verified")
+  name          String?   @db.VarChar(100)
+  image         String?   @db.VarChar(255)
+  role          UserRole
+  lastLoginAt   DateTime? @map("last_login_at")
 
-  employee Employee @relation(fields: [employeeId], references: [employeeId])
+  employee Employee  @relation(fields: [employeeId], references: [employeeId])
+  accounts Account[]
+  sessions Session[]
 
   createdAt      DateTime  @default(now()) @map("created_at")
-  createdBy      String    @map("created_by") @db.VarChar(6)
-  createdProgram String    @map("created_program") @db.VarChar(50)
+  createdBy      String?   @map("created_by") @db.VarChar(6)
+  createdProgram String?   @map("created_program") @db.VarChar(50)
   updatedAt      DateTime  @updatedAt @map("updated_at")
-  updatedBy      String    @map("updated_by") @db.VarChar(6)
-  updatedProgram String    @map("updated_program") @db.VarChar(50)
+  updatedBy      String?   @map("updated_by") @db.VarChar(6)
+  updatedProgram String?   @map("updated_program") @db.VarChar(50)
   deletedAt      DateTime? @map("deleted_at")
   deletedBy      String?   @map("deleted_by") @db.VarChar(6)
   deletedProgram String?   @map("deleted_program") @db.VarChar(50)
 
-  @@map("user_account")
+  @@map("users")
+}
+
+// Auth.js標準スキーマ(User以外)。監査カラムを持たない(Auth.jsアダプタが
+// 直接read/write/hard-deleteするシステム管理テーブルのため。
+// docs/decisions.md「認証」参照)。
+
+model Account {
+  id                       String  @id @default(cuid())
+  userId                   String  @map("user_id")
+  type                     String
+  provider                 String
+  providerAccountId        String  @map("provider_account_id")
+  refresh_token            String? @db.Text
+  access_token             String? @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @db.Text
+  session_state            String?
+  refresh_token_expires_in Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 // ---------------------------------------------------------------------------

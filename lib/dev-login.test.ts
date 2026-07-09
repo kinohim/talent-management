@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    userAccount: {
+    user: {
       findUnique: vi.fn(),
     },
   },
@@ -12,7 +12,7 @@ import { prisma } from "@/lib/prisma";
 
 import { findDevLoginUser } from "./dev-login";
 
-const findUniqueMock = vi.mocked(prisma.userAccount.findUnique);
+const findUniqueMock = vi.mocked(prisma.user.findUnique);
 
 describe("findDevLoginUser", () => {
   beforeEach(() => {
@@ -25,7 +25,7 @@ describe("findDevLoginUser", () => {
     expect(findUniqueMock).not.toHaveBeenCalled();
   });
 
-  it("該当するuser_accountがなければnullを返す", async () => {
+  it("該当するUserがなければnullを返す", async () => {
     findUniqueMock.mockResolvedValue(null);
 
     expect(await findDevLoginUser("000001")).toBeNull();
@@ -33,6 +33,7 @@ describe("findDevLoginUser", () => {
 
   it("退職済みの社員ならnullを返す", async () => {
     findUniqueMock.mockResolvedValue({
+      id: "cuid_000001",
       employeeId: "000001",
       role: "EMPLOYEE",
       email: "taro@example.com",
@@ -44,6 +45,7 @@ describe("findDevLoginUser", () => {
 
   it("現職の社員ならユーザー情報を返す", async () => {
     findUniqueMock.mockResolvedValue({
+      id: "cuid_000001",
       employeeId: "000001",
       role: "EMPLOYEE",
       email: "taro@example.com",
@@ -51,7 +53,7 @@ describe("findDevLoginUser", () => {
     } as never);
 
     expect(await findDevLoginUser("000001")).toEqual({
-      id: "000001",
+      id: "cuid_000001",
       employeeId: "000001",
       role: "EMPLOYEE",
       name: "山田太郎",
@@ -61,6 +63,7 @@ describe("findDevLoginUser", () => {
 
   it("employee.nameが未設定ならemployeeIdをnameとして返す", async () => {
     findUniqueMock.mockResolvedValue({
+      id: "cuid_000002",
       employeeId: "000002",
       role: "EMPLOYEE",
       email: "hanako@example.com",

@@ -13,6 +13,7 @@
     "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.2",
     "@neondatabase/serverless": "1.1.0",
     "@prisma/adapter-neon": "7.8.0",
     "@prisma/client": "7.8.0",

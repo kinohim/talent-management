@@ -5,20 +5,20 @@ export async function findDevLoginUser(employeeId: unknown) {
     return null;
   }
 
-  const userAccount = await prisma.userAccount.findUnique({
+  const user = await prisma.user.findUnique({
     where: { employeeId },
     include: { employee: true },
   });
 
-  if (!userAccount || userAccount.employee.employmentStatus === "RETIRED") {
+  if (!user || user.employee.employmentStatus === "RETIRED") {
     return null;
   }
 
   return {
-    id: userAccount.employeeId,
-    employeeId: userAccount.employeeId,
-    role: userAccount.role,
-    name: userAccount.employee.name ?? userAccount.employeeId,
-    email: userAccount.email,
+    id: user.id,
+    employeeId: user.employeeId,
+    role: user.role,
+    name: user.employee.name ?? user.employeeId,
+    email: user.email,
   };
 }

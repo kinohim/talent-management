@@ -73,7 +73,7 @@ async function main() {
         ...audit,
       },
     });
-    await prisma.userAccount.create({
+    await prisma.user.create({
       data: {
         employeeId: e.employeeId,
         email: e.email,
@@ -95,7 +95,7 @@ async function main() {
       ...audit,
     },
   });
-  await prisma.userAccount.create({
+  await prisma.user.create({
     data: {
       employeeId: "000004",
       email: "taishoku@example.com",
