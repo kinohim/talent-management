@@ -139,6 +139,73 @@ async function main() {
       ...audit,
     },
   });
+
+  // EDT003(スキル登録)の動作確認用スキルマスタ
+  const languageCategory = await prisma.skillCategory.create({
+    data: { skillCategoryName: "プログラミング言語", ...audit },
+  });
+  const frameworkCategory = await prisma.skillCategory.create({
+    data: { skillCategoryName: "フレームワーク", ...audit },
+  });
+
+  const java = await prisma.skill.create({
+    data: {
+      skillCategoryId: languageCategory.id,
+      skillName: "Java",
+      hasVersion: true,
+      ...audit,
+    },
+  });
+  for (const versionName of ["8", "11", "17"]) {
+    await prisma.skillVersion.create({
+      data: {
+        skillId: java.id,
+        versionName,
+        displayName: `Java ${versionName}`,
+        ...audit,
+      },
+    });
+  }
+  await prisma.skill.create({
+    data: {
+      skillCategoryId: languageCategory.id,
+      skillName: "Python",
+      ...audit,
+    },
+  });
+  await prisma.skill.create({
+    data: {
+      skillCategoryId: languageCategory.id,
+      skillName: "TypeScript",
+      ...audit,
+    },
+  });
+
+  const nextjs = await prisma.skill.create({
+    data: {
+      skillCategoryId: frameworkCategory.id,
+      skillName: "Next.js",
+      hasVersion: true,
+      ...audit,
+    },
+  });
+  for (const versionName of ["14", "15"]) {
+    await prisma.skillVersion.create({
+      data: {
+        skillId: nextjs.id,
+        versionName,
+        displayName: `Next.js ${versionName}`,
+        ...audit,
+      },
+    });
+  }
+  await prisma.skill.create({
+    data: {
+      skillCategoryId: frameworkCategory.id,
+      skillName: "Spring Boot",
+      ...audit,
+    },
+  });
 }
 
 main()

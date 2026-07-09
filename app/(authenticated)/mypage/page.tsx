@@ -4,6 +4,7 @@ import { MyPageTiles } from "@/components/mypage/MyPageTiles";
 import { UserRole } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { resolveDestination } from "@/lib/auth-routing";
+import { prisma } from "@/lib/prisma";
 
 export default async function MyPage() {
   const session = await auth();
@@ -22,10 +23,14 @@ export default async function MyPage() {
     redirect(destination);
   }
 
+  const skillCount = await prisma.employeeSkill.count({
+    where: { employeeId: session.user.employeeId },
+  });
+
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
       <h1 className="text-lg font-semibold">マイページ</h1>
-      <MyPageTiles />
+      <MyPageTiles skillCount={skillCount} />
     </main>
   );
 }

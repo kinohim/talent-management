@@ -7,9 +7,23 @@ type PillSelectProps = {
   name: string;
   options: PillOption[];
   defaultValue?: string;
+  // value/onChangeを指定すると制御コンポーネントとして動作する。
+  // React DOMのフォームaction機能は「action完了後に非制御フィールドを自動リセット
+  // する」ため、保存前(検証エラーで同じ画面に留まる場合等)に選択状態が消えると
+  // 都合が悪い呼び出し元(EDT003の明細行等)はこちらを使う。
+  value?: string;
+  onChange?: (value: string) => void;
 };
 
-export function PillSelect({ name, options, defaultValue }: PillSelectProps) {
+export function PillSelect({
+  name,
+  options,
+  defaultValue,
+  value,
+  onChange,
+}: PillSelectProps) {
+  const isControlled = value !== undefined;
+
   return (
     <div role="radiogroup" className="flex flex-wrap gap-2">
       {options.map((option) => (
@@ -21,7 +35,12 @@ export function PillSelect({ name, options, defaultValue }: PillSelectProps) {
             type="radio"
             name={name}
             value={option.value}
-            defaultChecked={option.value === defaultValue}
+            {...(isControlled
+              ? {
+                  checked: option.value === value,
+                  onChange: () => onChange?.(option.value),
+                }
+              : { defaultChecked: option.value === defaultValue })}
             className="sr-only"
           />
           {option.label}

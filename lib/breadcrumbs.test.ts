@@ -30,6 +30,14 @@ describe("getBreadcrumbTrail", () => {
     ]);
   });
 
+  it("スキル登録はトップ→マイページ→スキル登録の3件を返す", () => {
+    expect(getBreadcrumbTrail("/skills")).toEqual([
+      { path: "/", label: "トップ" },
+      { path: "/mypage", label: "マイページ" },
+      { path: "/skills", label: "スキル登録" },
+    ]);
+  });
+
   it("未登録パスは空配列を返す", () => {
     expect(getBreadcrumbTrail("/unknown")).toEqual([]);
   });

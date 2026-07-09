@@ -3,9 +3,10 @@ import Link from "next/link";
 type TileProps = {
   label: string;
   href?: string;
+  badge?: string;
 };
 
-export function Tile({ label, href }: TileProps) {
+export function Tile({ label, href, badge }: TileProps) {
   if (!href) {
     return (
       <div
@@ -24,6 +25,9 @@ export function Tile({ label, href }: TileProps) {
       className="flex flex-col items-center justify-center gap-1 rounded-lg border p-6 text-center transition hover:bg-zinc-50 dark:hover:bg-zinc-900"
     >
       <span>{label}</span>
+      {badge ? (
+        <span className="text-xs text-zinc-500">{badge}</span>
+      ) : null}
     </Link>
   );
 }
