@@ -70,8 +70,6 @@ Auth.js（`@auth/prisma-adapter`）標準の`User`モデル・テーブル名に
 | role | ENUM | NOT NULL | 1:一般社員, 2:人事・営業, 3:管理職 |
 | last_login_at | TIMESTAMP | | |
 
-旧`external_id`/`auth_provider`カラムは廃止し、`accounts`テーブル（`provider`/`provider_account_id`）に置き換えた。
-
 **ログイン判定ロジック**:
 1. 選択したプロバイダ（Azure AD/Google/GitHub）で認証し、確認済みメールアドレスを取得する
 2. そのメールアドレスで`users.email`を検索
