@@ -46,6 +46,32 @@ describe("getBreadcrumbTrail", () => {
     ]);
   });
 
+  it("プロジェクト経歴一覧はトップ→マイページ→プロジェクト経歴一覧の3件を返す", () => {
+    expect(getBreadcrumbTrail("/projects")).toEqual([
+      { path: "/", label: "トップ" },
+      { path: "/mypage", label: "マイページ" },
+      { path: "/projects", label: "プロジェクト経歴一覧" },
+    ]);
+  });
+
+  it("プロジェクト経歴登録はトップ→マイページ→プロジェクト経歴一覧→プロジェクト経歴登録の4件を返す", () => {
+    expect(getBreadcrumbTrail("/projects/new")).toEqual([
+      { path: "/", label: "トップ" },
+      { path: "/mypage", label: "マイページ" },
+      { path: "/projects", label: "プロジェクト経歴一覧" },
+      { path: "/projects/new", label: "プロジェクト経歴登録" },
+    ]);
+  });
+
+  it("プロジェクト経歴編集(動的ID)は数値セグメントを[id]に正規化して解決する", () => {
+    expect(getBreadcrumbTrail("/projects/123")).toEqual([
+      { path: "/", label: "トップ" },
+      { path: "/mypage", label: "マイページ" },
+      { path: "/projects", label: "プロジェクト経歴一覧" },
+      { path: "/projects/[id]", label: "プロジェクト経歴編集" },
+    ]);
+  });
+
   it("未登録パスは空配列を返す", () => {
     expect(getBreadcrumbTrail("/unknown")).toEqual([]);
   });

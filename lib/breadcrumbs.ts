@@ -9,14 +9,24 @@ export const BREADCRUMB_MAP: Record<string, BreadcrumbNode> = {
   "/career-summary": { label: "経歴概要・自己PR登録", parentPath: "/mypage" },
   "/skills": { label: "スキル登録", parentPath: "/mypage" },
   "/certifications": { label: "資格登録", parentPath: "/mypage" },
+  "/projects": { label: "プロジェクト経歴一覧", parentPath: "/mypage" },
+  "/projects/new": { label: "プロジェクト経歴登録", parentPath: "/projects" },
+  "/projects/[id]": { label: "プロジェクト経歴編集", parentPath: "/projects" },
 };
 
 export type BreadcrumbItem = { label: string; path: string };
 
+// 動的ルート(/projects/123等)の数値セグメントを`[id]`に正規化してからマップ照合
+// する。現在地(末尾)はリンクにならない表示専用の値のため、実在しない合成パスを
+// 割り当てても問題ない。
+function normalizePathname(pathname: string): string {
+  return pathname.replace(/\/\d+(?=\/|$)/g, "/[id]");
+}
+
 // ルート→現在地の順で返す。未登録パスは空配列(パンくず非表示、安全側のフォールバック)。
 export function getBreadcrumbTrail(pathname: string): BreadcrumbItem[] {
   const trail: BreadcrumbItem[] = [];
-  let current: string | null = pathname;
+  let current: string | null = normalizePathname(pathname);
 
   while (current) {
     const node: BreadcrumbNode | undefined = BREADCRUMB_MAP[current];

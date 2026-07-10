@@ -239,6 +239,20 @@ async function main() {
       ...audit,
     },
   });
+
+  // EDT005(プロジェクト経歴登録)の動作確認用現場・現場ポジションマスタ
+  await prisma.site.create({
+    data: { siteName: "A社基幹システム更改", ...audit },
+  });
+  await prisma.site.create({
+    data: { siteName: "B社ECサイト構築", ...audit },
+  });
+
+  for (const projectRoleName of ["SE", "PG", "リーダー"]) {
+    await prisma.projectRole.create({
+      data: { projectRoleName, ...audit },
+    });
+  }
 }
 
 main()

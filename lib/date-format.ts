@@ -15,7 +15,9 @@ export function parseDateOnly(value: string): Date {
   return new Date(Date.UTC(y, m - 1, d));
 }
 
-// employee.graduation_year_monthはYYYYMM01形式で保存する規約(docs/schema.md)
+// <input type="month">の"YYYY-MM"を月初日のUTC日付として解釈する
+// (employee.graduation_year_month・project.start_date/end_date等、年月を
+// DATE型で保存する各カラムで共通利用する)
 export function parseYearMonth(value: string): Date {
   const [y, m] = value.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, 1));

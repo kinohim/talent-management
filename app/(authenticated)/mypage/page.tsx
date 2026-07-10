@@ -23,19 +23,26 @@ export default async function MyPage() {
     redirect(destination);
   }
 
-  const [skillCount, certificationCount] = await Promise.all([
+  const [skillCount, certificationCount, projectCount] = await Promise.all([
     prisma.employeeSkill.count({
       where: { employeeId: session.user.employeeId },
     }),
     prisma.employeeCertification.count({
       where: { employeeId: session.user.employeeId },
     }),
+    prisma.project.count({
+      where: { employeeId: session.user.employeeId, deletedAt: null },
+    }),
   ]);
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
       <h1 className="text-lg font-semibold">マイページ</h1>
-      <MyPageTiles skillCount={skillCount} certificationCount={certificationCount} />
+      <MyPageTiles
+        skillCount={skillCount}
+        certificationCount={certificationCount}
+        projectCount={projectCount}
+      />
     </main>
   );
 }
