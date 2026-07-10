@@ -13,6 +13,16 @@ export const PROCESS_FLAG_KEYS = [
 ] as const;
 export type ProcessFlagKey = (typeof PROCESS_FLAG_KEYS)[number];
 
+export const PROCESS_FLAG_LABELS: Record<ProcessFlagKey, string> = {
+  researchAnalysis: "調査分析",
+  requirementsDefinition: "要件定義",
+  basicDesign: "基本設計",
+  detailedDesign: "詳細設計",
+  development: "製造",
+  testing: "テスト",
+  operation: "運用",
+};
+
 const projectFormSchema = z
   .object({
     siteId: z.string().regex(/^\d+$/, "現場名を選択してください。"),

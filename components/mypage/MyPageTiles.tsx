@@ -8,16 +8,18 @@ type MyPageTileDef = {
 };
 
 type MyPageTilesProps = {
+  employeeId: string;
   skillCount: number;
   certificationCount: number;
   projectCount: number;
 };
 
 // REF004の8項目。基本情報(EDT001)・経歴概要・自己PR(EDT002)・スキル(EDT003)・
-// 資格(EDT004)・プロジェクト経歴(EDT005)は実装済みでリンク可。残り3項目は
-// REF003・REF005が未実装のため、REF001の「準備中」タイルと同じ扱い
-// (href省略=クリック不可)とする。
+// 資格(EDT004)・プロジェクト経歴(EDT005)・プレビュー(REF003)は実装済みで
+// リンク可。PDF出力・Excel出力はREF005・Excel出力機能が未実装のため、
+// REF001の「準備中」タイルと同じ扱い(href省略=クリック不可)とする。
 export function MyPageTiles({
+  employeeId,
   skillCount,
   certificationCount,
   projectCount,
@@ -38,7 +40,7 @@ export function MyPageTiles({
       href: "/projects",
       badge: `${projectCount}件`,
     },
-    { key: "preview", label: "プレビュー" },
+    { key: "preview", label: "プレビュー", href: `/resumes/${employeeId}` },
     { key: "pdf", label: "PDF出力" },
     { key: "excel", label: "Excel出力" },
   ];

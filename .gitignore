@@ -46,3 +46,6 @@ next-env.d.ts
 
 # claude code (個人設定はgit管理しない)
 .claude/settings.local.json
+
+# playwright mcp (画面確認時の一時的なスナップショット・ログ)
+/.playwright-mcp/

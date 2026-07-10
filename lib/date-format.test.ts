@@ -4,6 +4,8 @@ import {
   parseDateOnly,
   parseYearMonth,
   toDateInputValue,
+  toDisplayDate,
+  toDisplayYearMonth,
   toMonthInputValue,
 } from "./date-format";
 
@@ -38,5 +40,35 @@ describe("toMonthInputValue / parseYearMonth", () => {
 
   it("年をまたぐ月でもズレない", () => {
     expect(toMonthInputValue(parseYearMonth("1999-12"))).toBe("1999-12");
+  });
+});
+
+describe("toDisplayDate", () => {
+  it("nullish値は空文字を返す", () => {
+    expect(toDisplayDate(null)).toBe("");
+    expect(toDisplayDate(undefined)).toBe("");
+  });
+
+  it("日本語形式に変換する", () => {
+    expect(toDisplayDate(parseDateOnly("2024-01-31"))).toBe("2024年1月31日");
+  });
+
+  it("年始の境界日でもズレない", () => {
+    expect(toDisplayDate(parseDateOnly("2000-01-01"))).toBe("2000年1月1日");
+  });
+});
+
+describe("toDisplayYearMonth", () => {
+  it("nullish値は空文字を返す", () => {
+    expect(toDisplayYearMonth(null)).toBe("");
+    expect(toDisplayYearMonth(undefined)).toBe("");
+  });
+
+  it("日本語形式に変換する", () => {
+    expect(toDisplayYearMonth(parseYearMonth("2024-03"))).toBe("2024年3月");
+  });
+
+  it("年をまたぐ月でもズレない", () => {
+    expect(toDisplayYearMonth(parseYearMonth("1999-12"))).toBe("1999年12月");
   });
 });

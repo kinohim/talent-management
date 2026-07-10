@@ -72,6 +72,14 @@ describe("getBreadcrumbTrail", () => {
     ]);
   });
 
+  it("経歴書詳細(動的ID)は数値セグメントを[id]に正規化して解決する", () => {
+    expect(getBreadcrumbTrail("/resumes/000001")).toEqual([
+      { path: "/", label: "トップ" },
+      { path: "/mypage", label: "マイページ" },
+      { path: "/resumes/[id]", label: "経歴書詳細" },
+    ]);
+  });
+
   it("未登録パスは空配列を返す", () => {
     expect(getBreadcrumbTrail("/unknown")).toEqual([]);
   });

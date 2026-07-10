@@ -39,6 +39,7 @@ export default async function MyPage() {
     <main className="flex flex-1 flex-col gap-6 p-6">
       <h1 className="text-lg font-semibold">マイページ</h1>
       <MyPageTiles
+        employeeId={session.user.employeeId}
         skillCount={skillCount}
         certificationCount={certificationCount}
         projectCount={projectCount}
