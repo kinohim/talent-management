@@ -38,6 +38,14 @@ describe("getBreadcrumbTrail", () => {
     ]);
   });
 
+  it("資格登録はトップ→マイページ→資格登録の3件を返す", () => {
+    expect(getBreadcrumbTrail("/certifications")).toEqual([
+      { path: "/", label: "トップ" },
+      { path: "/mypage", label: "マイページ" },
+      { path: "/certifications", label: "資格登録" },
+    ]);
+  });
+
   it("未登録パスは空配列を返す", () => {
     expect(getBreadcrumbTrail("/unknown")).toEqual([]);
   });

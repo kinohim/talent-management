@@ -206,6 +206,39 @@ async function main() {
       ...audit,
     },
   });
+
+  // EDT004(資格登録)の動作確認用資格マスタ
+  const itCertificationCategory = await prisma.certificationCategory.create({
+    data: { certificationCategoryName: "IT系", ...audit },
+  });
+  const languageCertificationCategory = await prisma.certificationCategory.create({
+    data: { certificationCategoryName: "語学系", ...audit },
+  });
+
+  await prisma.certification.create({
+    data: {
+      certificationCategoryId: itCertificationCategory.id,
+      certificationName: "基本情報技術者試験",
+      certificationOrganization: "IPA",
+      ...audit,
+    },
+  });
+  await prisma.certification.create({
+    data: {
+      certificationCategoryId: itCertificationCategory.id,
+      certificationName: "AWS認定ソリューションアーキテクト",
+      certificationOrganization: "Amazon Web Services",
+      ...audit,
+    },
+  });
+  await prisma.certification.create({
+    data: {
+      certificationCategoryId: languageCertificationCategory.id,
+      certificationName: "TOEIC",
+      certificationOrganization: "国際ビジネスコミュニケーション協会",
+      ...audit,
+    },
+  });
 }
 
 main()
