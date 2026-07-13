@@ -5,7 +5,7 @@ import Credentials from "next-auth/providers/credentials";
 import { UserRole } from "@/generated/prisma/client";
 import { NotRegisteredError, RetiredEmployeeError } from "@/lib/auth-errors";
 import { findDevLoginUser } from "@/lib/dev-login";
-import { isProduction } from "@/lib/env";
+import { isDevLoginEnabled, isProduction } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 
 // 実SSO実装時のTODO(docs/schema.md「ログイン判定ロジック」・docs/screens.md AUTH001参照):
@@ -38,10 +38,14 @@ const devEmployeeIdLogin = Credentials({
   },
 });
 
+// 実SSO実装までの一時措置: ENABLE_DEV_LOGIN=trueの環境では本番相当でも
+// 開発用ログインを有効化する(docs/decisions.md「認証」参照)。
+const useDevLogin = !isProduction || isDevLoginEnabled;
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  session: { strategy: isProduction ? "database" : "jwt" },
-  providers: isProduction ? [] : [devEmployeeIdLogin],
+  session: { strategy: useDevLogin ? "jwt" : "database" },
+  providers: useDevLogin ? [devEmployeeIdLogin] : [],
   // Auth.js標準の英語signin画面(/api/auth/signin)を自前の日本語画面(AUTH001)に
   // 差し替える(docs/README.md「ライブラリのデフォルト画面は自前の日本語画面に
   // 差し替える」参照)。
