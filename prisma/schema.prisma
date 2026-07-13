@@ -23,9 +23,9 @@ datasource db {
 // ---------------------------------------------------------------------------
 
 enum OrganizationUnitLevel {
-  DIVISION // 1:事業部
-  DEPARTMENT // 2:部署
-  GROUP // 3:Gr
+  DIVISION   @map("division") // 1:事業部
+  DEPARTMENT @map("department") // 2:部署
+  GROUP      @map("group") // 3:Gr
 
   @@map("organization_unit_level")
 }
