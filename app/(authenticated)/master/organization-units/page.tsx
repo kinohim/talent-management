@@ -1,0 +1,28 @@
+import { redirect } from "next/navigation";
+
+import { OrganizationUnitManager } from "@/components/master/OrganizationUnitManager";
+import { UserRole } from "@/generated/prisma/client";
+import { auth } from "@/lib/auth";
+import { getOrganizationUnitOptions } from "@/lib/organization-unit";
+import { buildOrganizationUnitTree } from "@/lib/organization-unit-tree";
+
+export default async function OrganizationUnitsPage() {
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/login");
+  }
+  if (session.user.role !== UserRole.MANAGER) {
+    // マスタ管理は管理職専用(REF001参照)
+    redirect("/");
+  }
+
+  const units = await getOrganizationUnitOptions();
+  const tree = buildOrganizationUnitTree(units);
+
+  return (
+    <main className="flex flex-1 flex-col gap-6 p-6">
+      <h1 className="text-lg font-semibold">部署マスタ管理</h1>
+      <OrganizationUnitManager tree={tree} />
+    </main>
+  );
+}

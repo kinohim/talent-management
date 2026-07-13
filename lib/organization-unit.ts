@@ -135,3 +135,22 @@ export function formatOrganizationUnitPath(
   }
   return names.join(" / ");
 }
+
+// MST004の削除制約(docs/screens.md「配下または所属社員が存在する行は削除
+// 不可」)。ブロック理由があればエラーメッセージを、削除可能ならnullを返す。
+export async function getOrganizationUnitDeleteBlockReason(
+  unitId: number,
+): Promise<string | null> {
+  const [childCount, employeeCount] = await Promise.all([
+    prisma.organizationUnit.count({
+      where: { parentId: unitId, deletedAt: null },
+    }),
+    prisma.employee.count({
+      where: { organizationUnitId: unitId, deletedAt: null },
+    }),
+  ]);
+  if (childCount > 0 || employeeCount > 0) {
+    return "使用中のため削除できません";
+  }
+  return null;
+}

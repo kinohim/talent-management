@@ -28,6 +28,7 @@ const TILE_DEFS: TileDef[] = [
   {
     key: "master",
     label: "マスタ管理",
+    href: "/master",
     roles: [UserRole.MANAGER],
   },
   {
