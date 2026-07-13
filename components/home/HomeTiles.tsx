@@ -36,6 +36,7 @@ const TILE_DEFS: TileDef[] = [
   {
     key: "skill-map",
     label: "スキルマップ/組織ダッシュボード",
+    href: "/skill-map",
     roles: [UserRole.EMPLOYEE, UserRole.HR_SALES, UserRole.MANAGER],
   },
 ];
