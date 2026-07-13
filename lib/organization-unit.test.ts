@@ -98,6 +98,30 @@ describe("resolveOrganizationUnitId", () => {
     expect(result).toBe(2);
   });
 
+  it("回帰: 下位階層が「未選択(空文字)」でも上位階層のidを採用する(事業部のみ選択時、部署/GrのselectはDOM上有効化され空文字がFormDataに含まれるため)", async () => {
+    findFirstMock.mockResolvedValue({ id: 1 } as never);
+    const result = await resolveOrganizationUnitId({
+      divisionId: "1",
+      departmentId: "",
+      groupId: "",
+    });
+    expect(result).toBe(1);
+    expect(findFirstMock).toHaveBeenCalledWith({
+      where: { id: 1, deletedAt: null },
+      select: { id: true },
+    });
+  });
+
+  it("回帰: 事業部+部署選択・Gr未選択(空文字)ならdepartmentIdを採用する", async () => {
+    findFirstMock.mockResolvedValue({ id: 2 } as never);
+    const result = await resolveOrganizationUnitId({
+      divisionId: "1",
+      departmentId: "2",
+      groupId: "",
+    });
+    expect(result).toBe(2);
+  });
+
   it("何も選択されていなければnullを返す(DBを問い合わせない)", async () => {
     const result = await resolveOrganizationUnitId({});
     expect(result).toBeNull();

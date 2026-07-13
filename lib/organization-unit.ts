@@ -56,7 +56,11 @@ export async function resolveOrganizationUnitId(selection: {
   departmentId?: string;
   groupId?: string;
 }): Promise<number | null> {
-  const leafIdStr = selection.groupId ?? selection.departmentId ?? selection.divisionId;
+  // 3つの<select>は下位階層ほど「未選択(空文字)」でもDOM上は有効化されて
+  // FormDataに含まれるため、`??`だと空文字が真値として扱われ上位階層の値まで
+  // 届かない(例: 事業部のみ選択時、部署select("")がgroupIdより先に採用され
+  // てしまう)。空文字はnullish扱いにするため`||`で判定する。
+  const leafIdStr = selection.groupId || selection.departmentId || selection.divisionId;
   if (!leafIdStr) return null;
 
   const unit = await prisma.organizationUnit.findFirst({
