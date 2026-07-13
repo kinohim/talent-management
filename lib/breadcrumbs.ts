@@ -15,6 +15,7 @@ export const BREADCRUMB_MAP: Record<string, BreadcrumbNode> = {
   "/resumes/[id]": { label: "経歴書詳細", parentPath: "/mypage" },
   "/master": { label: "マスタ管理", parentPath: "/" },
   "/master/organization-units": { label: "部署マスタ管理", parentPath: "/master" },
+  "/master/skills": { label: "スキルマスタ管理", parentPath: "/master" },
 };
 
 export type BreadcrumbItem = { label: string; path: string };

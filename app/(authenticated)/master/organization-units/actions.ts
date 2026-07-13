@@ -1,11 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 import type { OrganizationUnitLevel } from "@/generated/prisma/client";
-import { UserRole } from "@/generated/prisma/client";
-import { auth } from "@/lib/auth";
+import { requireManager } from "@/lib/auth-guards";
 import { getOrganizationUnitDeleteBlockReason } from "@/lib/organization-unit";
 import { deriveChildLevel } from "@/lib/organization-unit-tree";
 import {
@@ -16,13 +14,6 @@ import { prisma } from "@/lib/prisma";
 
 const PROGRAM = "MST004";
 const PATH = "/master/organization-units";
-
-async function requireManager() {
-  const session = await auth();
-  if (!session?.user) redirect("/login");
-  if (session.user.role !== UserRole.MANAGER) redirect("/");
-  return session.user;
-}
 
 export async function createOrganizationUnit(
   parentId: number | null,
