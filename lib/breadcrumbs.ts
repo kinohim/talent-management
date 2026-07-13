@@ -12,6 +12,7 @@ export const BREADCRUMB_MAP: Record<string, BreadcrumbNode> = {
   "/projects": { label: "プロジェクト経歴一覧", parentPath: "/mypage" },
   "/projects/new": { label: "プロジェクト経歴登録", parentPath: "/projects" },
   "/projects/[id]": { label: "プロジェクト経歴編集", parentPath: "/projects" },
+  "/resumes": { label: "経歴書一覧", parentPath: "/" },
   "/resumes/[id]": { label: "経歴書詳細", parentPath: "/mypage" },
   "/master": { label: "マスタ管理", parentPath: "/" },
   "/master/organization-units": { label: "部署マスタ管理", parentPath: "/master" },

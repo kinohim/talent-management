@@ -1,5 +1,6 @@
 import type { OrganizationUnit } from "@/generated/prisma/client";
 import { UserRole } from "@/generated/prisma/client";
+import { collectDescendantIds } from "@/lib/organization-unit-tree";
 import { prisma } from "@/lib/prisma";
 
 export type OrganizationUnitOption = Pick<
@@ -94,6 +95,28 @@ export function isWithinResumeViewScope(
     return viewer.divisionId === target.divisionId; // (b)
   }
   return viewer.departmentId === target.departmentId; // (a)
+}
+
+// REF002(経歴書一覧)で一般社員が検索対象にできる組織単位id集合(閲覧範囲
+// ルールa/bをまとめて1回の集合計算に落とし込んだもの。判定ロジック自体は
+// isWithinResumeViewScopeと同じ規則)。事業部直下所属なら事業部全体、
+// 部署以下所属なら遡って到達する部署とその配下(Gr)に加え、事業部直下所属者
+// (ルールbで相手が事業部直下なら双方向で許可されるため)も対象に含める。
+// 未所属なら空集合を返す(ルールc。本人はemployeeIdの別枠一致で引き続き
+// 検索可能)。
+export function resolveResumeViewScopeUnitIds(
+  units: OrganizationUnitOption[],
+  viewerOrganizationUnitId: number | null,
+): Set<number> {
+  const viewer = resolveSelectionFromLeaf(units, viewerOrganizationUnitId);
+  if (viewer.divisionId == null) return new Set();
+
+  if (viewer.departmentId == null) {
+    return collectDescendantIds(units, [viewer.divisionId]);
+  }
+  const scope = collectDescendantIds(units, [viewer.departmentId]);
+  scope.add(viewer.divisionId);
+  return scope;
 }
 
 // REF003(経歴書詳細)のアクセス可否。本人・人事・営業・管理職は常に閲覧可、

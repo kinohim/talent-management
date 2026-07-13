@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
+import Link from "next/link";
+
 import { ResumeBasicInfoSection } from "@/components/resumes/ResumeBasicInfoSection";
 import { ResumeCertificationList } from "@/components/resumes/ResumeCertificationList";
 import { ResumeEducationSection } from "@/components/resumes/ResumeEducationSection";
@@ -69,8 +71,8 @@ export default async function ResumePage({ params }: ResumePageProps) {
     },
   });
 
-  // 対象社員が存在しない/まだ経歴書が実質存在しない(未登録)場合は、
-  // REF002(経歴書一覧)が未実装のため安全側のトップへ戻す。
+  // 対象社員が存在しない/まだ経歴書が実質存在しない(未登録)場合は安全側の
+  // トップへ戻す。
   if (!target || !target.isRegistered) {
     redirect("/");
   }
@@ -104,6 +106,19 @@ export default async function ResumePage({ params }: ResumePageProps) {
   return (
     <main className="flex flex-1 flex-col gap-8 p-6">
       <h1 className="text-lg font-semibold">経歴書詳細</h1>
+
+      {!isSelf ? (
+        // REF002(経歴書一覧)から遷移してきた場合の戻り導線。本人プレビュー
+        // (マイページ経由)ではグローバルの「マイページに戻る」を使うため
+        // 表示しない(docs/plans/2026-07-10-03-resume-detail.mdの積み残し対応)。
+        <Link
+          href="/resumes"
+          className="inline-flex items-center gap-1 self-start text-sm text-zinc-500 hover:text-zinc-700 hover:underline dark:hover:text-zinc-300"
+        >
+          <span aria-hidden="true">←</span>
+          経歴書一覧に戻る
+        </Link>
+      ) : null}
 
       <ResumeBasicInfoSection
         name={target.name ?? ""}

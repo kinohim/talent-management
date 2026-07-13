@@ -23,6 +23,7 @@ import {
   getOrganizationUnitDeleteBlockReason,
   isWithinResumeViewScope,
   resolveOrganizationUnitId,
+  resolveResumeViewScopeUnitIds,
   resolveSelectionFromLeaf,
 } from "./organization-unit";
 
@@ -179,6 +180,25 @@ describe("isWithinResumeViewScope", () => {
 
   it("事業部直下同士・別事業部ならfalse", () => {
     expect(isWithinResumeViewScope(viewScopeUnits, 1, 6)).toBe(false);
+  });
+});
+
+describe("resolveResumeViewScopeUnitIds", () => {
+  it("未所属(null)なら空集合を返す", () => {
+    expect(resolveResumeViewScopeUnitIds(viewScopeUnits, null)).toEqual(new Set());
+  });
+
+  it("Gr所属なら遡って到達する部署とその配下(Gr)+事業部直下(ルールb)が対象になる(ルールa)", () => {
+    // viewerは第一Gr(id:3、開発部id:2の配下) -> 対象は開発部+配下2Gr+事業部直下(id:1)、兄弟の品質保証部は含まない
+    expect(resolveResumeViewScopeUnitIds(viewScopeUnits, 3)).toEqual(new Set([1, 2, 3, 4]));
+  });
+
+  it("部署所属なら遡って到達する部署とその配下(Gr)+事業部直下(ルールb)が対象になる(ルールa)", () => {
+    expect(resolveResumeViewScopeUnitIds(viewScopeUnits, 2)).toEqual(new Set([1, 2, 3, 4]));
+  });
+
+  it("事業部直下所属なら事業部全体が対象になる(ルールb)", () => {
+    expect(resolveResumeViewScopeUnitIds(viewScopeUnits, 1)).toEqual(new Set([1, 2, 3, 4, 5]));
   });
 });
 

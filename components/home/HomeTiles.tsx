@@ -18,6 +18,7 @@ const TILE_DEFS: TileDef[] = [
   {
     key: "resume-list",
     label: "経歴書一覧",
+    href: "/resumes",
     roles: [UserRole.EMPLOYEE, UserRole.HR_SALES, UserRole.MANAGER],
   },
   {
