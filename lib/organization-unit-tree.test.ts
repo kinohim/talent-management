@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import type { OrganizationUnitOption } from "./organization-unit";
-import { buildOrganizationUnitTree, deriveChildLevel } from "./organization-unit-tree";
+import {
+  buildOrganizationUnitTree,
+  collectDescendantIds,
+  deriveChildLevel,
+} from "./organization-unit-tree";
 
 const units: OrganizationUnitOption[] = [
   { id: 1, parentId: null, unitName: "システム事業部", unitLevel: "DIVISION" },
@@ -50,5 +54,31 @@ describe("deriveChildLevel", () => {
 
   it("GROUPの配下は存在しないためnull", () => {
     expect(deriveChildLevel("GROUP")).toBeNull();
+  });
+});
+
+describe("collectDescendantIds", () => {
+  it("事業部を選ぶと配下の部署・Grもすべて含まれる", () => {
+    const ids = collectDescendantIds(units, [1]);
+    expect(ids).toEqual(new Set([1, 2, 3, 4, 5]));
+  });
+
+  it("部署を選ぶとその配下のGrのみ含まれる(兄弟部署は含まない)", () => {
+    const ids = collectDescendantIds(units, [2]);
+    expect(ids).toEqual(new Set([2, 3, 4]));
+  });
+
+  it("Grを選ぶとそれ自身のみ(配下が無いため)", () => {
+    const ids = collectDescendantIds(units, [3]);
+    expect(ids).toEqual(new Set([3]));
+  });
+
+  it("複数選択時はそれぞれの配下を合算する(重複除去)", () => {
+    const ids = collectDescendantIds(units, [2, 6]);
+    expect(ids).toEqual(new Set([2, 3, 4, 6, 7]));
+  });
+
+  it("空配列を渡すと空集合を返す", () => {
+    expect(collectDescendantIds(units, [])).toEqual(new Set());
   });
 });

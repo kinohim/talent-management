@@ -23,6 +23,7 @@ const TILE_DEFS: TileDef[] = [
   {
     key: "account-list",
     label: "アカウント一覧",
+    href: "/accounts",
     roles: [UserRole.MANAGER],
   },
   {

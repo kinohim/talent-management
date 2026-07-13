@@ -65,13 +65,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   events: {
+    // ログイン成功のたびにusers.last_login_atを更新する(REF007「最終ログイン」列)。
     // 人事・営業(HR_SALES)は経歴書を作成しないため、EDT001を経ずisRegisteredを
     // 自動でTRUEにする(docs/screens.md AUTH001参照)。employee.nameへのSSO表示名
     // 設定は、開発用ログインには対応する情報源がないため実SSO実装時に対応する。
     async signIn({ user }) {
       const employeeId = (user as { employeeId?: string }).employeeId;
       const role = (user as { role?: UserRole }).role;
-      if (employeeId && role === UserRole.HR_SALES) {
+      if (!employeeId) return;
+
+      await prisma.user.update({
+        where: { employeeId },
+        data: {
+          lastLoginAt: new Date(),
+          updatedBy: employeeId,
+          updatedProgram: "AUTH001",
+        },
+      });
+
+      if (role === UserRole.HR_SALES) {
         await prisma.employee.updateMany({
           where: { employeeId, isRegistered: false },
           data: {

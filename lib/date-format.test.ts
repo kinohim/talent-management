@@ -5,6 +5,7 @@ import {
   parseYearMonth,
   toDateInputValue,
   toDisplayDate,
+  toDisplayDateTime,
   toDisplayYearMonth,
   toMonthInputValue,
 } from "./date-format";
@@ -70,5 +71,17 @@ describe("toDisplayYearMonth", () => {
 
   it("年をまたぐ月でもズレない", () => {
     expect(toDisplayYearMonth(parseYearMonth("1999-12"))).toBe("1999年12月");
+  });
+});
+
+describe("toDisplayDateTime", () => {
+  it("nullish値は空文字を返す", () => {
+    expect(toDisplayDateTime(null)).toBe("");
+    expect(toDisplayDateTime(undefined)).toBe("");
+  });
+
+  it("日本語形式(時分まで、ローカルタイムゾーン)に変換する", () => {
+    const date = new Date(2024, 0, 31, 9, 5);
+    expect(toDisplayDateTime(date)).toBe("2024年1月31日 09:05");
   });
 });

@@ -34,3 +34,12 @@ export function toDisplayYearMonth(date: Date | null | undefined): string {
   if (!date) return "";
   return `${date.getUTCFullYear()}年${date.getUTCMonth() + 1}月`;
 }
+
+// 日時(TIMESTAMPTZ)を表示用の日本語形式にする(REF007の最終ログイン等)。
+// DATE型のtoDisplayDate等と異なりローカルタイムゾーンで表示する。
+export function toDisplayDateTime(date: Date | null | undefined): string {
+  if (!date) return "";
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${hh}:${mm}`;
+}

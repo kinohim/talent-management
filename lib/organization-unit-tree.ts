@@ -43,3 +43,31 @@ export function deriveChildLevel(
   if (parentLevel === "DEPARTMENT") return "GROUP";
   return null;
 }
+
+// REF007(アカウント一覧)の所属組織フィルタ用。選択された組織単位idに、
+// その配下すべて(子・孫…)のidを加えたSetを返す(上位を選ぶと配下も
+// 対象に含まれる階層フィルタの挙動)。
+export function collectDescendantIds(
+  units: OrganizationUnitOption[],
+  selectedIds: number[],
+): Set<number> {
+  const childrenByParent = new Map<number, number[]>();
+  for (const unit of units) {
+    if (unit.parentId == null) continue;
+    const siblings = childrenByParent.get(unit.parentId) ?? [];
+    siblings.push(unit.id);
+    childrenByParent.set(unit.parentId, siblings);
+  }
+
+  const result = new Set<number>();
+  function visit(id: number) {
+    if (result.has(id)) return;
+    result.add(id);
+    for (const childId of childrenByParent.get(id) ?? []) {
+      visit(childId);
+    }
+  }
+
+  for (const id of selectedIds) visit(id);
+  return result;
+}
