@@ -45,6 +45,7 @@ flowchart TD
         REF007[REF007 アカウント一覧]
         EDT006[EDT006 新規アカウント登録]
         EDT007[EDT007 アカウント編集]
+        MASTERHUB[マスタ管理ハブ]
         MST001[MST001 スキルマスタ]
         MST002[MST002 資格マスタ]
         MST003[MST003 現場ポジションマスタ]
@@ -61,11 +62,12 @@ flowchart TD
     REF001 -->|"経歴書検索（全ロール。一般社員は閲覧範囲内のみ）"| REF002
     REF001 -->|"スキルマップ（全ロール共通）"| REF008
     REF001 -->|"アカウント管理（管理職）"| REF007
-    REF001 -->|"マスタ管理（管理職）"| MST001
-    REF001 -->|"マスタ管理（管理職）"| MST002
-    REF001 -->|"マスタ管理（管理職）"| MST003
-    REF001 -->|"マスタ管理（管理職）"| MST004
-    REF001 -->|"マスタ管理（管理職）"| MST005
+    REF001 -->|"マスタ管理（管理職）"| MASTERHUB
+    MASTERHUB --> MST001
+    MASTERHUB --> MST002
+    MASTERHUB --> MST003
+    MASTERHUB --> MST004
+    MASTERHUB --> MST005
 
     %% ---- マイページ・経歴書編集 ----
     REF004 -->|基本情報編集| EDT001

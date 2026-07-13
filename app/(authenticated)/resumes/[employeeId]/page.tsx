@@ -110,7 +110,7 @@ export default async function ResumePage({ params }: ResumePageProps) {
       {!isSelf ? (
         // REF002(経歴書一覧)から遷移してきた場合の戻り導線。本人プレビュー
         // (マイページ経由)ではグローバルの「マイページに戻る」を使うため
-        // 表示しない(docs/plans/2026-07-10-03-resume-detail.mdの積み残し対応)。
+        // 表示しない(docs/plans/2026-07-10-03-resume-detail.md参照)。
         <Link
           href="/resumes"
           className="inline-flex items-center gap-1 self-start text-sm text-zinc-500 hover:text-zinc-700 hover:underline dark:hover:text-zinc-300"
