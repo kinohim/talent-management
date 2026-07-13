@@ -71,30 +71,40 @@ export async function saveSkill(
     })),
   );
 
+  // skill_nameはシステム全体でユニーク(deletedAtを問わないDB制約)なため、
+  // 論理削除済みの同名行が残っていると新規createがユニーク制約違反になる。
+  // その場合は新規作成ではなく、削除済み行を復活させる。
+  const deletedSkillToReactivate = skillId
+    ? null
+    : await prisma.skill.findFirst({
+        where: { skillName, deletedAt: { not: null } },
+        select: { id: true },
+      });
+
   try {
     await prisma.$transaction(async (tx) => {
+      const skillFields = {
+        skillCategoryId: categoryId,
+        skillName,
+        hasVersion: versionNames.length > 0,
+        updatedBy: user.employeeId,
+        updatedProgram: PROGRAM,
+      };
+
       const skill = skillId
-        ? await tx.skill.update({
-            where: { id: skillId },
-            data: {
-              skillCategoryId: categoryId,
-              skillName,
-              hasVersion: versionNames.length > 0,
-              updatedBy: user.employeeId,
-              updatedProgram: PROGRAM,
-            },
-          })
-        : await tx.skill.create({
-            data: {
-              skillCategoryId: categoryId,
-              skillName,
-              hasVersion: versionNames.length > 0,
-              createdBy: user.employeeId,
-              createdProgram: PROGRAM,
-              updatedBy: user.employeeId,
-              updatedProgram: PROGRAM,
-            },
-          });
+        ? await tx.skill.update({ where: { id: skillId }, data: skillFields })
+        : deletedSkillToReactivate
+          ? await tx.skill.update({
+              where: { id: deletedSkillToReactivate.id },
+              data: { ...skillFields, deletedAt: null, deletedBy: null, deletedProgram: null },
+            })
+          : await tx.skill.create({
+              data: {
+                ...skillFields,
+                createdBy: user.employeeId,
+                createdProgram: PROGRAM,
+              },
+            });
 
       if (versionPlan.toCreate.length > 0) {
         await tx.skillVersion.createMany({

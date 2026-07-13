@@ -75,6 +75,15 @@ describe("getSkillDeleteBlockReason", () => {
     projectSkillCountMock.mockResolvedValue(0);
     expect(await getSkillDeleteBlockReason(1)).toBeNull();
   });
+
+  it("回帰: projectSkillのcountはdeletedAt:nullで絞り込む(削除済みプロジェクトの残骸を使用中と誤判定しない)", async () => {
+    employeeSkillCountMock.mockResolvedValue(0);
+    projectSkillCountMock.mockResolvedValue(0);
+    await getSkillDeleteBlockReason(1);
+    expect(projectSkillCountMock).toHaveBeenCalledWith({
+      where: { skillId: 1, deletedAt: null },
+    });
+  });
 });
 
 describe("isSkillVersionReferenced", () => {
@@ -93,5 +102,14 @@ describe("isSkillVersionReferenced", () => {
     employeeSkillCountMock.mockResolvedValue(0);
     projectSkillCountMock.mockResolvedValue(0);
     expect(await isSkillVersionReferenced(1)).toBe(false);
+  });
+
+  it("回帰: projectSkillのcountはdeletedAt:nullで絞り込む", async () => {
+    employeeSkillCountMock.mockResolvedValue(0);
+    projectSkillCountMock.mockResolvedValue(0);
+    await isSkillVersionReferenced(1);
+    expect(projectSkillCountMock).toHaveBeenCalledWith({
+      where: { skillVersionId: 1, deletedAt: null },
+    });
   });
 });

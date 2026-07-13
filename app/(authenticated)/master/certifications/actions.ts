@@ -50,6 +50,16 @@ export async function saveCertification(
     categoryId = existing.id;
   }
 
+  // certification_nameはシステム全体でユニーク(deletedAtを問わないDB制約)なため、
+  // 論理削除済みの同名行が残っていると新規createがユニーク制約違反になる。
+  // その場合は新規作成ではなく、削除済み行を復活させる。
+  const deletedCertificationToReactivate = certificationId
+    ? null
+    : await prisma.certification.findFirst({
+        where: { certificationName, deletedAt: { not: null } },
+        select: { id: true },
+      });
+
   try {
     if (certificationId) {
       await prisma.certification.update({
@@ -58,6 +68,20 @@ export async function saveCertification(
           certificationCategoryId: categoryId,
           certificationName,
           certificationOrganization,
+          updatedBy: user.employeeId,
+          updatedProgram: PROGRAM,
+        },
+      });
+    } else if (deletedCertificationToReactivate) {
+      await prisma.certification.update({
+        where: { id: deletedCertificationToReactivate.id },
+        data: {
+          certificationCategoryId: categoryId,
+          certificationName,
+          certificationOrganization,
+          deletedAt: null,
+          deletedBy: null,
+          deletedProgram: null,
           updatedBy: user.employeeId,
           updatedProgram: PROGRAM,
         },

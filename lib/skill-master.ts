@@ -43,10 +43,14 @@ export function planSkillVersionDiff(
 }
 
 // MST001の削除制約(docs/screens.md「使用中のため削除できません」)。
+// projectSkillは`deleteProject`(プロジェクト削除)でdeletedAtが付与される
+// (論理削除)ため、deletedAt: nullで絞り込み、既に削除されたプロジェクトの
+// 残骸を「使用中」と誤判定しないようにする(EmployeeSkillはEDT003で常に
+// 洗い替え(ハード削除)のためdeletedAtは付与されず、絞り込み不要)。
 export async function getSkillDeleteBlockReason(skillId: number): Promise<string | null> {
   const [employeeSkillCount, projectSkillCount] = await Promise.all([
     prisma.employeeSkill.count({ where: { skillId } }),
-    prisma.projectSkill.count({ where: { skillId } }),
+    prisma.projectSkill.count({ where: { skillId, deletedAt: null } }),
   ]);
   if (employeeSkillCount > 0 || projectSkillCount > 0) {
     return "使用中のため削除できません";
@@ -56,10 +60,11 @@ export async function getSkillDeleteBlockReason(skillId: number): Promise<string
 
 // バージョン削除(タグ除去)時、社員のスキル登録・プロジェクト経歴から
 // 参照されていれば物理削除せず非表示化する(ユーザー確認済みの方針)。
+// projectSkillのdeletedAt絞り込みはgetSkillDeleteBlockReasonと同じ理由。
 export async function isSkillVersionReferenced(versionId: number): Promise<boolean> {
   const [employeeSkillCount, projectSkillCount] = await Promise.all([
     prisma.employeeSkill.count({ where: { skillVersionId: versionId } }),
-    prisma.projectSkill.count({ where: { skillVersionId: versionId } }),
+    prisma.projectSkill.count({ where: { skillVersionId: versionId, deletedAt: null } }),
   ]);
   return employeeSkillCount > 0 || projectSkillCount > 0;
 }
