@@ -36,7 +36,8 @@ export default async function LoginPage({
         <section className="flex w-full max-w-sm flex-col gap-3 border-t border-zinc-300 pt-6 dark:border-zinc-700">
           <h2 className="text-sm font-semibold">開発用ログイン</h2>
           <p className="text-xs text-zinc-600 dark:text-zinc-400">
-            開発・動作確認専用の仮ログインです。社員IDのみでログインできます。
+            <span className="block">開発・動作確認専用の仮ログインです。</span>
+            <span className="block">社員IDのみでログインできます。</span>
           </p>
           <LoginForm />
         </section>

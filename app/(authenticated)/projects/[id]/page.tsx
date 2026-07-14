@@ -30,7 +30,7 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
   const { id } = await params;
   const projectId = Number(id);
   if (!Number.isInteger(projectId)) {
-    redirect("/projects");
+    redirect("/mypage?tab=projects");
   }
 
   const [project, projectOptions, skillOptions] = await Promise.all([
@@ -52,7 +52,7 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
   ]);
 
   if (!project) {
-    redirect("/projects");
+    redirect("/mypage?tab=projects");
   }
 
   return (

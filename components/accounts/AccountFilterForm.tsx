@@ -1,9 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
-import { OrganizationUnitTreeFilter } from "@/components/accounts/OrganizationUnitTreeFilter";
+import { CascadingOrganizationUnitFilter } from "@/components/ui/CascadingOrganizationUnitFilter";
 import { PillMultiSelect } from "@/components/ui/PillMultiSelect";
 import type { OrganizationUnitNode } from "@/lib/organization-unit-tree";
 
@@ -38,6 +38,7 @@ export function AccountFilterForm({
   initialStatuses,
 }: AccountFilterFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState(initialName);
   const [orgUnitIds, setOrgUnitIds] = useState<number[]>(initialOrgUnitIds);
   const [roles, setRoles] = useState<string[]>(initialRoles);
@@ -45,7 +46,11 @@ export function AccountFilterForm({
 
   function applyFilters(e: FormEvent) {
     e.preventDefault();
+    // 検索し直しなので列フィルタ(col*)・ソート・ページは破棄し1ページ目へ。
+    // 表示件数(pageSize)だけはユーザー設定として引き継ぐ。
     const params = new URLSearchParams();
+    const pageSize = searchParams.get("pageSize");
+    if (pageSize) params.set("pageSize", pageSize);
     if (name) params.set("name", name);
     for (const id of orgUnitIds) params.append("orgUnitId", String(id));
     for (const role of roles) params.append("role", role);
@@ -55,39 +60,43 @@ export function AccountFilterForm({
 
   return (
     <form onSubmit={applyFilters} className="flex flex-col gap-4 rounded border p-4">
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium">氏名検索</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="氏名で検索"
-          className="rounded border px-3 py-2 text-sm"
-        />
-      </div>
+      <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">氏名検索</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="氏名で検索"
+              className="w-64 rounded border px-3 py-2 text-sm"
+            />
+          </div>
 
-      <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium">所属組織</span>
-        <OrganizationUnitTreeFilter
-          tree={orgTree}
-          values={orgUnitIds}
-          onChange={setOrgUnitIds}
-        />
-      </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium">権限</span>
+            <PillMultiSelect name="role" options={ROLE_OPTIONS} values={roles} onChange={setRoles} />
+          </div>
 
-      <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium">権限</span>
-        <PillMultiSelect name="role" options={ROLE_OPTIONS} values={roles} onChange={setRoles} />
-      </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium">状態</span>
+            <PillMultiSelect
+              name="status"
+              options={STATUS_OPTIONS}
+              values={statuses}
+              onChange={setStatuses}
+            />
+          </div>
+        </div>
 
-      <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium">状態</span>
-        <PillMultiSelect
-          name="status"
-          options={STATUS_OPTIONS}
-          values={statuses}
-          onChange={setStatuses}
-        />
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-medium">所属組織</span>
+          <CascadingOrganizationUnitFilter
+            tree={orgTree}
+            values={orgUnitIds}
+            onChange={setOrgUnitIds}
+          />
+        </div>
       </div>
 
       <button

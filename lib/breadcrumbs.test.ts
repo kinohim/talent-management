@@ -7,58 +7,25 @@ describe("getBreadcrumbTrail", () => {
     expect(getBreadcrumbTrail("/")).toEqual([{ path: "/", label: "トップ" }]);
   });
 
-  it("マイページはトップ→マイページの2件を返す", () => {
+  it("私の経歴書はトップ→私の経歴書の2件を返す", () => {
     expect(getBreadcrumbTrail("/mypage")).toEqual([
       { path: "/", label: "トップ" },
-      { path: "/mypage", label: "マイページ" },
+      { path: "/mypage", label: "私の経歴書" },
     ]);
   });
 
-  it("基本情報登録はトップ→マイページ→基本情報登録の3件を返す", () => {
+  it("基本情報登録はトップ→私の経歴書→基本情報登録の3件を返す", () => {
     expect(getBreadcrumbTrail("/register")).toEqual([
       { path: "/", label: "トップ" },
-      { path: "/mypage", label: "マイページ" },
+      { path: "/mypage", label: "私の経歴書" },
       { path: "/register", label: "基本情報登録" },
     ]);
   });
 
-  it("経歴概要・自己PR登録はトップ→マイページ→経歴概要・自己PR登録の3件を返す", () => {
-    expect(getBreadcrumbTrail("/career-summary")).toEqual([
-      { path: "/", label: "トップ" },
-      { path: "/mypage", label: "マイページ" },
-      { path: "/career-summary", label: "経歴概要・自己PR登録" },
-    ]);
-  });
-
-  it("スキル登録はトップ→マイページ→スキル登録の3件を返す", () => {
-    expect(getBreadcrumbTrail("/skills")).toEqual([
-      { path: "/", label: "トップ" },
-      { path: "/mypage", label: "マイページ" },
-      { path: "/skills", label: "スキル登録" },
-    ]);
-  });
-
-  it("資格登録はトップ→マイページ→資格登録の3件を返す", () => {
-    expect(getBreadcrumbTrail("/certifications")).toEqual([
-      { path: "/", label: "トップ" },
-      { path: "/mypage", label: "マイページ" },
-      { path: "/certifications", label: "資格登録" },
-    ]);
-  });
-
-  it("プロジェクト経歴一覧はトップ→マイページ→プロジェクト経歴一覧の3件を返す", () => {
-    expect(getBreadcrumbTrail("/projects")).toEqual([
-      { path: "/", label: "トップ" },
-      { path: "/mypage", label: "マイページ" },
-      { path: "/projects", label: "プロジェクト経歴一覧" },
-    ]);
-  });
-
-  it("プロジェクト経歴登録はトップ→マイページ→プロジェクト経歴一覧→プロジェクト経歴登録の4件を返す", () => {
+  it("プロジェクト経歴登録の親は私の経歴書(実績タブの合成キー)", () => {
     expect(getBreadcrumbTrail("/projects/new")).toEqual([
       { path: "/", label: "トップ" },
-      { path: "/mypage", label: "マイページ" },
-      { path: "/projects", label: "プロジェクト経歴一覧" },
+      { path: "/mypage?tab=projects", label: "私の経歴書" },
       { path: "/projects/new", label: "プロジェクト経歴登録" },
     ]);
   });
@@ -66,18 +33,24 @@ describe("getBreadcrumbTrail", () => {
   it("プロジェクト経歴編集(動的ID)は数値セグメントを[id]に正規化して解決する", () => {
     expect(getBreadcrumbTrail("/projects/123")).toEqual([
       { path: "/", label: "トップ" },
-      { path: "/mypage", label: "マイページ" },
-      { path: "/projects", label: "プロジェクト経歴一覧" },
+      { path: "/mypage?tab=projects", label: "私の経歴書" },
       { path: "/projects/[id]", label: "プロジェクト経歴編集" },
     ]);
   });
 
-  it("経歴書詳細(動的ID)は数値セグメントを[id]に正規化して解決する", () => {
+  it("経歴書詳細(動的ID)の親は経歴書一覧(戻り導線の一本化)", () => {
     expect(getBreadcrumbTrail("/resumes/000001")).toEqual([
       { path: "/", label: "トップ" },
-      { path: "/mypage", label: "マイページ" },
+      { path: "/resumes", label: "経歴書一覧" },
       { path: "/resumes/[id]", label: "経歴書詳細" },
     ]);
+  });
+
+  it("廃止した単独編集画面のパスは未登録として空配列を返す", () => {
+    expect(getBreadcrumbTrail("/career-summary")).toEqual([]);
+    expect(getBreadcrumbTrail("/skills")).toEqual([]);
+    expect(getBreadcrumbTrail("/certifications")).toEqual([]);
+    expect(getBreadcrumbTrail("/projects")).toEqual([]);
   });
 
   it("未登録パスは空配列を返す", () => {

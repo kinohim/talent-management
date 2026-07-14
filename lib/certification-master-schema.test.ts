@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseCertificationMasterForm } from "./certification-master-schema";
+import { parseCategoryNameForm, parseCertificationMasterForm } from "./certification-master-schema";
 
 function formDataWith(fields: Record<string, string>): FormData {
   const formData = new FormData();
@@ -99,6 +99,25 @@ describe("parseCertificationMasterForm", () => {
         certificationName: "TOEIC",
         certificationOrganization: "あ".repeat(101),
       }),
+    );
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("parseCategoryNameForm", () => {
+  it("カテゴリ名をtrimして返す", () => {
+    const result = parseCategoryNameForm(formDataWith({ categoryName: " 国家資格 " }));
+    expect(result).toEqual({ success: true, data: "国家資格" });
+  });
+
+  it("空文字はエラー", () => {
+    const result = parseCategoryNameForm(formDataWith({ categoryName: "  " }));
+    expect(result.success).toBe(false);
+  });
+
+  it("101文字はエラー", () => {
+    const result = parseCategoryNameForm(
+      formDataWith({ categoryName: "あ".repeat(101) }),
     );
     expect(result.success).toBe(false);
   });

@@ -55,14 +55,43 @@ describe("parseNewAccountForm", () => {
 });
 
 describe("parseEditAccountForm", () => {
-  it("正常な権限で成功する", () => {
-    expect(parseEditAccountForm(formDataWith({ role: "MANAGER" }))).toEqual({
+  it("正常な入力で成功する(社員ID・メール・権限)", () => {
+    expect(
+      parseEditAccountForm(
+        formDataWith({ employeeId: "000010", email: "taro@example.com", role: "MANAGER" }),
+      ),
+    ).toEqual({
       success: true,
-      role: "MANAGER",
+      data: { employeeId: "000010", email: "taro@example.com", role: "MANAGER" },
     });
   });
 
+  it("社員IDが6桁の数字でなければエラー", () => {
+    expect(
+      parseEditAccountForm(
+        formDataWith({ employeeId: "12345", email: "a@example.com", role: "MANAGER" }),
+      ).success,
+    ).toBe(false);
+    expect(
+      parseEditAccountForm(
+        formDataWith({ employeeId: "abc123", email: "a@example.com", role: "MANAGER" }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it("メールアドレスの形式が不正ならエラー", () => {
+    expect(
+      parseEditAccountForm(
+        formDataWith({ employeeId: "000010", email: "not-an-email", role: "MANAGER" }),
+      ).success,
+    ).toBe(false);
+  });
+
   it("権限が未指定ならエラー", () => {
-    expect(parseEditAccountForm(formDataWith({ role: "" })).success).toBe(false);
+    expect(
+      parseEditAccountForm(
+        formDataWith({ employeeId: "000010", email: "a@example.com", role: "" }),
+      ).success,
+    ).toBe(false);
   });
 });

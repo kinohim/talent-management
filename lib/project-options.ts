@@ -17,6 +17,15 @@ export type ProjectOptions = {
   roles: ProjectRoleOption[];
 };
 
+// REF002の「携わったプロジェクト(現場)」検索用。役割は不要なため現場のみを取る。
+export async function getSiteOptions(): Promise<SiteOption[]> {
+  return prisma.site.findMany({
+    where: { deletedAt: null },
+    select: { id: true, siteName: true },
+    orderBy: { siteName: "asc" },
+  });
+}
+
 export async function getProjectOptions(): Promise<ProjectOptions> {
   const [sites, roles] = await Promise.all([
     prisma.site.findMany({

@@ -13,6 +13,10 @@ import { deriveChildLevel, type OrganizationUnitNode } from "@/lib/organization-
 
 const initialState: OrganizationUnitFormState = { error: null };
 const DEPTH_PADDING = ["pl-0", "pl-6", "pl-12"];
+const CHILD_LEVEL_LABELS: Record<string, string> = {
+  DEPARTMENT: "部署",
+  GROUP: "Gr",
+};
 
 type Mode = "view" | "rename" | "add-child";
 
@@ -24,6 +28,8 @@ export function OrganizationUnitNodeItem({
   depth: number;
 }) {
   const [mode, setMode] = useState<Mode>("view");
+  // 初期表示は事業部(根)のみ。開閉ボタンで配下を展開する。
+  const [expanded, setExpanded] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeletePending, startDeleteTransition] = useTransition();
@@ -50,7 +56,11 @@ export function OrganizationUnitNodeItem({
   const [prevAddChildState, setPrevAddChildState] = useState(addChildState);
   if (prevAddChildState !== addChildState) {
     setPrevAddChildState(addChildState);
-    if (!addChildState.error) setMode("view");
+    if (!addChildState.error) {
+      setMode("view");
+      // 追加した子がすぐ見えるように自動展開する
+      setExpanded(true);
+    }
   }
 
   // フォームリセット(DOMの命令的操作)はレンダー中には行えないためuseEffectのまま
@@ -61,6 +71,7 @@ export function OrganizationUnitNodeItem({
   }, [addChildState]);
 
   const childLevel = deriveChildLevel(node.unitLevel);
+  const hasChildren = node.children.length > 0;
 
   function handleDelete() {
     startDeleteTransition(async () => {
@@ -75,41 +86,66 @@ export function OrganizationUnitNodeItem({
   }
 
   return (
-    <div className={`flex flex-col gap-1 py-1 ${DEPTH_PADDING[depth] ?? "pl-12"}`}>
-      <div className="flex flex-wrap items-center gap-3">
-        {mode === "rename" ? (
-          <form action={renameFormAction} className="flex items-center gap-2">
-            <input
-              type="text"
-              name="unitName"
-              defaultValue={node.unitName}
-              maxLength={100}
-              autoFocus
-              className="rounded border px-2 py-1 text-sm"
-            />
-            <button
-              type="submit"
-              disabled={isRenamePending}
-              className="rounded border px-3 py-1 text-xs"
-            >
-              {isRenamePending ? "保存中..." : "保存"}
-            </button>
+    <div className={`flex flex-col gap-1 py-0.5 ${DEPTH_PADDING[depth] ?? "pl-12"}`}>
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded border px-3 py-2">
+        <div className="flex items-center gap-2">
+          {/* 子ありは開閉ボタン、子なしは同幅スペーサーで名称の縦位置を揃える */}
+          {hasChildren ? (
             <button
               type="button"
-              onClick={() => setMode("view")}
-              className="text-xs text-zinc-500"
+              onClick={() => setExpanded((v) => !v)}
+              aria-expanded={expanded}
+              aria-label={expanded ? "配下を閉じる" : "配下を開く"}
+              className="w-5 text-center text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
             >
-              キャンセル
+              {expanded ? "▼" : "▶"}
             </button>
-            {renameState.error ? (
-              <p role="alert" className="text-sm text-red-600">
-                {renameState.error}
-              </p>
-            ) : null}
-          </form>
-        ) : (
-          <span className="text-sm">{node.unitName}</span>
-        )}
+          ) : (
+            <span aria-hidden="true" className="w-5" />
+          )}
+
+          {mode === "rename" ? (
+            <form action={renameFormAction} className="flex flex-wrap items-center gap-2">
+              <input
+                type="text"
+                name="unitName"
+                defaultValue={node.unitName}
+                maxLength={100}
+                autoFocus
+                className="rounded border px-2 py-1 text-sm"
+              />
+              <button
+                type="submit"
+                disabled={isRenamePending}
+                className="rounded border px-3 py-1 text-xs"
+              >
+                {isRenamePending ? "保存中..." : "保存"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("view")}
+                className="text-xs text-zinc-500"
+              >
+                キャンセル
+              </button>
+              {renameState.error ? (
+                <p role="alert" className="text-sm text-red-600">
+                  {renameState.error}
+                </p>
+              ) : null}
+            </form>
+          ) : (
+            <span className="text-sm">
+              {node.unitName}
+              {hasChildren && !expanded ? (
+                <span className="ml-2 text-xs text-zinc-400">
+                  {CHILD_LEVEL_LABELS[node.children[0]!.unitLevel] ?? "配下"}
+                  {node.children.length}件
+                </span>
+              ) : null}
+            </span>
+          )}
+        </div>
 
         {mode === "view" ? (
           <div className="flex gap-2 text-xs">
@@ -150,7 +186,7 @@ export function OrganizationUnitNodeItem({
         <form
           ref={addChildFormRef}
           action={addChildFormAction}
-          className="flex flex-wrap items-center gap-2 pl-4"
+          className="flex flex-wrap items-center gap-2 pl-7"
         >
           <input
             type="text"
@@ -182,9 +218,11 @@ export function OrganizationUnitNodeItem({
         </form>
       ) : null}
 
-      {node.children.map((child) => (
-        <OrganizationUnitNodeItem key={child.id} node={child} depth={depth + 1} />
-      ))}
+      {expanded
+        ? node.children.map((child) => (
+            <OrganizationUnitNodeItem key={child.id} node={child} depth={depth + 1} />
+          ))
+        : null}
 
       {showConfirm ? (
         <ConfirmDialog

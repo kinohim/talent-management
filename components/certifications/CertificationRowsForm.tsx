@@ -5,8 +5,9 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import {
   saveCertifications,
   type CertificationFormState,
-} from "@/app/(authenticated)/certifications/actions";
+} from "@/app/(authenticated)/mypage/actions";
 import { CertificationRow } from "@/components/certifications/CertificationRow";
+import { useSectionEdit } from "@/components/my-resume/EditableSection";
 import type { CertificationOptions } from "@/lib/certification-options";
 
 export type CertificationRowValue = {
@@ -56,13 +57,17 @@ export function CertificationRowsForm({
   // するが、controlled <select> の見た目がその後の再コミットで復元されないケースが
   // あるため、action完了ごとに全行を強制的に再マウントして正しい値を再描画させる。
   const [remountToken, setRemountToken] = useState(0);
+  // セクション編集(私の経歴書)では保存成功をEditableSectionへ通知して
+  // 編集モードを解除する。Contextが無い文脈では何もしない。
+  const sectionEdit = useSectionEdit();
   const prevStateRef = useRef(state);
   useEffect(() => {
     if (prevStateRef.current !== state) {
       prevStateRef.current = state;
       setRemountToken((token) => token + 1);
+      if (state.saved) sectionEdit?.onSaved();
     }
-  }, [state]);
+  }, [state, sectionEdit]);
 
   function addRow() {
     const key = `row-${nextKeyRef.current}`;

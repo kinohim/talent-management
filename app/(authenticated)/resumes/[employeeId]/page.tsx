@@ -1,7 +1,5 @@
 import { redirect } from "next/navigation";
 
-import Link from "next/link";
-
 import { ResumeBasicInfoSection } from "@/components/resumes/ResumeBasicInfoSection";
 import { ResumeCertificationList } from "@/components/resumes/ResumeCertificationList";
 import { ResumeEducationSection } from "@/components/resumes/ResumeEducationSection";
@@ -107,18 +105,9 @@ export default async function ResumePage({ params }: ResumePageProps) {
     <main className="flex flex-1 flex-col gap-8 p-6">
       <h1 className="text-lg font-semibold">経歴書詳細</h1>
 
-      {!isSelf ? (
-        // REF002(経歴書一覧)から遷移してきた場合の戻り導線。本人プレビュー
-        // (マイページ経由)ではグローバルの「マイページに戻る」を使うため
-        // 表示しない(docs/plans/2026-07-10-03-resume-detail.md参照)。
-        <Link
-          href="/resumes"
-          className="inline-flex items-center gap-1 self-start text-sm text-zinc-500 hover:text-zinc-700 hover:underline dark:hover:text-zinc-300"
-        >
-          <span aria-hidden="true">←</span>
-          経歴書一覧に戻る
-        </Link>
-      ) : null}
+      {/* 戻り導線はグローバルのBackLink(「経歴書一覧に戻る」)に一本化している。
+          本人の編集・確認は REF004「私の経歴書」が担うため、本ページ独自の
+          戻りリンクは持たない。 */}
 
       <ResumeBasicInfoSection
         name={target.name ?? ""}

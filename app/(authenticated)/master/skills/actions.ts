@@ -11,12 +11,78 @@ import {
   planSkillVersionDiff,
 } from "@/lib/skill-master";
 import {
+  parseCategoryNameForm,
   parseSkillMasterForm,
   type SkillMasterFormState,
 } from "@/lib/skill-master-schema";
 
 const PROGRAM = "MST001";
 const PATH = "/master/skills";
+
+// MST001の「カテゴリを追加」(カテゴリのみ新規作成)。スキルの追加は
+// カテゴリ見出しごとのフォームからsaveSkillで行う。
+export async function createSkillCategory(
+  _prevState: SkillMasterFormState,
+  formData: FormData,
+): Promise<SkillMasterFormState> {
+  const user = await requireManager();
+
+  const parsed = parseCategoryNameForm(formData);
+  if (!parsed.success) {
+    return { error: parsed.error };
+  }
+  const categoryName = parsed.data;
+
+  // 有効な同名カテゴリの重複を事前チェック(DB制約のP2002より分かりやすい
+  // タイミングでエラーを返す)。
+  const activeSameName = await prisma.skillCategory.findFirst({
+    where: { skillCategoryName: categoryName, deletedAt: null },
+    select: { id: true },
+  });
+  if (activeSameName) {
+    return { error: "既に登録されているカテゴリ名です。" };
+  }
+
+  // カテゴリ名はユニーク(deletedAtを問わないDB制約)なため、論理削除済みの
+  // 同名行が残っていれば新規作成ではなく復活させる(saveSkillと同じ流儀)。
+  const deletedToReactivate = await prisma.skillCategory.findFirst({
+    where: { skillCategoryName: categoryName, deletedAt: { not: null } },
+    select: { id: true },
+  });
+
+  try {
+    if (deletedToReactivate) {
+      await prisma.skillCategory.update({
+        where: { id: deletedToReactivate.id },
+        data: {
+          deletedAt: null,
+          deletedBy: null,
+          deletedProgram: null,
+          updatedBy: user.employeeId,
+          updatedProgram: PROGRAM,
+        },
+      });
+    } else {
+      await prisma.skillCategory.create({
+        data: {
+          skillCategoryName: categoryName,
+          createdBy: user.employeeId,
+          createdProgram: PROGRAM,
+          updatedBy: user.employeeId,
+          updatedProgram: PROGRAM,
+        },
+      });
+    }
+  } catch (error) {
+    if (isUniqueConstraintViolation(error)) {
+      return { error: "既に登録されているカテゴリ名です。" };
+    }
+    return { error: "保存に失敗しました。時間をおいて再度お試しください。" };
+  }
+
+  revalidatePath(PATH);
+  return { error: null };
+}
 
 export async function saveSkill(
   skillId: number | null,
@@ -33,16 +99,39 @@ export async function saveSkill(
 
   let categoryId: number;
   if (category.mode === "new") {
-    const created = await prisma.skillCategory.create({
-      data: {
-        skillCategoryName: category.categoryName,
-        createdBy: user.employeeId,
-        createdProgram: PROGRAM,
-        updatedBy: user.employeeId,
-        updatedProgram: PROGRAM,
-      },
+    // カテゴリ名は各マスタ内で一意。有効な同名があればエラー、
+    // 論理削除済みの同名があれば復活して使う(createSkillCategoryと同じ流儀)。
+    const sameName = await prisma.skillCategory.findFirst({
+      where: { skillCategoryName: category.categoryName },
+      select: { id: true, deletedAt: true },
     });
-    categoryId = created.id;
+    if (sameName && sameName.deletedAt === null) {
+      return { error: "既に登録されているカテゴリ名です。" };
+    }
+    if (sameName) {
+      await prisma.skillCategory.update({
+        where: { id: sameName.id },
+        data: {
+          deletedAt: null,
+          deletedBy: null,
+          deletedProgram: null,
+          updatedBy: user.employeeId,
+          updatedProgram: PROGRAM,
+        },
+      });
+      categoryId = sameName.id;
+    } else {
+      const created = await prisma.skillCategory.create({
+        data: {
+          skillCategoryName: category.categoryName,
+          createdBy: user.employeeId,
+          createdProgram: PROGRAM,
+          updatedBy: user.employeeId,
+          updatedProgram: PROGRAM,
+        },
+      });
+      categoryId = created.id;
+    }
   } else {
     const existing = await prisma.skillCategory.findFirst({
       where: { id: category.categoryId, deletedAt: null },

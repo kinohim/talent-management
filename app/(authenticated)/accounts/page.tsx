@@ -3,11 +3,22 @@ import { redirect } from "next/navigation";
 
 import { AccountFilterForm } from "@/components/accounts/AccountFilterForm";
 import { AccountTable, type AccountRow } from "@/components/accounts/AccountTable";
-import { UserRole } from "@/generated/prisma/client";
-import { deriveAccountStatus, parseAccountFilters } from "@/lib/account-list";
+import { PaginationControls } from "@/components/ui/PaginationControls";
+import { UserRole, type Prisma } from "@/generated/prisma/client";
+import {
+  ACCOUNT_SORT_KEYS,
+  buildAccountOrderBy,
+  buildAccountStatusWhere,
+  deriveAccountStatus,
+  parseAccountFilters,
+} from "@/lib/account-list";
 import { auth } from "@/lib/auth";
+import { clampPage, parsePagination, parseSort } from "@/lib/list-query";
 import { getOrganizationUnitOptions } from "@/lib/organization-unit";
-import { buildOrganizationUnitTree, collectDescendantIds } from "@/lib/organization-unit-tree";
+import {
+  buildOrganizationUnitTree,
+  resolveEffectiveOrgUnitIds,
+} from "@/lib/organization-unit-tree";
 import { prisma } from "@/lib/prisma";
 
 type AccountsPageProps = {
@@ -24,43 +35,106 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
     redirect("/");
   }
 
-  const filters = parseAccountFilters(await searchParams);
+  const params = await searchParams;
+  const filters = parseAccountFilters(params);
+  const pagination = parsePagination(params);
+  const { sortKey, order } = parseSort(params, ACCOUNT_SORT_KEYS);
 
   const units = await getOrganizationUnitOptions();
   const orgTree = buildOrganizationUnitTree(units);
   const orgUnitById = new Map(units.map((u) => [u.id, u]));
 
+  // カスケード選択(上位+下位が両方選択されている場合は最深の選択配下のみ)
   const organizationUnitIdFilter =
     filters.organizationUnitIds.length > 0
-      ? [...collectDescendantIds(units, filters.organizationUnitIds)]
+      ? [...resolveEffectiveOrgUnitIds(units, filters.organizationUnitIds)]
       : null;
 
+  const conditions: Prisma.EmployeeWhereInput[] = [
+    { deletedAt: null },
+    // アカウント一覧はuserを持つ社員のみが対象(取得後のJS filterではなく
+    // where化する。ページング件数と整合させるため)
+    { user: { isNot: null } },
+  ];
+
+  if (filters.name) {
+    conditions.push({ name: { contains: filters.name, mode: "insensitive" } });
+  }
+  if (organizationUnitIdFilter) {
+    conditions.push({ organizationUnitId: { in: organizationUnitIdFilter } });
+  }
+  if (filters.roles.length > 0) {
+    conditions.push({ user: { role: { in: filters.roles } } });
+  }
+  const statusWhere = buildAccountStatusWhere(filters.statuses);
+  if (statusWhere) {
+    conditions.push(statusWhere);
+  }
+
+  // --- 列フィルタ(ヘッダのポップオーバーからの絞込。検索フォームとAND合成) ---
+  if (filters.colName) {
+    conditions.push({ name: { contains: filters.colName, mode: "insensitive" } });
+  }
+  if (filters.colEmail) {
+    conditions.push({
+      user: { email: { contains: filters.colEmail, mode: "insensitive" } },
+    });
+  }
+  if (filters.colOrganizationUnitIds.length > 0) {
+    const numericIds = filters.colOrganizationUnitIds.filter(
+      (v): v is number => v !== "none",
+    );
+    const orConditions: Prisma.EmployeeWhereInput[] = [];
+    if (numericIds.length > 0) {
+      orConditions.push({ organizationUnitId: { in: numericIds } });
+    }
+    if (filters.colOrganizationUnitIds.includes("none")) {
+      orConditions.push({ organizationUnitId: null });
+    }
+    conditions.push({ OR: orConditions });
+  }
+  if (filters.colRoles.length > 0) {
+    conditions.push({ user: { role: { in: filters.colRoles } } });
+  }
+  const colStatusWhere = buildAccountStatusWhere(filters.colStatuses);
+  if (colStatusWhere) {
+    conditions.push(colStatusWhere);
+  }
+
+  const where: Prisma.EmployeeWhereInput = { AND: conditions };
+
+  const totalCount = await prisma.employee.count({ where });
+  const { page, skip, pageCount } = clampPage(
+    pagination.page,
+    totalCount,
+    pagination.pageSize,
+  );
+
   const employees = await prisma.employee.findMany({
-    where: {
-      deletedAt: null,
-      ...(filters.name ? { name: { contains: filters.name, mode: "insensitive" } } : {}),
-      ...(organizationUnitIdFilter
-        ? { organizationUnitId: { in: organizationUnitIdFilter } }
-        : {}),
-      ...(filters.roles.length > 0 ? { user: { role: { in: filters.roles } } } : {}),
-    },
+    where,
     include: { user: true },
-    orderBy: [{ name: "asc" }, { employeeId: "asc" }],
+    orderBy: buildAccountOrderBy(sortKey, order),
+    skip,
+    take: pagination.pageSize,
   });
 
-  const rows: AccountRow[] = employees
-    .filter((employee) => employee.user)
-    .map((employee) => ({
-      employeeId: employee.employeeId,
-      name: employee.name,
-      organizationUnitName: employee.organizationUnitId
-        ? (orgUnitById.get(employee.organizationUnitId)?.unitName ?? null)
-        : null,
-      role: employee.user!.role,
-      status: deriveAccountStatus(employee),
-      lastLoginAt: employee.user!.lastLoginAt,
-    }))
-    .filter((row) => filters.statuses.length === 0 || filters.statuses.includes(row.status));
+  const rows: AccountRow[] = employees.map((employee) => ({
+    employeeId: employee.employeeId,
+    name: employee.name,
+    email: employee.user?.email ?? "",
+    organizationUnitName: employee.organizationUnitId
+      ? (orgUnitById.get(employee.organizationUnitId)?.unitName ?? null)
+      : null,
+    role: employee.user!.role,
+    status: deriveAccountStatus(employee),
+    lastLoginAt: employee.user!.lastLoginAt,
+  }));
+
+  // 列フィルタ「所属組織」の選択肢。"none"=未所属
+  const orgFilterOptions = [
+    ...units.map((u) => ({ value: String(u.id), label: u.unitName })),
+    { value: "none", label: "未所属" },
+  ];
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
@@ -82,7 +156,15 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
         initialStatuses={filters.statuses}
       />
 
-      <AccountTable accounts={rows} />
+      <div className="flex flex-col gap-2">
+        <PaginationControls
+          page={page}
+          pageCount={pageCount}
+          totalCount={totalCount}
+          pageSize={pagination.pageSize}
+        />
+        <AccountTable accounts={rows} orgFilterOptions={orgFilterOptions} />
+      </div>
     </main>
   );
 }

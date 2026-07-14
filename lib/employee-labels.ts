@@ -45,3 +45,15 @@ const SKILL_LEVEL_LABELS: Record<SkillLevel, string> = {
 export function skillLevelLabel(level: SkillLevel): string {
   return SKILL_LEVEL_LABELS[level];
 }
+
+const SKILL_LEVEL_SYMBOLS: Record<SkillLevel, string> = {
+  [SkillLevel.EXPERT]: "◎",
+  [SkillLevel.EXPERIENCED]: "○",
+  [SkillLevel.BASIC]: "△",
+};
+
+// タグ表示など省スペースな箇所向けの記号のみの習熟度表記。
+// 記号の意味は skillLevelLabel を凡例として併記すること。
+export function skillLevelSymbol(level: SkillLevel): string {
+  return SKILL_LEVEL_SYMBOLS[level];
+}

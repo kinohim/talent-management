@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseSkillMasterForm } from "./skill-master-schema";
+import { parseCategoryNameForm, parseSkillMasterForm } from "./skill-master-schema";
 
 function formDataWith(fields: Record<string, string | string[]>): FormData {
   const formData = new FormData();
@@ -98,6 +98,25 @@ describe("parseSkillMasterForm", () => {
         skillName: "Java",
         versionNames: ["1".repeat(51)],
       }),
+    );
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("parseCategoryNameForm", () => {
+  it("カテゴリ名をtrimして返す", () => {
+    const result = parseCategoryNameForm(formDataWith({ categoryName: " 言語 " }));
+    expect(result).toEqual({ success: true, data: "言語" });
+  });
+
+  it("空文字はエラー", () => {
+    const result = parseCategoryNameForm(formDataWith({ categoryName: "  " }));
+    expect(result.success).toBe(false);
+  });
+
+  it("101文字はエラー", () => {
+    const result = parseCategoryNameForm(
+      formDataWith({ categoryName: "あ".repeat(101) }),
     );
     expect(result.success).toBe(false);
   });

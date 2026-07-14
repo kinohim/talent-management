@@ -70,7 +70,7 @@ export async function saveProject(
       select: { id: true },
     });
     if (!owned) {
-      redirect("/projects");
+      redirect("/mypage?tab=projects");
     }
   }
 
@@ -176,7 +176,7 @@ export async function saveProject(
   }
 
   // 保存後はREF006(プロジェクト経歴一覧)へ遷移する(docs/screens.md EDT005参照)。
-  redirect("/projects");
+  redirect("/mypage?tab=projects");
 }
 
 export async function deleteProject(projectId: number): Promise<void> {
@@ -191,7 +191,7 @@ export async function deleteProject(projectId: number): Promise<void> {
     select: { id: true },
   });
   if (!project) {
-    redirect("/projects");
+    redirect("/mypage?tab=projects");
   }
 
   const deletedAt = new Date();
@@ -219,5 +219,5 @@ export async function deleteProject(projectId: number): Promise<void> {
     await recalculateExperienceYears(tx, employeeId);
   });
 
-  redirect("/projects");
+  redirect("/mypage?tab=projects");
 }

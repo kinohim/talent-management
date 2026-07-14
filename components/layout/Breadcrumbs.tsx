@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useListQueryHref } from "@/components/layout/useListQueryHref";
 import { getBreadcrumbTrail } from "@/lib/breadcrumbs";
 
 export function Breadcrumbs() {
   const pathname = usePathname();
+  const withListQuery = useListQueryHref();
   const trail = getBreadcrumbTrail(pathname);
 
   if (trail.length === 0) return null;
@@ -22,7 +24,7 @@ export function Breadcrumbs() {
                 {item.label}
               </span>
             ) : (
-              <Link href={item.path} className="hover:underline">
+              <Link href={withListQuery(item.path)} className="hover:underline">
                 {item.label}
               </Link>
             )}

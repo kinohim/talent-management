@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseResumeSearchFilters } from "./resume-search";
+import { buildResumeOrderBy, parseResumeSearchFilters } from "./resume-search";
 
 describe("parseResumeSearchFilters", () => {
   it("空のsearchParamsは全項目デフォルト値になる", () => {
@@ -13,7 +13,16 @@ describe("parseResumeSearchFilters", () => {
       skillMatchMode: "OR",
       certificationIds: [],
       certificationMatchMode: "OR",
+      siteId: null,
       includeRetired: false,
+      colName: "",
+      colOrganizationUnitIds: [],
+      colExperienceMin: null,
+      colExperienceMax: null,
+      colSkillIds: [],
+      colSkillMatchMode: "OR",
+      colCertificationIds: [],
+      colCertificationMatchMode: "OR",
     });
   });
 
@@ -30,6 +39,13 @@ describe("parseResumeSearchFilters", () => {
     expect(filters.organizationUnitIds).toEqual([1, 2]);
     expect(filters.skillIds).toEqual([10]);
     expect(filters.certificationIds).toEqual([20, 21]);
+  });
+
+  it("現場idは単一選択(先頭のみ採用、不正値はnull)", () => {
+    expect(parseResumeSearchFilters({ siteId: "30" }).siteId).toBe(30);
+    expect(parseResumeSearchFilters({ siteId: ["30", "31"] }).siteId).toBe(30);
+    expect(parseResumeSearchFilters({ siteId: "abc" }).siteId).toBeNull();
+    expect(parseResumeSearchFilters({}).siteId).toBeNull();
   });
 
   it("AND/ORモードはAND以外なら常にORにフォールバックする", () => {
@@ -53,5 +69,65 @@ describe("parseResumeSearchFilters", () => {
     expect(parseResumeSearchFilters({ includeRetired: "true" }).includeRetired).toBe(true);
     expect(parseResumeSearchFilters({ includeRetired: "false" }).includeRetired).toBe(false);
     expect(parseResumeSearchFilters({}).includeRetired).toBe(false);
+  });
+
+  it("列フィルタのテキストはtrimされる", () => {
+    expect(parseResumeSearchFilters({ colName: " 田中 " }).colName).toBe("田中");
+  });
+
+  it("列フィルタのスキル・資格はid複数+AND/ORをパースする(検索フォームと同仕様)", () => {
+    const filters = parseResumeSearchFilters({
+      colSkillId: ["1", "2", "x"],
+      colSkillMode: "AND",
+      colCertificationId: "5",
+      colCertificationMode: "invalid",
+    });
+    expect(filters.colSkillIds).toEqual([1, 2]);
+    expect(filters.colSkillMatchMode).toBe("AND");
+    expect(filters.colCertificationIds).toEqual([5]);
+    expect(filters.colCertificationMatchMode).toBe("OR");
+  });
+
+  it("列フィルタの所属組織は数値idと\"none\"(未所属)を受け付ける", () => {
+    const filters = parseResumeSearchFilters({ colOrg: ["1", "none", "abc"] });
+    expect(filters.colOrganizationUnitIds).toEqual([1, "none"]);
+  });
+
+  it("列フィルタの経験年数もクランプ・下限>上限の入れ替えを行う", () => {
+    const filters = parseResumeSearchFilters({ colExpMin: "50", colExpMax: "3" });
+    expect(filters.colExperienceMin).toBe(3);
+    expect(filters.colExperienceMax).toBe(50);
+    expect(parseResumeSearchFilters({ colExpMin: "-1" }).colExperienceMin).toBe(0);
+  });
+});
+
+describe("buildResumeOrderBy", () => {
+  it("null(デフォルト)は氏名昇順+employeeIdタイブレーク", () => {
+    expect(buildResumeOrderBy(null, "desc")).toEqual([
+      { name: "asc" },
+      { employeeId: "asc" },
+    ]);
+  });
+
+  it("nameはカナ→氏名の順でソートしnullsは末尾", () => {
+    expect(buildResumeOrderBy("name", "desc")).toEqual([
+      { nameKana: { sort: "desc", nulls: "last" } },
+      { name: "desc" },
+      { employeeId: "asc" },
+    ]);
+  });
+
+  it("orgは組織名でソートする", () => {
+    expect(buildResumeOrderBy("org", "asc")).toEqual([
+      { organizationUnit: { unitName: "asc" } },
+      { employeeId: "asc" },
+    ]);
+  });
+
+  it("experienceは経験年数でソートしnullsは末尾", () => {
+    expect(buildResumeOrderBy("experience", "asc")).toEqual([
+      { experienceYears: { sort: "asc", nulls: "last" } },
+      { employeeId: "asc" },
+    ]);
   });
 });

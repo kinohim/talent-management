@@ -4,16 +4,15 @@ export type BreadcrumbNode = { label: string; parentPath: string | null };
 // URLパスとしては兄弟)ため、URLから自動導出せず明示的なマップで管理する。
 export const BREADCRUMB_MAP: Record<string, BreadcrumbNode> = {
   "/": { label: "トップ", parentPath: null },
-  "/mypage": { label: "マイページ", parentPath: "/" },
+  "/mypage": { label: "私の経歴書", parentPath: "/" },
   "/register": { label: "基本情報登録", parentPath: "/mypage" },
-  "/career-summary": { label: "経歴概要・自己PR登録", parentPath: "/mypage" },
-  "/skills": { label: "スキル登録", parentPath: "/mypage" },
-  "/certifications": { label: "資格登録", parentPath: "/mypage" },
-  "/projects": { label: "プロジェクト経歴一覧", parentPath: "/mypage" },
-  "/projects/new": { label: "プロジェクト経歴登録", parentPath: "/projects" },
-  "/projects/[id]": { label: "プロジェクト経歴編集", parentPath: "/projects" },
+  // "/mypage?tab=projects"はパンくずの親リンク専用の合成キー(実パスは/mypage)。
+  // プロジェクト経歴の登録・編集からは実績タブへ戻すために使う。
+  "/mypage?tab=projects": { label: "私の経歴書", parentPath: "/" },
+  "/projects/new": { label: "プロジェクト経歴登録", parentPath: "/mypage?tab=projects" },
+  "/projects/[id]": { label: "プロジェクト経歴編集", parentPath: "/mypage?tab=projects" },
   "/resumes": { label: "経歴書一覧", parentPath: "/" },
-  "/resumes/[id]": { label: "経歴書詳細", parentPath: "/mypage" },
+  "/resumes/[id]": { label: "経歴書詳細", parentPath: "/resumes" },
   "/skill-map": { label: "スキルマップ/組織ダッシュボード", parentPath: "/" },
   "/master": { label: "マスタ管理", parentPath: "/" },
   "/master/organization-units": { label: "部署マスタ管理", parentPath: "/master" },

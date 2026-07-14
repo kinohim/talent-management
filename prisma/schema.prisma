@@ -247,7 +247,7 @@ enum SkillLevel {
 
 model SkillCategory {
   id                Int    @id @default(autoincrement())
-  skillCategoryName String @map("skill_category_name") @db.VarChar(100)
+  skillCategoryName String @unique @map("skill_category_name") @db.VarChar(100)
 
   skills Skill[]
 
@@ -345,7 +345,7 @@ model EmployeeSkill {
 
 model CertificationCategory {
   id                        Int    @id @default(autoincrement())
-  certificationCategoryName String @map("certification_category_name") @db.VarChar(100)
+  certificationCategoryName String @unique @map("certification_category_name") @db.VarChar(100)
 
   certifications Certification[]
 

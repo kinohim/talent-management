@@ -16,7 +16,10 @@ const SKIP_CONFIRM_STORAGE_KEY = "edt002SkipReplaceConfirm";
 type AiGeneratePanelProps = {
   target: CareerTextTarget;
   label: string;
-  onApply: (text: string) => void;
+  // 生成結果は親(CareerSummaryForm)が保持する(親側の「←」ボタンで
+  // 登録用フィールドへコピーするため)。
+  value: string;
+  onValueChange: (text: string) => void;
 };
 
 type GenerateResponse = {
@@ -27,9 +30,9 @@ type GenerateResponse = {
 export function AiGeneratePanel({
   target,
   label,
-  onApply,
+  value,
+  onValueChange,
 }: AiGeneratePanelProps) {
-  const [generatedText, setGeneratedText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [missingDataMessage, setMissingDataMessage] = useState<string | null>(
@@ -62,7 +65,7 @@ export function AiGeneratePanel({
         );
         return;
       }
-      setGeneratedText(body.text);
+      onValueChange(body.text);
       setMissingDataMessage(buildMissingDataMessage(body.missingData));
     } catch {
       setGenerateError(
@@ -76,7 +79,7 @@ export function AiGeneratePanel({
   function handleGenerateClick() {
     const skipConfirm =
       sessionStorage.getItem(SKIP_CONFIRM_STORAGE_KEY) === "true";
-    if (generatedText !== "" && !skipConfirm) {
+    if (value !== "" && !skipConfirm) {
       setSkipConfirmChecked(false);
       setShowReplaceConfirm(true);
       return;
@@ -149,38 +152,27 @@ export function AiGeneratePanel({
         </p>
       ) : null}
 
-      <div className="flex items-start gap-2">
-        <div className="flex flex-1 flex-col gap-1">
-          <div className="flex items-baseline justify-between">
-            <label htmlFor={outputId} className="text-xs text-zinc-500">
-              AI生成結果(出力フォーム)
-            </label>
-            <span className="text-xs text-zinc-500">
-              {generatedText.length}/{MAX_LENGTH}
-            </span>
-          </div>
-          <textarea
-            id={outputId}
-            rows={6}
-            maxLength={MAX_LENGTH}
-            value={generatedText}
-            onChange={(event) => setGeneratedText(event.target.value)}
-            className="rounded border px-3 py-2"
-          />
-          <p className="text-xs text-zinc-500">
-            この内容は保存されません。反映するには ←
-            ボタンで入力欄へコピーしてください。
-          </p>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-baseline justify-between">
+          <label htmlFor={outputId} className="text-xs text-zinc-500">
+            AI生成結果(出力フォーム)
+          </label>
+          <span className="text-xs text-zinc-500">
+            {value.length}/{MAX_LENGTH}
+          </span>
         </div>
-        <button
-          type="button"
-          onClick={() => onApply(generatedText)}
-          disabled={generatedText === ""}
-          title={`${label}の入力欄へ上書きコピー`}
-          className="mt-6 rounded border px-3 py-1.5 text-sm disabled:opacity-50"
-        >
-          ←
-        </button>
+        <textarea
+          id={outputId}
+          rows={6}
+          maxLength={MAX_LENGTH}
+          value={value}
+          onChange={(event) => onValueChange(event.target.value)}
+          className="rounded border px-3 py-2"
+        />
+        <p className="text-xs text-zinc-500">
+          この内容は保存されません。反映するには ←
+          ボタンで入力欄へコピーしてください。
+        </p>
       </div>
     </div>
   );

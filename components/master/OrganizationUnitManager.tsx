@@ -1,13 +1,10 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
-
 import { createOrganizationUnit } from "@/app/(authenticated)/master/organization-units/actions";
+import { InlineAddForm } from "@/components/master/InlineAddForm";
 import { OrganizationUnitNodeItem } from "@/components/master/OrganizationUnitNodeItem";
-import type { OrganizationUnitFormState } from "@/lib/organization-unit-schema";
 import type { OrganizationUnitNode } from "@/lib/organization-unit-tree";
 
-const initialState: OrganizationUnitFormState = { error: null };
 const createDivisionAction = createOrganizationUnit.bind(null, null);
 
 export function OrganizationUnitManager({
@@ -15,49 +12,16 @@ export function OrganizationUnitManager({
 }: {
   tree: OrganizationUnitNode[];
 }) {
-  const [state, formAction, isPending] = useActionState(
-    createDivisionAction,
-    initialState,
-  );
-  const formRef = useRef<HTMLFormElement>(null);
-  const prevStateRef = useRef(state);
-  useEffect(() => {
-    if (prevStateRef.current !== state) {
-      prevStateRef.current = state;
-      if (!state.error) formRef.current?.reset();
-    }
-  }, [state]);
-
   return (
-    <div className="flex max-w-3xl flex-col gap-8">
-      <form
-        ref={formRef}
-        action={formAction}
-        className="flex flex-col gap-3 rounded border p-4"
-      >
-        <h2 className="text-sm font-semibold">事業部を追加</h2>
-        <div className="flex gap-3">
-          <input
-            type="text"
-            name="unitName"
-            placeholder="事業部名"
-            maxLength={100}
-            className="flex-1 rounded border px-3 py-2 text-sm"
-          />
-          <button
-            type="submit"
-            disabled={isPending}
-            className="rounded bg-zinc-900 px-4 py-2 text-sm text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
-          >
-            {isPending ? "追加中..." : "事業部を追加"}
-          </button>
-        </div>
-        {state.error ? (
-          <p role="alert" className="text-sm text-red-600">
-            {state.error}
-          </p>
-        ) : null}
-      </form>
+    <div className="flex max-w-3xl flex-col gap-6">
+      {/* 事業部の追加フィールドは最上部に常時表示(「配下に追加」と同じ
+          コンパクトな1行形) */}
+      <InlineAddForm
+        action={createDivisionAction}
+        name="unitName"
+        placeholder="事業部名"
+        submitLabel="事業部を追加"
+      />
 
       <div className="flex flex-col gap-1">
         {tree.length === 0 ? (

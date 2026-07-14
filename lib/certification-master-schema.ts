@@ -20,6 +20,19 @@ const categoryNameSchema = z
 
 export type CertificationMasterFormState = { error: string | null };
 
+export type CategoryNameParseResult =
+  | { success: true; data: string }
+  | { success: false; error: string };
+
+// MST002の「カテゴリを追加」フォーム(カテゴリのみ新規作成)用。
+export function parseCategoryNameForm(formData: FormData): CategoryNameParseResult {
+  const parsed = categoryNameSchema.safeParse(formData.get("categoryName"));
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+  return { success: true, data: parsed.data };
+}
+
 export type CertificationCategoryInput =
   | { mode: "existing"; categoryId: number }
   | { mode: "new"; categoryName: string };

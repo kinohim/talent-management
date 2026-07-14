@@ -105,29 +105,58 @@ export async function updateAccount(
   if (!parsed.success) {
     return { error: parsed.error };
   }
+  const { employeeId: newEmployeeId, email, role } = parsed.data;
 
   const organizationUnitId = await resolveOrganizationUnitId(
     readOrganizationUnitSelection(formData),
   );
 
-  await prisma.$transaction([
-    prisma.employee.update({
-      where: { employeeId },
-      data: {
-        organizationUnitId,
-        updatedBy: user.employeeId,
-        updatedProgram: EDIT_PROGRAM,
-      },
-    }),
-    prisma.user.update({
-      where: { employeeId },
-      data: {
-        role: parsed.role,
-        updatedBy: user.employeeId,
-        updatedProgram: EDIT_PROGRAM,
-      },
-    }),
-  ]);
+  // 社員IDの変更は employee.employee_id の UPDATE で行う。子テーブル
+  // (users/employee_skill/employee_certification/project)のFKはすべて
+  // ON UPDATE CASCADE のためDB側で自動追随する。監査カラム(created_by等)は
+  // FKなしの履歴のため旧IDのまま残す(docs/decisions.md参照)。
+  try {
+    await prisma.$transaction(async (tx) => {
+      try {
+        await tx.employee.update({
+          where: { employeeId },
+          data: {
+            employeeId: newEmployeeId,
+            organizationUnitId,
+            updatedBy: user.employeeId,
+            updatedProgram: EDIT_PROGRAM,
+          },
+        });
+      } catch (error) {
+        if (isUniqueConstraintViolation(error)) throw new Error("DUPLICATE_EMPLOYEE_ID");
+        throw error;
+      }
+
+      try {
+        // employeeId変更後はCASCADEでusers.employee_idも新IDになっている
+        await tx.user.update({
+          where: { employeeId: newEmployeeId },
+          data: {
+            email,
+            role,
+            updatedBy: user.employeeId,
+            updatedProgram: EDIT_PROGRAM,
+          },
+        });
+      } catch (error) {
+        if (isUniqueConstraintViolation(error)) throw new Error("DUPLICATE_EMAIL");
+        throw error;
+      }
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === "DUPLICATE_EMPLOYEE_ID") {
+      return { error: "この社員IDは既に使用されています。" };
+    }
+    if (error instanceof Error && error.message === "DUPLICATE_EMAIL") {
+      return { error: "このメールアドレスは既に使用されています。" };
+    }
+    return { error: "保存に失敗しました。時間をおいて再度お試しください。" };
+  }
 
   redirect(LIST_PATH);
 }

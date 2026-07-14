@@ -10,12 +10,13 @@ type ConditionTagFilterProps = {
   options: ConditionOption[];
   selected: ConditionOption[];
   onSelectedChange: (selected: ConditionOption[]) => void;
-  mode: ConditionMatchMode;
-  onModeChange: (mode: ConditionMatchMode) => void;
+  // mode/onModeChange未指定の場合はAND/OR選択を表示しない(現場条件などOR固定の用途)
+  mode?: ConditionMatchMode;
+  onModeChange?: (mode: ConditionMatchMode) => void;
 };
 
-// REF002のスキル条件/取得資格条件: マスタからの複数選択+サジェスト+AND/OR切替。
-// AND/ORの説明はマウスオーバー時のみtitleツールチップで表示する(常時表示しない)。
+// REF002のスキル条件/取得資格条件/現場条件: マスタからの複数選択+サジェスト。
+// AND/ORは表示切替トグルではなくラジオで明示的に選択する。
 export function ConditionTagFilter({
   label,
   options,
@@ -42,19 +43,32 @@ export function ConditionTagFilter({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">{label}</span>
-        <button
-          type="button"
-          onClick={() => onModeChange(mode === "AND" ? "OR" : "AND")}
-          title="AND：選択した全ての条件を持つ人を検索／OR：いずれか1つでも持つ人を検索"
-          className="rounded-full border px-3 py-0.5 text-xs"
-        >
-          {mode}
-        </button>
-      </div>
+      <span className="text-sm font-medium">{label}</span>
 
-      <div className="flex flex-wrap gap-2">
+      {mode !== undefined && onModeChange ? (
+        <div className="flex items-center gap-4 text-xs">
+          <label className="flex items-center gap-1">
+            <input
+              type="radio"
+              name={`${label}-mode`}
+              checked={mode === "OR"}
+              onChange={() => onModeChange("OR")}
+            />
+            いずれか含む(OR)
+          </label>
+          <label className="flex items-center gap-1">
+            <input
+              type="radio"
+              name={`${label}-mode`}
+              checked={mode === "AND"}
+              onChange={() => onModeChange("AND")}
+            />
+            すべて含む(AND)
+          </label>
+        </div>
+      ) : null}
+
+      <div className="flex flex-wrap gap-2 empty:hidden">
         {selected.map((item) => (
           <span
             key={item.id}
@@ -86,7 +100,7 @@ export function ConditionTagFilter({
             }
           }}
           placeholder={`${label}を選択`}
-          className="rounded border px-2 py-1 text-sm"
+          className="w-full max-w-56 rounded border px-2 py-1 text-sm"
         />
         <datalist id={datalistId}>
           {options.map((option) => (

@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useListQueryHref } from "@/components/layout/useListQueryHref";
 import { getBreadcrumbTrail } from "@/lib/breadcrumbs";
 
 export function BackLink() {
   const pathname = usePathname();
+  const withListQuery = useListQueryHref();
   const trail = getBreadcrumbTrail(pathname);
 
   // 親を持たない画面(トップ)、または未登録パスでは非表示
@@ -16,7 +18,7 @@ export function BackLink() {
 
   return (
     <Link
-      href={parent.path}
+      href={withListQuery(parent.path)}
       className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 hover:underline dark:hover:text-zinc-300"
     >
       <span aria-hidden="true">←</span>

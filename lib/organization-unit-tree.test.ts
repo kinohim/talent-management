@@ -5,6 +5,7 @@ import {
   buildOrganizationUnitTree,
   collectDescendantIds,
   deriveChildLevel,
+  resolveEffectiveOrgUnitIds,
 } from "./organization-unit-tree";
 
 const units: OrganizationUnitOption[] = [
@@ -80,5 +81,37 @@ describe("collectDescendantIds", () => {
 
   it("空配列を渡すと空集合を返す", () => {
     expect(collectDescendantIds(units, [])).toEqual(new Set());
+  });
+});
+
+describe("resolveEffectiveOrgUnitIds", () => {
+  it("親のみ選択なら配下すべてを対象にする(collectDescendantIds互換)", () => {
+    expect(resolveEffectiveOrgUnitIds(units, [1])).toEqual(new Set([1, 2, 3, 4, 5]));
+  });
+
+  it("親+子が選択されたら最深の子の配下のみを対象にする", () => {
+    // 事業部1 + 開発部2 → 開発部配下のみ(品質保証部5は含まない)
+    expect(resolveEffectiveOrgUnitIds(units, [1, 2])).toEqual(new Set([2, 3, 4]));
+  });
+
+  it("親+孫が選択されたら孫のみを対象にする", () => {
+    expect(resolveEffectiveOrgUnitIds(units, [1, 3])).toEqual(new Set([3]));
+  });
+
+  it("兄弟が両方選択されたら双方の配下を合算する", () => {
+    // 開発部2配下: 第一Gr3のみ選択 → 3。品質保証部5は選択済み子孫なし → 5配下全部
+    expect(resolveEffectiveOrgUnitIds(units, [1, 2, 3, 5])).toEqual(
+      new Set([3, 5]),
+    );
+  });
+
+  it("別ツリーの選択は互いに影響しない", () => {
+    expect(resolveEffectiveOrgUnitIds(units, [1, 2, 6])).toEqual(
+      new Set([2, 3, 4, 6, 7]),
+    );
+  });
+
+  it("空配列を渡すと空集合を返す", () => {
+    expect(resolveEffectiveOrgUnitIds(units, [])).toEqual(new Set());
   });
 });

@@ -86,3 +86,33 @@ export function collectDescendantIds(
   for (const id of selectedIds) visit(id);
   return result;
 }
+
+// カスケード式の組織フィルタ(上位を選択して初めて下位が選択できるUI)用の
+// 検索対象解決。親と子の両方が選択されている場合、親側の全展開をやめて
+// 「選択された最深ノード」の配下のみを対象にする(例: 事業部A✓+部署A1✓なら
+// A1配下のみ。A直下の他部署は対象外)。チェック済み子孫を一つも持たない選択
+// ノードは従来どおり配下すべてを対象に展開する(親のみ選択=配下全部の互換)。
+export function resolveEffectiveOrgUnitIds(
+  units: OrganizationUnitOption[],
+  selectedIds: number[],
+): Set<number> {
+  const selected = new Set(selectedIds);
+  const childrenByParent = new Map<number, number[]>();
+  for (const unit of units) {
+    if (unit.parentId == null) continue;
+    const siblings = childrenByParent.get(unit.parentId) ?? [];
+    siblings.push(unit.id);
+    childrenByParent.set(unit.parentId, siblings);
+  }
+
+  // idの配下(自身除く)に選択済みノードがあるか
+  function hasSelectedDescendant(id: number): boolean {
+    for (const childId of childrenByParent.get(id) ?? []) {
+      if (selected.has(childId) || hasSelectedDescendant(childId)) return true;
+    }
+    return false;
+  }
+
+  const effectiveRoots = selectedIds.filter((id) => !hasSelectedDescendant(id));
+  return collectDescendantIds(units, effectiveRoots);
+}

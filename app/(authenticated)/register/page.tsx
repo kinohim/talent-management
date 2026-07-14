@@ -35,6 +35,7 @@ export default async function BasicInfoRegisterPage() {
     <main className="flex flex-1 flex-col gap-6 p-6">
       <h1 className="text-lg font-semibold">基本情報登録</h1>
       <BasicInfoForm
+        variant="register"
         employeeId={session.user.employeeId}
         email={session.user.email ?? ""}
         defaultValues={{
