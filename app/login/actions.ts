@@ -28,3 +28,11 @@ export async function loginAction(
 
   return { error: null };
 }
+
+export async function githubLoginAction(): Promise<void> {
+  // OAuthフローは成功時NEXT_REDIRECTのthrowでGitHubへ遷移する。エラー
+  // (未登録・退職済み・プロバイダ不一致)はsignInコールバックから
+  // `/login?error=<code>` へのリダイレクトで戻ってくるため(lib/auth.ts参照)、
+  // Credentialsと違いここでのcatch/useActionStateは不要。
+  await signIn("github", { redirectTo: "/" });
+}

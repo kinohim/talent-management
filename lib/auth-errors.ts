@@ -17,13 +17,6 @@ export class RetiredEmployeeError extends CredentialsSignin {
   code = "retired";
 }
 
-// 実SSO実装時、signInコールバックで「紐付き済みaccounts.providerと異なる
-// プロバイダで認証された」場合にthrowする想定の分岐点。現状は開発用ログイン
-// (プロバイダ1つのみ)のため到達しないが、文言だけ先に用意しておく。
-export class ProviderMismatchError extends CredentialsSignin {
-  code = "provider-mismatch";
-}
-
 const MESSAGES: Record<string, string> = {
   "not-registered":
     "このメールアドレスは登録されていません。管理者に新規登録を依頼してください。",
@@ -40,4 +33,12 @@ export function messageForLoginError(error: unknown): string {
     return MESSAGES[error.code] ?? DEFAULT_MESSAGE;
   }
   return DEFAULT_MESSAGE;
+}
+
+// SSO(OAuth)フローではエラーをthrowで画面に返せないため、signInコールバックから
+// `/login?error=<code>` へリダイレクトして伝える(lib/auth.ts参照)。このクエリの
+// codeから直接文言を引く。Auth.js標準のエラーcode("Configuration"等)や未知の
+// codeはデフォルト文言に丸める。
+export function messageForLoginErrorCode(code: string): string {
+  return MESSAGES[code] ?? DEFAULT_MESSAGE;
 }

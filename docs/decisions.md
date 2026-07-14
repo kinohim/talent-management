@@ -7,7 +7,7 @@
 - **Next.js (App Router) + TypeScript + Tailwind CSS**。フロントエンド・バックエンド両方を単一リポジトリで管理し、Server Components / Server Actions を活用する。
 - **Prisma ORM (v7)**。スキーマファイル（`prisma/schema.prisma`）をDBの唯一の真実の源とする。`prisma.config.ts`による新config方式を採用。
 - **Auth.js v5（next-auth@beta）+ `@auth/prisma-adapter`**。`User`/`Account`/`Session`/`VerificationToken`モデル・テーブル名（複数形）ともAuth.js標準に合わせる（他の業務テーブルの単数形命名とは異なる例外。Auth.js標準準拠を優先）。プロバイダの識別情報は`accounts`テーブル（`provider`/`provider_account_id`）で管理し、`signIn`コールバックで紐付き済みAccountのproviderと今回の認証プロバイダを比較して「プロバイダ不一致」を自前判定する。
-  - **セッション戦略は環境で分ける**: 本番はDBセッション、開発環境はJWT。理由: 開発専用のCredentialsプロバイダ（開発用ログイン）がAuth.jsの仕様上JWT戦略でしか動作しないため（`lib/auth.ts`参照）。実SSO実装が完了し開発用ログインを削除した時点で、開発環境もDBセッションに統一できる。
+  - **セッション戦略は開発用ログインの有効・無効で分ける**: 開発用ログインが有効な環境はJWT、無効な環境はDBセッション。理由: 開発専用のCredentialsプロバイダ（開発用ログイン）がAuth.jsの仕様上JWT戦略でしか動作しないため（`lib/auth.ts`参照）。SSO（OAuth）はどちらの戦略でも動作し、JWT戦略でもアダプタ経由のユーザー・アカウント永続化は行われる。開発用ログインを削除した時点で全環境DBセッションに統一できる。
   - **技術的な例外事項**: `users`（Prismaモデル名`User`）のみ、PKを`id`（TEXT/cuid）とする（Auth.jsアダプタの要件。命名規則の`id`＝SERIAL統一の唯一の例外）。`created_by`/`created_program`/`updated_by`/`updated_program`はNULL可（EDT006の管理職操作時のみ設定され、Auth.js自身によるログイン時の`updateUser`呼び出しは監査情報を持たないため）。`accounts`/`sessions`/`verification_tokens`の3テーブルはAuth.jsアダプタが直接read/write/hard-deleteするシステム管理テーブルであり、監査カラム・論理削除のいずれも持たない。
 - **Vercel Postgres（Neon、PostgreSQL 16）**。Vercelへのデプロイと同一エコシステム。接続文字列は`DATABASE_URL`（コネクションプーリング用）と`DIRECT_URL`（マイグレーション用直接接続）の2本を使用。
 
@@ -18,10 +18,12 @@
 
 ## 認証
 
-- **本番環境ではSSO（Azure AD／Google／GitHub）のみを認証経路とし、ID/パスワード認証は提供しない**。テストは各SSOプロバイダのテスト用アカウントで代替する。
-- **開発・テスト環境限定で、社員IDを入力するだけの開発用ログイン（Credentialsプロバイダ）を用意する**。理由: 実SSOプロバイダのアプリ登録・テストテナント整備が整うまでの間も、22画面をロール別に確認する導線を確保するため。`NODE_ENV=production`では当該プロバイダを登録せず無効化し、本番の認証経路には一切影響しない（`lib/auth.ts`参照）。実SSO実装が完了し画面確認導線を代替できる状態になった時点で削除する。
-- **新規社員はメールアドレスの事前登録で照合する**。管理職がEDT006で社員ID・メールアドレスだけを先に登録し、本人が初回ログイン時にメールアドレス一致で認証、その場で`accounts`テーブルに今回のプロバイダとの紐付けを作成する。理由: SSOプロバイダのゲスト・個人アカウント等が誤って初回登録フローに入り込むのを防ぐため。
+- **本番環境ではSSO（Azure AD／Google／GitHub）のみを認証経路とし、ID/パスワード認証は提供しない**。テストは各SSOプロバイダのテスト用アカウントで代替する。実装済みはGitHubのみで、Azure AD／Googleは未実装（AUTH001には非活性ボタンとして配置）。GitHubも`AUTH_GITHUB_ID`/`AUTH_GITHUB_SECRET`未設定の環境ではプロバイダ登録・ボタン活性を行わない（OAuthアプリ未登録でもアプリが壊れないようにするため。`lib/env.ts`参照）。
+- **開発・テスト環境限定で、社員IDを入力するだけの開発用ログイン（Credentialsプロバイダ）を用意する**。理由: 実SSOプロバイダのアプリ登録・テストテナント整備が整うまでの間も、22画面をロール別に確認する導線を確保するため。`NODE_ENV=production`では当該プロバイダを登録せず無効化し、本番の認証経路には一切影響しない（`lib/auth.ts`参照）。ただし実運用開始前の現段階では`ENABLE_DEV_LOGIN=true`により本番相当環境でも一時的に有効化できる（実運用開始時にフラグごと削除する）。AUTH001上ではSSOボタンと区分し「開発用ログイン」であることを明記する。
+- **新規社員はメールアドレスの事前登録で照合する**。管理職がEDT006で社員ID・メールアドレスだけを先に登録し、本人が初回ログイン時にメールアドレス一致で認証、その場で`accounts`テーブルに今回のプロバイダとの紐付けを作成する。理由: SSOプロバイダのゲスト・個人アカウント等が誤って初回登録フローに入り込むのを防ぐため。照合ロジックは`lib/sso-login.ts`の`resolveSsoLogin`（`signIn`コールバックから呼び出し、アダプタの`createUser`/`linkAccount`より前に実行されるため未登録ユーザーのUser自動作成を確実に防げる）。初回の紐付けは`allowDangerousEmailAccountLinking`による自動リンクで行う（`signIn`コールバックでの事前登録照合と確認済みメール限定が安全性の前提のため、必ずセットで維持する）。
+- **SSOの照合には確認済み（verified）メールのみを使用する**。理由: 未検証メールを照合に使うと、他人のメールアドレスを登録したSSOアカウントでなりすましログインできてしまうため。GitHubは標準プロバイダが`verified`を確認しないため、`userinfo`を差し替えて`/user/emails`から「verifiedかつprimary」のメールだけを採用する。確認済みメールが取得できない場合は未登録エラーに丸める。
 - **Google／GitHubアカウントでのログインにも対応する**。1アカウントにつき初回ログインで使用したプロバイダに固定し、途中でのプロバイダ切替は非対応。**異なるプロバイダで認証された場合はログインさせず「プロバイダ不一致」エラーを表示する**（文言はAUTH001参照）。GitHubは個人アカウントで会社メールと紐付いていない場合、未登録エラーになる制約がある。
+- **SSO（OAuth）フローのログインエラーは`/login?error=<code>`へのリダイレクトで画面に伝える**。理由: Credentialsと違いOAuthフローではthrowしたエラーをServer Action（useActionState）に返せないため。`signIn`コールバックがエラーcode付きURL文字列を返し（Auth.js v5は文字列返却をリダイレクト先として扱う）、AUTH001がクエリのcodeを日本語文言に変換して表示する（`lib/auth-errors.ts`の`messageForLoginErrorCode`）。
 - **`users.last_login_at`はログイン成功のたびに更新する**（`lib/auth.ts`のsignInイベント、REF007「最終ログイン」列で使用）。監査カラム(`updated_by`/`updated_program`)も本人の社員IDと`"AUTH001"`で更新する（ログインという本人操作を起点とした更新のため）。
 
 ## 組織構造
