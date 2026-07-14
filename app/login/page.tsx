@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/auth/LoginForm";
 import { auth } from "@/lib/auth";
-import { isProduction } from "@/lib/env";
+import { isDevLoginEnabled, isProduction } from "@/lib/env";
 
 export default async function LoginPage() {
   const session = await auth();
@@ -10,10 +10,12 @@ export default async function LoginPage() {
     redirect("/");
   }
 
+  const useDevLogin = !isProduction || isDevLoginEnabled;
+
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-6 p-6">
       <h1 className="text-lg font-semibold">ログイン</h1>
-      {isProduction ? (
+      {!useDevLogin ? (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           SSOログインは準備中です。しばらくお待ちください。
         </p>
