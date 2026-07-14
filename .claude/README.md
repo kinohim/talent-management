@@ -25,15 +25,16 @@
 
 | 設定 | 必要性 |
 |---|---|
-| `Read(./.env)` `Read(./.env.*)` | Neon の接続文字列、Auth.js の `AUTH_SECRET`、SSO のクライアントシークレットが集中するファイル。読ませない = 会話ログや出力への漏出を防ぐ |
+| `Read(./.env)` `Read(./.env.*)` | Neon の接続文字列、Auth.js の `AUTH_SECRET`、SSO のクライアントシークレットが集中するファイル。読ませない = 会話ログや出力への漏出を防ぐ。**deny は Read ツールしか塞げない**ため、Bash 経由(`cat .env` 等)は hooks/pre-bash-env-guard.sh が実行前にブロックする(二段構え) |
 | `Bash(npx prisma migrate reset:*)` | DB 全消去の破壊的操作。業務データを扱うアプリの事故防止として明示的に塞ぐ |
 | `Bash(npx prisma db push:*)` | マイグレーション履歴を経ずスキーマを直接変更する操作。履歴の一貫性を守るため塞ぐ |
 | `Bash(git push:*)` | リモートへの反映は人間の承認を挟むための安全弁。緩めたくなったら外せばよい |
 
 トレードオフの注記: `Read(./.env.*)` は **`.env.example` のような無害なファイルも
-塞いでしまう**。`.env.example`(秘密情報を含まないテンプレート)を運用する場合は、
-ワイルドカードをやめて `Read(./.env.local)` 等の実ファイル名の列挙に切り替えること。
-安全側に倒してワイルドカードを初期値にしている。
+塞いでしまう**(安全側に倒したワイルドカード)。`.env.example` の内容確認は
+Bash 経由(`cat .env.example`)で行える(pre-bash-env-guard.sh は .env.example のみ
+許可している)。Read ツールでも読めるようにしたい場合は、ワイルドカードをやめて
+`Read(./.env.local)` 等の実ファイル名の列挙に切り替えること(人間が手で編集する)。
 
 補足: `rm -rf` のような汎用コマンドの deny は、書き方の変形(`rm -r -f` 等)で
 素通りするため過信できない。「deny があるから安全」という誤った安心感を生むより、
@@ -43,10 +44,12 @@
 
 | 設定 | 必要性 |
 |---|---|
-| `matcher: "Edit\|MultiEdit\|Write"` | ファイルの編集・複数箇所一括編集・新規作成の直後にだけ発火させる(Read 等では発火させない) |
+| `PreToolUse` matcher `Bash` → pre-bash-env-guard.sh | Bash コマンドの**実行前**に発火し、コマンド文字列に .env 系ファイルへの参照があればブロックする(.env.example のみ許可)。permissions の deny(Read ツールのみ対象)を補完する強制レイヤー |
+| `PostToolUse` matcher `Edit\|Write` | ファイルの編集・新規作成の直後にだけ発火させる(Read 等では発火させない) |
 | `command: bash .claude/hooks/post-edit.sh` | ロジックを settings.json に直書きせずスクリプトに分離。変更時に JSON を触らずに済み、シェル単体でテストもできる |
+| `PostToolUse` matcher `ExitPlanMode` → post-exit-plan-mode.sh | Plan モードの計画が承認された直後に発火し、「実装完了時に docs/plans/ へ保存するかユーザーに確認する」リマインダーを additionalContext で注入する |
 | `Stop` → notify.sh | Claude が**応答を完了した**ときに Windows トースト通知を出す(WSL2 環境用)。matcher は不要なイベントなので指定しない |
-| `Notification` → notify.sh | Claude が**許可や入力を待っている**ときに通知を出す。放置に気づけるようにする |
+| `Notification` → notify.sh | Claude が**許可や入力を待っている**ときに通知を出す。放置に気づけるようにする。※個人の `~/.claude/settings.json` に同じ通知フックを入れると二重通知になるので入れないこと |
 
 通知の仕組み・注意点(WSL2 前提、うるさい場合の外し方など)は
 `hooks/notify.sh` 内のコメントと `HARNESS.md` の導入手順を参照。

@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # =============================================================
 # post-edit.sh — PostToolUse フック(このハーネスの心臓部)
-# Claude がファイルを編集(Edit / MultiEdit / Write)するたびに自動実行され、
+# Claude がファイルを編集(Edit / Write)するたびに自動実行され、
 # 編集されたファイルを即座に lint + 型チェックする。
+# ※matcher の "Edit|Write" は正規表現の部分一致のため NotebookEdit 等にも
+#   マッチし得るが、下の拡張子フィルタ(ts/tsx のみ)で実害はない。
 #
 # 最重要ポイントは終了コードの意味:
 #   exit 0 … 問題なし。何も起きない
@@ -34,6 +36,13 @@ if [[ ! "$file_path" =~ \.(ts|tsx)$ ]]; then
   exit 0
 fi
 
+# リポジトリ外のファイル(スクラッチパッド等)は対象外。
+# プロジェクト外の .ts を ESLint にかけると「対象外ファイル」エラーで
+# exit 2 になり、無関係なフィードバックが Claude に返ってしまうため。
+if [[ "$file_path" != "$PWD"/* ]]; then
+  exit 0
+fi
+
 errors=""
 
 # ESLint は編集された1ファイルだけに絞る。
@@ -46,8 +55,10 @@ fi
 # 型チェックはプロジェクト全体に対して実行する。
 # 型エラーは「他ファイルへの影響」として現れることが多く、
 # 1ファイルだけの検査では見逃すため。
-# ※体感が重い場合はこのブロックを削り、verify.sh 側に寄せてよい。
-if ! tsc_out=$(npx tsc --noEmit 2>&1); then
+# --incremental で前回結果(*.tsbuildinfo、.gitignore 済み)を再利用し、
+# 編集のたびのフルチェックを差分チェックに抑える。
+# ※それでも体感が重い場合はこのブロックを削り、verify.sh 側に寄せてよい。
+if ! tsc_out=$(npx tsc --noEmit --incremental 2>&1); then
   errors+="[tsc]\n${tsc_out}\n"
 fi
 

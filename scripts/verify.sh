@@ -30,10 +30,9 @@ npx tsc --noEmit
 
 # テスト: vitest run は watch モードを無効化した1回実行。
 # package.json の test スクリプト定義に依存しないよう直接叩く。
-# --passWithNoTests: テストファイルが 0 件のとき vitest は失敗扱いにするが、
-# プロジェクト立ち上げ直後から verify を使えるように「0 件は成功」とする。
-# (テストが書かれ始めたら外して「テストなし」を検知できるようにしてもよい)
+# テストが 1 件も収集されない場合は失敗にする(--passWithNoTests は付けない)。
+# 「テスト 0 件」は vitest 設定の破損やテスト消失の兆候であり、検知したい異常。
 echo "== Vitest =="
-npx vitest run --passWithNoTests
+npx vitest run
 
 echo "✅ verify passed"

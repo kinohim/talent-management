@@ -30,13 +30,17 @@ scripts/
 ├── settings.local.json       (各自が作る)個人設定。git管理しない
 ├── hooks/
 │   ├── post-edit.sh          編集のたびに自動lint+型チェック。失敗をClaudeに直接返す心臓部
+│   ├── pre-bash-env-guard.sh Bash経由の .env 読み取りを実行前にブロック(.env.example は許可)
+│   ├── post-exit-plan-mode.sh Plan承認直後に「docs/plans/への保存確認」のリマインダーを注入
 │   └── notify.sh             完了・確認待ちを Windows トースト通知(WSL2 環境用)
 ├── skills/
 │   ├── db-migration/         スキーマ変更の手順書(Claudeが必要時に自動で読む)
 │   └── new-screen/           画面実装の手順書
 ├── agents/
 │   ├── verifier.md           検証専門の子エージェント(修正権限なし)
-│   └── code-reviewer.md      レビュー専門の子エージェント(修正権限なし)
+│   ├── code-reviewer.md      コードレビュー専門の子エージェント(修正権限なし)
+│   ├── design-review-agent.md docs/ の仕様書間・実装との整合レビュー(修正権限なし)
+│   └── infra-agent.md        DB運用・マイグレーション・デプロイ準備(破壊的操作は指示待ち)
 └── commands/                  / で呼び出す定型プロンプト(下記一覧)
 ```
 
@@ -81,20 +85,21 @@ scripts/
 - **検証する者・レビューする者は修正しない** — verifier / code-reviewer には
   編集権限を与えていない。「テストを書き換えて通す」型の事故を構造的に防ぐ
 - **危険な操作はコマンド単位で塞ぐ** — prisma migrate reset、db push、git push、
-  .env の読み取りは deny 済み
+  .env の読み取りは deny 済み。deny は Read ツールしか塞げないため、
+  Bash 経由(`cat .env` 等)の読み取りは pre-bash-env-guard.sh で実行前にブロックする
 
 ## 導入手順(新しい環境で最初にやること)
 
 1. **jq のインストール**(post-edit.sh が依存): `brew install jq` (macOS) /
    `sudo apt-get install jq` (Ubuntu)
-2. **実行権限の付与**: `chmod +x scripts/verify.sh .claude/hooks/post-edit.sh .claude/hooks/notify.sh`
+2. **実行権限の付与**: `chmod +x scripts/verify.sh .claude/hooks/*.sh`
 3. **package.json に scripts を追加**(なければ):
    ```json
    {
      "scripts": {
-       "lint": "eslint .",
+       "lint": "eslint",
        "verify": "bash scripts/verify.sh",
-       "lint:fix": "eslint . --fix"
+       "lint:fix": "eslint --fix"
      }
    }
    ```
