@@ -6,6 +6,7 @@ import {
   saveCareerSummary,
   type CareerSummaryFormState,
 } from "@/app/(authenticated)/career-summary/actions";
+import { AiGeneratePanel } from "@/components/career-summary/AiGeneratePanel";
 
 const MAX_LENGTH = 1000;
 
@@ -56,6 +57,11 @@ export function CareerSummaryForm({ defaultValues }: CareerSummaryFormProps) {
             {state.fieldErrors.careerSummary}
           </p>
         ) : null}
+        <AiGeneratePanel
+          target="careerSummary"
+          label="経歴概要"
+          onApply={setCareerSummary}
+        />
       </div>
 
       <div className="flex flex-col gap-1">
@@ -79,6 +85,7 @@ export function CareerSummaryForm({ defaultValues }: CareerSummaryFormProps) {
         {state.fieldErrors.selfPr ? (
           <p className="text-sm text-red-600">{state.fieldErrors.selfPr}</p>
         ) : null}
+        <AiGeneratePanel target="selfPr" label="自己PR" onApply={setSelfPr} />
       </div>
 
       {state.formError ? (
