@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { parseCertificationRowsForm } from "./certification-schema";
 
@@ -115,6 +115,39 @@ describe("parseCertificationRowsForm", () => {
         "有効期限は取得年月日より後の日付を入力してください。",
       );
     }
+  });
+
+  describe("本日以前の判定はJST基準", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("UTCではまだ前日でも、JSTの今日の日付を許容する", () => {
+      // UTC 2024-01-31 20:00 = JST 2024-02-01 05:00 → JSTの今日は2月1日
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2024-01-31T20:00:00Z"));
+      const result = parseCertificationRowsForm(
+        formData({
+          "items.0.certificationCategoryId": "1",
+          "items.0.certificationId": "2",
+          "items.0.acquiredDate": "2024-02-01",
+        }),
+      );
+      expect(result.success).toBe(true);
+    });
+
+    it("JSTの明日の日付はエラーになる", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2024-01-31T20:00:00Z"));
+      const result = parseCertificationRowsForm(
+        formData({
+          "items.0.certificationCategoryId": "1",
+          "items.0.certificationId": "2",
+          "items.0.acquiredDate": "2024-02-02",
+        }),
+      );
+      expect(result.success).toBe(false);
+    });
   });
 
   it("同一資格を複数行(再取得)登録しても成功する", () => {

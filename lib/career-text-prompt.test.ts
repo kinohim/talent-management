@@ -29,8 +29,9 @@ function fullInput(): CareerTextPromptInput {
         industry: "小売",
         projectSummary: "基幹ECのリプレイス",
         overview: "バックエンドAPIの設計・実装",
-        startDate: new Date(2022, 3, 1),
-        endDate: new Date(2024, 8, 30),
+        // 実データはDATE型(UTC深夜保存)のためUTCで構築する
+        startDate: new Date(Date.UTC(2022, 3, 1)),
+        endDate: new Date(Date.UTC(2024, 8, 30)),
         roles: ["SE", "PL"],
         skills: ["TypeScript", "PostgreSQL"],
         phases: ["基本設計", "開発", "テスト"],
@@ -41,7 +42,7 @@ function fullInput(): CareerTextPromptInput {
       { name: "Java", version: null, level: "BASIC" },
     ],
     certifications: [
-      { name: "応用情報技術者", acquiredDate: new Date(2021, 9, 1) },
+      { name: "応用情報技術者", acquiredDate: new Date(Date.UTC(2021, 9, 1)) },
     ],
   };
 }

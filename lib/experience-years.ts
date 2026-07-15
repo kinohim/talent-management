@@ -1,5 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
 
+import { nowJstClock } from "@/lib/date-format";
+
 export type MonthInterval = {
   startMonthIndex: number;
   endMonthIndex: number;
@@ -61,7 +63,8 @@ export async function recalculateExperienceYears(
     select: { startDate: true, endDate: true },
   });
 
-  const experienceYears = calculateExperienceYears(projects, new Date());
+  // 進行中案件の「今の年月」はJST基準で数える
+  const experienceYears = calculateExperienceYears(projects, nowJstClock());
 
   await tx.employee.update({
     where: { employeeId },

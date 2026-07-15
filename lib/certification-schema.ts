@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { parseDateOnly } from "@/lib/date-format";
+import { parseDateOnly, todayJstDateOnly } from "@/lib/date-format";
 
 const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -22,11 +22,8 @@ const certificationRowSchema = z
     const { acquiredDate, expirationDate } = ctx.value;
     if (!DATE_ONLY_PATTERN.test(acquiredDate)) return;
 
-    const today = new Date();
-    const todayDateOnly = new Date(
-      Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()),
-    );
-    if (parseDateOnly(acquiredDate).getTime() > todayDateOnly.getTime()) {
+    // 「本日」は利用者の実際の今日(JST)基準で判定する
+    if (parseDateOnly(acquiredDate).getTime() > todayJstDateOnly().getTime()) {
       ctx.issues.push({
         code: "custom",
         message: "取得年月日は本日以前の日付を入力してください。",

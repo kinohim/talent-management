@@ -55,8 +55,10 @@ const TARGET_LABELS: Record<CareerTextTarget, string> = {
   selfPr: "自己PR",
 };
 
+// 対象カラムはDATE型(UTC深夜保存)のため、実行環境のタイムゾーンに
+// 影響されないようUTC getterで読み出す
 function formatYearMonth(date: Date): string {
-  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}`;
+  return `${date.getUTCFullYear()}/${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
 function formatProject(project: PromptProject): string {

@@ -8,6 +8,8 @@ import {
   toDisplayDateTime,
   toDisplayYearMonth,
   toMonthInputValue,
+  todayJstDateOnly,
+  nowJstClock,
 } from "./date-format";
 
 describe("toDateInputValue / parseDateOnly", () => {
@@ -80,8 +82,41 @@ describe("toDisplayDateTime", () => {
     expect(toDisplayDateTime(undefined)).toBe("");
   });
 
-  it("日本語形式(時分まで、ローカルタイムゾーン)に変換する", () => {
-    const date = new Date(2024, 0, 31, 9, 5);
+  it("UTC瞬間をJSTの日本語形式(時分まで)に変換する", () => {
+    const date = new Date("2024-01-31T00:05:00Z");
     expect(toDisplayDateTime(date)).toBe("2024年1月31日 09:05");
+  });
+
+  it("JSTで日付が繰り上がるUTC瞬間でも正しく変換する", () => {
+    const date = new Date("2024-01-31T23:30:00Z");
+    expect(toDisplayDateTime(date)).toBe("2024年2月1日 08:30");
+  });
+});
+
+describe("todayJstDateOnly", () => {
+  it("JSTの今日をUTC深夜のDateとして返す", () => {
+    // UTC 2024-01-31 20:00 = JST 2024-02-01 05:00
+    const now = new Date("2024-01-31T20:00:00Z");
+    expect(todayJstDateOnly(now).toISOString()).toBe(
+      "2024-02-01T00:00:00.000Z",
+    );
+  });
+
+  it("JSTとUTCが同日の時刻ではその日を返す", () => {
+    const now = new Date("2024-01-31T10:00:00Z");
+    expect(todayJstDateOnly(now).toISOString()).toBe(
+      "2024-01-31T00:00:00.000Z",
+    );
+  });
+});
+
+describe("nowJstClock", () => {
+  it("JSTの壁時計をUTC getterで読めるDateを返す", () => {
+    // UTC 2024-01-31 23:30 = JST 2024-02-01 08:30 → 月が繰り上がる
+    const now = new Date("2024-01-31T23:30:00Z");
+    const jst = nowJstClock(now);
+    expect(jst.getUTCFullYear()).toBe(2024);
+    expect(jst.getUTCMonth()).toBe(1);
+    expect(jst.getUTCDate()).toBe(1);
   });
 });
