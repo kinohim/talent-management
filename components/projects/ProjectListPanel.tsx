@@ -19,7 +19,7 @@ export function ProjectListPanel({ projects }: { projects: ProjectListItem[] }) 
         <h2 className="text-base font-semibold">プロジェクト経歴</h2>
         <Link
           href="/projects/new"
-          className="rounded bg-zinc-900 px-4 py-2 text-sm text-white dark:bg-zinc-100 dark:text-zinc-900"
+          className="rounded bg-zinc-900 hover:bg-zinc-700 px-4 py-2 text-sm text-white dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
         >
           + 新規追加
         </Link>

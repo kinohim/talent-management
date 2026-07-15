@@ -117,7 +117,7 @@ export default async function ResumePage({ params }: ResumePageProps) {
         organizationPath={formatOrganizationUnitPath(target.organizationUnit)}
         nearestStationLine={target.nearestStationLine ?? ""}
         nearestStationName={target.nearestStationName ?? ""}
-        experienceYears={target.experienceYears}
+        experienceMonths={target.experienceMonths}
       />
 
       <ResumeEducationSection

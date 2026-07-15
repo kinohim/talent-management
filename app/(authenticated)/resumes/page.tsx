@@ -103,10 +103,10 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
   }
 
   if (filters.experienceMin != null) {
-    conditions.push({ experienceYears: { gte: filters.experienceMin } });
+    conditions.push({ experienceMonths: { gte: filters.experienceMin * 12 } });
   }
   if (filters.experienceMax != null) {
-    conditions.push({ experienceYears: { lte: filters.experienceMax } });
+    conditions.push({ experienceMonths: { lte: filters.experienceMax * 12 + 11 } });
   }
 
   if (isEmployeeRole) {
@@ -177,10 +177,10 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
     }
   }
   if (filters.colExperienceMin != null) {
-    conditions.push({ experienceYears: { gte: filters.colExperienceMin } });
+    conditions.push({ experienceMonths: { gte: filters.colExperienceMin * 12 } });
   }
   if (filters.colExperienceMax != null) {
-    conditions.push({ experienceYears: { lte: filters.colExperienceMax } });
+    conditions.push({ experienceMonths: { lte: filters.colExperienceMax * 12 + 11 } });
   }
   // スキル・資格の列フィルタは検索フォームと同じ仕様(マスタ複数選択+AND/OR)
   if (filters.colSkillIds.length > 0) {
@@ -223,7 +223,7 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
       employeeId: true,
       name: true,
       organizationUnitId: true,
-      experienceYears: true,
+      experienceMonths: true,
       employeeSkills: {
         select: { skill: { select: { skillName: true } } },
         orderBy: { skill: { skillName: "asc" } },
@@ -252,7 +252,10 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
     organizationUnitName: employee.organizationUnitId
       ? (orgUnitById.get(employee.organizationUnitId)?.unitName ?? null)
       : null,
-    experienceYears: employee.experienceYears,
+    experienceYears:
+      employee.experienceMonths != null
+        ? Math.floor(employee.experienceMonths / 12)
+        : null,
     // 同一スキルを複数バージョンで登録している場合に名前が重複するため一意化する
     mainSkills: summarizeNames(employee.employeeSkills.map((es) => es.skill.skillName)),
     mainCertifications: summarizeNames(

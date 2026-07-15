@@ -23,6 +23,22 @@ export async function saveSite(
     return { error: parsed.error };
   }
 
+  // 主管部署は部(DEPARTMENT)のみ選択可(docs/screens.md MST005)。
+  // クライアントのselectは改竄され得るためサーバー側で再検証する
+  if (parsed.organizationUnitId != null) {
+    const unit = await prisma.organizationUnit.findFirst({
+      where: {
+        id: parsed.organizationUnitId,
+        unitLevel: "DEPARTMENT",
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
+    if (!unit) {
+      return { error: "選択された主管部署が見つかりません。" };
+    }
+  }
+
   // site_nameはシステム全体でユニーク(deletedAtを問わないDB制約)なため、
   // 論理削除済みの同名行が残っていると新規createがユニーク制約違反になる。
   // その場合は新規作成ではなく、削除済み行を復活させる。
@@ -39,6 +55,7 @@ export async function saveSite(
         where: { id: siteId },
         data: {
           siteName: parsed.siteName,
+          organizationUnitId: parsed.organizationUnitId,
           updatedBy: user.employeeId,
           updatedProgram: PROGRAM,
         },
@@ -48,6 +65,7 @@ export async function saveSite(
         where: { id: deletedSiteToReactivate.id },
         data: {
           siteName: parsed.siteName,
+          organizationUnitId: parsed.organizationUnitId,
           deletedAt: null,
           deletedBy: null,
           deletedProgram: null,
@@ -59,6 +77,7 @@ export async function saveSite(
       await prisma.site.create({
         data: {
           siteName: parsed.siteName,
+          organizationUnitId: parsed.organizationUnitId,
           createdBy: user.employeeId,
           createdProgram: PROGRAM,
           updatedBy: user.employeeId,

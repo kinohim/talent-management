@@ -39,10 +39,10 @@ export function sumUnionMonths(intervals: MonthInterval[]): number {
   return total;
 }
 
-// docs/schema.md「employee.experience_years」: 全プロジェクト期間の和集合(重複期間は
-// 1回)を月数換算し、12で割った整数部(切り捨て)。end_date=NULL(進行中)は`today`の
-// 年月まで含める。
-export function calculateExperienceYears(
+// docs/schema.md「employee.experience_months」: 全プロジェクト期間の和集合(重複期間は
+// 1回)の月数。end_date=NULL(進行中)は`today`の年月まで含める。
+// 年への切り捨てはせず月数のまま保存し、表示・検索側で年に換算する。
+export function calculateExperienceMonths(
   projects: { startDate: Date; endDate: Date | null }[],
   today: Date,
 ): number {
@@ -51,10 +51,20 @@ export function calculateExperienceYears(
     endMonthIndex: toMonthIndex(project.endDate ?? today),
   }));
 
-  return Math.floor(sumUnionMonths(intervals) / 12);
+  return sumUnionMonths(intervals);
 }
 
-export async function recalculateExperienceYears(
+// 経験年数の表示用文言(REF003/REF004)。「◯年◯か月」。
+// 端数のない側は省略する(0年3か月→「3か月」、5年0か月→「5年」、0か月→「0か月」)。
+export function formatExperienceMonths(months: number): string {
+  const years = Math.floor(months / 12);
+  const rest = months % 12;
+  if (years === 0) return `${rest}か月`;
+  if (rest === 0) return `${years}年`;
+  return `${years}年${rest}か月`;
+}
+
+export async function recalculateExperienceMonths(
   tx: Prisma.TransactionClient,
   employeeId: string,
 ): Promise<void> {
@@ -64,10 +74,10 @@ export async function recalculateExperienceYears(
   });
 
   // 進行中案件の「今の年月」はJST基準で数える
-  const experienceYears = calculateExperienceYears(projects, nowJstClock());
+  const experienceMonths = calculateExperienceMonths(projects, nowJstClock());
 
   await tx.employee.update({
     where: { employeeId },
-    data: { experienceYears },
+    data: { experienceMonths },
   });
 }

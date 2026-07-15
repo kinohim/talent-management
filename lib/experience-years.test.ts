@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { calculateExperienceYears, sumUnionMonths } from "./experience-years";
+import {
+  calculateExperienceMonths,
+  formatExperienceMonths,
+  sumUnionMonths,
+} from "./experience-years";
 
 describe("sumUnionMonths", () => {
   it("区間が0件なら0を返す", () => {
@@ -43,15 +47,15 @@ describe("sumUnionMonths", () => {
   });
 });
 
-describe("calculateExperienceYears", () => {
+describe("calculateExperienceMonths", () => {
   const today = new Date(Date.UTC(2024, 5, 15)); // 2024-06-15
 
-  it("プロジェクトが0件なら0年", () => {
-    expect(calculateExperienceYears([], today)).toBe(0);
+  it("プロジェクトが0件なら0か月", () => {
+    expect(calculateExperienceMonths([], today)).toBe(0);
   });
 
-  it("12ヶ月ちょうどなら1年", () => {
-    const years = calculateExperienceYears(
+  it("12ヶ月ちょうどなら12を返す(年への切り捨てはしない)", () => {
+    const months = calculateExperienceMonths(
       [
         {
           startDate: new Date(Date.UTC(2020, 0, 1)),
@@ -60,12 +64,12 @@ describe("calculateExperienceYears", () => {
       ],
       today,
     );
-    expect(years).toBe(1);
+    expect(months).toBe(12);
   });
 
-  it("端数月は切り捨てる", () => {
-    // 2020-01〜2021-01の13ヶ月 → 1年(端数1ヶ月切り捨て)
-    const years = calculateExperienceYears(
+  it("端数月も月数として保持する", () => {
+    // 2020-01〜2021-01の13ヶ月
+    const months = calculateExperienceMonths(
       [
         {
           startDate: new Date(Date.UTC(2020, 0, 1)),
@@ -74,22 +78,22 @@ describe("calculateExperienceYears", () => {
       ],
       today,
     );
-    expect(years).toBe(1);
+    expect(months).toBe(13);
   });
 
   it("進行中(endDate=null)のプロジェクトはtodayの年月まで含める", () => {
-    // 2023-06〜進行中、today=2024-06 → 13ヶ月 → 1年
-    const years = calculateExperienceYears(
+    // 2023-06〜進行中、today=2024-06 → 13ヶ月
+    const months = calculateExperienceMonths(
       [{ startDate: new Date(Date.UTC(2023, 5, 1)), endDate: null }],
       today,
     );
-    expect(years).toBe(1);
+    expect(months).toBe(13);
   });
 
   it("重複期間の複数プロジェクトを和集合で正しく計算する", () => {
     // 2018-01〜2019-12(24ヶ月)と2019-01〜2020-12(24ヶ月)の重複12ヶ月(2019年)
-    // 和集合は2018-01〜2020-12の36ヶ月 → 3年
-    const years = calculateExperienceYears(
+    // 和集合は2018-01〜2020-12の36ヶ月
+    const months = calculateExperienceMonths(
       [
         {
           startDate: new Date(Date.UTC(2018, 0, 1)),
@@ -102,6 +106,24 @@ describe("calculateExperienceYears", () => {
       ],
       today,
     );
-    expect(years).toBe(3);
+    expect(months).toBe(36);
+  });
+});
+
+describe("formatExperienceMonths", () => {
+  it("年と月を「◯年◯か月」で表示する", () => {
+    expect(formatExperienceMonths(99)).toBe("8年3か月");
+  });
+
+  it("1年未満は「◯か月」のみ", () => {
+    expect(formatExperienceMonths(3)).toBe("3か月");
+  });
+
+  it("端数0か月は「◯年」のみ", () => {
+    expect(formatExperienceMonths(60)).toBe("5年");
+  });
+
+  it("0か月は「0か月」", () => {
+    expect(formatExperienceMonths(0)).toBe("0か月");
   });
 });

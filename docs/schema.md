@@ -42,7 +42,7 @@ deleted_at, deleted_by, deleted_program   -- 論理削除。NULL=有効、日付
 | name_kana | VARCHAR(50) | NULL可 | 初期登録前はNULL |
 | birth_date | DATE | | |
 | gender | ENUM | | 1:男性, 2:女性, 3:その他 |
-| experience_years | INT | | プロジェクト経歴の登録・更新・削除時に自動計算して保存。**全プロジェクト期間の和集合**（重複期間は1回として数える）を月数で算出し、12で割った整数部（切り捨て）を年数とする。`end_date=NULL`（進行中）は計算時点の年月まで含めて計算する |
+| experience_months | INT | | プロジェクト経歴の登録・更新・削除時に自動計算して保存。**全プロジェクト期間の和集合**（重複期間は1回として数える）の月数。`end_date=NULL`（進行中）は計算時点の年月まで含めて計算する。表示は「◯年◯か月」（REF003/REF004）、一覧・検索は12で割った年数で扱う |
 | career_summary | TEXT | | |
 | self_pr | TEXT | | |
 | nearest_station_line | VARCHAR(100) | | 自由記述。例：JR山手線 |
@@ -175,6 +175,7 @@ Auth.js（`@auth/prisma-adapter`）標準の`User`モデル・テーブル名に
 |---|---|---|---|
 | id | SERIAL | PK | |
 | site_name | VARCHAR(100) | UK, NOT NULL | MST005で管理。システム全体でユニーク |
+| organization_unit_id | INT | FK(organization_unit.id) | 主管部署。部（unit_level=2）のみ選択可・任意（NULL可） |
 
 ## project（プロジェクト経歴）
 

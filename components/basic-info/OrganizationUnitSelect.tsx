@@ -59,7 +59,7 @@ export function OrganizationUnitSelect({
             setDepartmentId(NONE);
             setGroupId(NONE);
           }}
-          className="rounded border px-3 py-2"
+          className="h-[42px] rounded border px-3 py-2"
         >
           <option value={NONE}>なし</option>
           {divisions.map((d) => (
@@ -82,7 +82,7 @@ export function OrganizationUnitSelect({
             setGroupId(NONE);
           }}
           disabled={!divisionId}
-          className="rounded border px-3 py-2 disabled:opacity-50"
+          className="h-[42px] rounded border px-3 py-2 disabled:opacity-50"
         >
           <option value={NONE}>なし</option>
           {departments.map((d) => (
@@ -102,7 +102,7 @@ export function OrganizationUnitSelect({
           value={groupId}
           onChange={(e) => setGroupId(e.target.value)}
           disabled={!departmentId}
-          className="rounded border px-3 py-2 disabled:opacity-50"
+          className="h-[42px] rounded border px-3 py-2 disabled:opacity-50"
         >
           <option value={NONE}>なし</option>
           {groups.map((g) => (

@@ -9,6 +9,9 @@ vi.mock("@/lib/prisma", () => ({
     employee: {
       count: vi.fn(),
     },
+    site: {
+      count: vi.fn(),
+    },
   },
 }));
 
@@ -30,6 +33,7 @@ import {
 const findFirstMock = vi.mocked(prisma.organizationUnit.findFirst);
 const organizationUnitCountMock = vi.mocked(prisma.organizationUnit.count);
 const employeeCountMock = vi.mocked(prisma.employee.count);
+const siteCountMock = vi.mocked(prisma.site.count);
 
 const units: OrganizationUnitOption[] = [
   { id: 1, parentId: null, unitName: "システム事業部", unitLevel: "DIVISION" },
@@ -292,11 +296,22 @@ describe("getOrganizationUnitDeleteBlockReason", () => {
   beforeEach(() => {
     organizationUnitCountMock.mockReset();
     employeeCountMock.mockReset();
+    siteCountMock.mockReset();
+    siteCountMock.mockResolvedValue(0);
   });
 
   it("配下の組織単位が存在すれば削除不可", async () => {
     organizationUnitCountMock.mockResolvedValue(1);
     employeeCountMock.mockResolvedValue(0);
+    expect(await getOrganizationUnitDeleteBlockReason(1)).toBe(
+      "使用中のため削除できません",
+    );
+  });
+
+  it("現場マスタの主管部署として参照されていれば削除不可", async () => {
+    organizationUnitCountMock.mockResolvedValue(0);
+    employeeCountMock.mockResolvedValue(0);
+    siteCountMock.mockResolvedValue(1);
     expect(await getOrganizationUnitDeleteBlockReason(1)).toBe(
       "使用中のため削除できません",
     );

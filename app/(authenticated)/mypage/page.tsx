@@ -130,6 +130,7 @@ export default async function MyPage({ searchParams }: MyPageProps) {
         view={
           <div className="flex flex-col gap-8">
             <ResumeBasicInfoSection
+              hideTitle
               name={employee.name ?? ""}
               nameKana={employee.nameKana ?? ""}
               birthDate={employee.birthDate}
@@ -137,7 +138,7 @@ export default async function MyPage({ searchParams }: MyPageProps) {
               organizationPath={formatOrganizationUnitPath(employee.organizationUnit)}
               nearestStationLine={employee.nearestStationLine ?? ""}
               nearestStationName={employee.nearestStationName ?? ""}
-              experienceYears={employee.experienceYears}
+              experienceMonths={employee.experienceMonths}
             />
             <ResumeEducationSection
               finalSchoolType={employee.finalSchoolType}
@@ -192,13 +193,13 @@ export default async function MyPage({ searchParams }: MyPageProps) {
 
       <EditableSection
         title="スキル"
-        view={<ResumeSkillList groups={skillGroups} />}
+        view={<ResumeSkillList hideTitle groups={skillGroups} />}
         form={<SkillRowsForm options={skillOptions} initialRows={initialSkillRows} />}
       />
 
       <EditableSection
         title="資格"
-        view={<ResumeCertificationList certifications={employee.employeeCertifications} />}
+        view={<ResumeCertificationList hideTitle certifications={employee.employeeCertifications} />}
         form={
           <CertificationRowsForm
             options={certificationOptions}

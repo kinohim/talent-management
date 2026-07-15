@@ -8,6 +8,7 @@ import {
 } from "@/generated/prisma/client";
 
 import {
+  employeeDisplayName,
   finalSchoolTypeLabel,
   genderLabel,
   graduationStatusLabel,
@@ -60,5 +61,19 @@ describe("skillLevelLabel", () => {
     expect(skillLevelLabel(SkillLevel.EXPERT)).toBe("◎ 得意");
     expect(skillLevelLabel(SkillLevel.EXPERIENCED)).toBe("○ 経験あり");
     expect(skillLevelLabel(SkillLevel.BASIC)).toBe("△ 基礎知識");
+  });
+});
+
+describe("employeeDisplayName", () => {
+  it("初回未登録の間は氏名に（仮登録）を付ける", () => {
+    expect(employeeDisplayName("山田 太郎", false)).toBe("山田 太郎（仮登録）");
+  });
+
+  it("本人登録済み(is_registered=true)なら素の氏名を返す", () => {
+    expect(employeeDisplayName("山田 太郎", true)).toBe("山田 太郎");
+  });
+
+  it("氏名未登録ならnull(呼び出し側が(未登録)等を表示する)", () => {
+    expect(employeeDisplayName(null, false)).toBeNull();
   });
 });

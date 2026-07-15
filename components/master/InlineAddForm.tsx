@@ -45,7 +45,7 @@ export function InlineAddForm({
         <button
           type="submit"
           disabled={isPending}
-          className="rounded bg-zinc-900 px-3 py-1 text-xs text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+          className="rounded bg-zinc-900 hover:bg-zinc-700 px-3 py-1 text-xs text-white disabled:opacity-50 dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
         >
           {isPending ? "追加中..." : submitLabel}
         </button>

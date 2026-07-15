@@ -58,7 +58,12 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
   ];
 
   if (filters.name) {
-    conditions.push({ name: { contains: filters.name, mode: "insensitive" } });
+    conditions.push({
+      OR: [
+        { name: { contains: filters.name, mode: "insensitive" } },
+        { nameKana: { contains: filters.name, mode: "insensitive" } },
+      ],
+    });
   }
   if (organizationUnitIdFilter) {
     conditions.push({ organizationUnitId: { in: organizationUnitIdFilter } });
@@ -142,7 +147,7 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
         <h1 className="text-lg font-semibold">アカウント一覧</h1>
         <Link
           href="/accounts/new"
-          className="rounded bg-zinc-900 px-4 py-2 text-sm text-white dark:bg-zinc-100 dark:text-zinc-900"
+          className="rounded bg-zinc-900 hover:bg-zinc-700 px-4 py-2 text-sm text-white dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
         >
           + 新規アカウント登録
         </Link>

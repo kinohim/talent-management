@@ -9,7 +9,7 @@ import {
 
 function emptyInput(): CareerTextPromptInput {
   return {
-    experienceYears: null,
+    experienceMonths: null,
     careerSummary: null,
     selfPr: null,
     projects: [],
@@ -20,7 +20,7 @@ function emptyInput(): CareerTextPromptInput {
 
 function fullInput(): CareerTextPromptInput {
   return {
-    experienceYears: 8,
+    experienceMonths: 8 * 12 + 3, // 8年3か月
     careerSummary: "Web系の開発に従事してきました。",
     selfPr: "課題解決力が強みです。",
     projects: [
@@ -50,7 +50,7 @@ function fullInput(): CareerTextPromptInput {
 describe("buildCareerTextPrompt", () => {
   it("経歴・スキル・資格・経験年数がプロンプトに反映される", () => {
     const { user } = buildCareerTextPrompt("selfPr", fullInput());
-    expect(user).toContain("8年");
+    expect(user).toContain("8年3か月");
     expect(user).toContain("ECサイト刷新(2022/04〜2024/09)");
     expect(user).toContain("ロール: SE、PL");
     expect(user).toContain("担当工程: 基本設計、開発、テスト");

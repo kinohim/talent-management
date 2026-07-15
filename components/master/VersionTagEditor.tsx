@@ -70,7 +70,7 @@ export function VersionTagEditor({ name, initialValues = [] }: VersionTagEditorP
         <button
           type="button"
           onClick={addTag}
-          className="rounded border px-3 py-1 text-xs"
+          className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
         >
           追加
         </button>

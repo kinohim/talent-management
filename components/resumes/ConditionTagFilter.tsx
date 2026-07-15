@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { ClearableInput } from "@/components/ui/ClearableInput";
+
 export type ConditionOption = { id: number; name: string };
 export type ConditionMatchMode = "AND" | "OR";
 
@@ -88,20 +90,21 @@ export function ConditionTagFilter({
       </div>
 
       <div className="flex gap-2">
-        <input
-          type="text"
-          list={datalistId}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              addFromInput();
-            }
-          }}
-          placeholder={`${label}を選択`}
-          className="w-full max-w-56 rounded border px-2 py-1 text-sm"
-        />
+        <span className="inline-flex w-full max-w-56">
+          <ClearableInput
+            list={datalistId}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addFromInput();
+              }
+            }}
+            placeholder={`${label}を選択`}
+            className="px-2 py-1 text-sm"
+          />
+        </span>
         <datalist id={datalistId}>
           {options.map((option) => (
             <option key={option.id} value={option.name} />
@@ -110,7 +113,7 @@ export function ConditionTagFilter({
         <button
           type="button"
           onClick={addFromInput}
-          className="rounded border px-3 py-1 text-xs"
+          className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
         >
           追加
         </button>

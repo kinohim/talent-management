@@ -168,15 +168,19 @@ export function formatOrganizationUnitPath(
 export async function getOrganizationUnitDeleteBlockReason(
   unitId: number,
 ): Promise<string | null> {
-  const [childCount, employeeCount] = await Promise.all([
+  const [childCount, employeeCount, siteCount] = await Promise.all([
     prisma.organizationUnit.count({
       where: { parentId: unitId, deletedAt: null },
     }),
     prisma.employee.count({
       where: { organizationUnitId: unitId, deletedAt: null },
     }),
+    // 現場マスタの主管部署としての参照(MST005)
+    prisma.site.count({
+      where: { organizationUnitId: unitId, deletedAt: null },
+    }),
   ]);
-  if (childCount > 0 || employeeCount > 0) {
+  if (childCount > 0 || employeeCount > 0 || siteCount > 0) {
     return "使用中のため削除できません";
   }
   return null;

@@ -126,7 +126,7 @@ describe("buildResumeOrderBy", () => {
 
   it("experienceは経験年数でソートしnullsは末尾", () => {
     expect(buildResumeOrderBy("experience", "asc")).toEqual([
-      { experienceYears: { sort: "asc", nulls: "last" } },
+      { experienceMonths: { sort: "asc", nulls: "last" } },
       { employeeId: "asc" },
     ]);
   });

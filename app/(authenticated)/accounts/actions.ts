@@ -37,7 +37,7 @@ export async function createAccount(
   if (!parsed.success) {
     return { error: parsed.error };
   }
-  const { employeeId, email, role } = parsed.data;
+  const { employeeId, email, role, name } = parsed.data;
 
   const organizationUnitId = await resolveOrganizationUnitId(
     readOrganizationUnitSelection(formData),
@@ -49,6 +49,9 @@ export async function createAccount(
         await tx.employee.create({
           data: {
             employeeId,
+            // 氏名は素の値で保存し「(仮登録)」は表示時に付与する
+            // (is_registered=falseの間のみ。lib/employee-labels.ts参照)
+            name,
             organizationUnitId,
             employmentStatus: EmploymentStatus.ACTIVE,
             isRegistered: false,
@@ -105,11 +108,20 @@ export async function updateAccount(
   if (!parsed.success) {
     return { error: parsed.error };
   }
-  const { employeeId: newEmployeeId, email, role } = parsed.data;
+  const { employeeId: newEmployeeId, email, role, name } = parsed.data;
 
   const organizationUnitId = await resolveOrganizationUnitId(
     readOrganizationUnitSelection(formData),
   );
+
+  // 氏名の変更は初回未登録(is_registered=false)のアカウントに限る。
+  // 本人の登録が済んだ氏名を管理職が上書きしない(「(仮登録)」の解除は
+  // 本人のEDT001保存のみ、という運用の担保)。
+  const target = await prisma.employee.findUnique({
+    where: { employeeId },
+    select: { isRegistered: true },
+  });
+  const nameUpdate = target && !target.isRegistered ? { name } : {};
 
   // 社員IDの変更は employee.employee_id の UPDATE で行う。子テーブル
   // (users/employee_skill/employee_certification/project)のFKはすべて
@@ -123,6 +135,7 @@ export async function updateAccount(
           data: {
             employeeId: newEmployeeId,
             organizationUnitId,
+            ...nameUpdate,
             updatedBy: user.employeeId,
             updatedProgram: EDIT_PROGRAM,
           },

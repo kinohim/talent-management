@@ -166,7 +166,7 @@ describe("buildAccountOrderBy", () => {
       { employeeId: "asc" },
     ]);
     expect(buildAccountOrderBy("lastLogin", "desc")).toEqual([
-      { user: { lastLoginAt: "desc" } },
+      { user: { lastLoginAt: { sort: "desc", nulls: "last" } } },
       { employeeId: "asc" },
     ]);
   });
@@ -182,6 +182,15 @@ describe("buildAccountOrderBy", () => {
   it("orgは組織名でソートする", () => {
     expect(buildAccountOrderBy("org", "asc")).toEqual([
       { organizationUnit: { unitName: "asc" } },
+      { employeeId: "asc" },
+    ]);
+  });
+});
+
+describe("buildAccountOrderBy lastLoginのnull", () => {
+  it("未ログイン(-)は昇順・降順のどちらでも末尾に置く", () => {
+    expect(buildAccountOrderBy("lastLogin", "asc")).toEqual([
+      { user: { lastLoginAt: { sort: "asc", nulls: "last" } } },
       { employeeId: "asc" },
     ]);
   });

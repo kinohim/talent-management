@@ -1,9 +1,15 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 
 import { CascadingOrganizationUnitFilter } from "@/components/ui/CascadingOrganizationUnitFilter";
+import { ClearableInput } from "@/components/ui/ClearableInput";
+import {
+  CollapsibleSearchCard,
+  notifySearchExecuted,
+} from "@/components/ui/CollapsibleSearchCard";
+import { LoadingOverlay } from "@/components/ui/LoadingOverlay";
 import { PillMultiSelect } from "@/components/ui/PillMultiSelect";
 import type { OrganizationUnitNode } from "@/lib/organization-unit-tree";
 
@@ -30,6 +36,7 @@ type AccountFilterFormProps = {
 // REF007のフィルタは検索条件をURLのsearchParamsに反映することで管理する
 // (Server Componentの`page.tsx`がそのままDBクエリのwhere条件に変換する)。
 // 送信は`router.push`によるクライアント側ナビゲーションで行う。
+// 項目順: 氏名カナ→所属組織→権限→状態→検索/クリア(docs/screens.md REF007)
 export function AccountFilterForm({
   orgTree,
   initialName,
@@ -43,6 +50,8 @@ export function AccountFilterForm({
   const [orgUnitIds, setOrgUnitIds] = useState<number[]>(initialOrgUnitIds);
   const [roles, setRoles] = useState<string[]>(initialRoles);
   const [statuses, setStatuses] = useState<string[]>(initialStatuses);
+  // 検索実行(ナビゲーション)中は画面全体にローディングを表示する
+  const [isSearching, startSearch] = useTransition();
 
   function applyFilters(e: FormEvent) {
     e.preventDefault();
@@ -55,56 +64,87 @@ export function AccountFilterForm({
     for (const id of orgUnitIds) params.append("orgUnitId", String(id));
     for (const role of roles) params.append("role", role);
     for (const status of statuses) params.append("status", status);
-    router.push(`/accounts?${params.toString()}`);
+    notifySearchExecuted("/accounts");
+    startSearch(() => {
+      router.push(`/accounts?${params.toString()}`);
+    });
   }
 
+  // 全検索フィールドの一括クリア(検索は実行しない)
+  function clearFilters() {
+    setName("");
+    setOrgUnitIds([]);
+    setRoles([]);
+    setStatuses([]);
+  }
+
+  // ローディングはカードの外に置く(検索後に閉じる=ONだと検索直後にカードの
+  // 中身がhiddenになり、内側に置くとオーバーレイごと消えてしまうため)
   return (
-    <form onSubmit={applyFilters} className="flex flex-col gap-4 rounded border p-4">
-      <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2 xl:grid-cols-3">
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium">氏名検索</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="氏名で検索"
-              className="w-64 rounded border px-3 py-2 text-sm"
-            />
+    <>
+      <LoadingOverlay show={isSearching} />
+      <CollapsibleSearchCard storageKey="/accounts">
+        <form onSubmit={applyFilters} className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium">氏名カナ</label>
+              <ClearableInput
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="氏名・カナで検索"
+                className="max-w-64 text-sm"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-medium">所属組織</span>
+              <CascadingOrganizationUnitFilter
+                tree={orgTree}
+                values={orgUnitIds}
+                onChange={setOrgUnitIds}
+              />
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-medium">権限</span>
+                <PillMultiSelect
+                  name="role"
+                  options={ROLE_OPTIONS}
+                  values={roles}
+                  onChange={setRoles}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-medium">状態</span>
+                <PillMultiSelect
+                  name="status"
+                  options={STATUS_OPTIONS}
+                  values={statuses}
+                  onChange={setStatuses}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium">権限</span>
-            <PillMultiSelect name="role" options={ROLE_OPTIONS} values={roles} onChange={setRoles} />
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              className="rounded bg-zinc-900 hover:bg-zinc-700 px-4 py-2 text-sm text-white dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
+            >
+              検索
+            </button>
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="rounded border px-4 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            >
+              クリア
+            </button>
           </div>
-
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium">状態</span>
-            <PillMultiSelect
-              name="status"
-              options={STATUS_OPTIONS}
-              values={statuses}
-              onChange={setStatuses}
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium">所属組織</span>
-          <CascadingOrganizationUnitFilter
-            tree={orgTree}
-            values={orgUnitIds}
-            onChange={setOrgUnitIds}
-          />
-        </div>
-      </div>
-
-      <button
-        type="submit"
-        className="self-start rounded bg-zinc-900 px-4 py-2 text-sm text-white dark:bg-zinc-100 dark:text-zinc-900"
-      >
-        絞り込む
-      </button>
-    </form>
+        </form>
+      </CollapsibleSearchCard>
+    </>
   );
 }

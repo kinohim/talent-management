@@ -137,7 +137,7 @@ export function buildResumeOrderBy(
       ];
     case "experience":
       return [
-        { experienceYears: { sort: order, nulls: "last" } },
+        { experienceMonths: { sort: order, nulls: "last" } },
         { employeeId: "asc" },
       ];
     default:

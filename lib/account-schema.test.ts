@@ -17,7 +17,32 @@ describe("parseNewAccountForm", () => {
     );
     expect(result).toEqual({
       success: true,
-      data: { employeeId: "000010", email: "taro@example.com", role: "EMPLOYEE" },
+      data: {
+        employeeId: "000010",
+        email: "taro@example.com",
+        role: "EMPLOYEE",
+        name: null,
+      },
+    });
+  });
+
+  it("氏名を入力した場合は前後空白を除いて受け付ける", () => {
+    const result = parseNewAccountForm(
+      formDataWith({
+        employeeId: "000010",
+        email: "taro@example.com",
+        role: "EMPLOYEE",
+        name: " 山田 太郎 ",
+      }),
+    );
+    expect(result).toEqual({
+      success: true,
+      data: {
+        employeeId: "000010",
+        email: "taro@example.com",
+        role: "EMPLOYEE",
+        name: "山田 太郎",
+      },
     });
   });
 
@@ -62,7 +87,12 @@ describe("parseEditAccountForm", () => {
       ),
     ).toEqual({
       success: true,
-      data: { employeeId: "000010", email: "taro@example.com", role: "MANAGER" },
+      data: {
+        employeeId: "000010",
+        email: "taro@example.com",
+        role: "MANAGER",
+        name: null,
+      },
     });
   });
 

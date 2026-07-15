@@ -43,8 +43,10 @@ function FieldWithAiPanel({
   onAiValueChange: (text: string) => void;
 }) {
   return (
-    <div className="grid grid-cols-1 items-start gap-3 md:grid-cols-[1fr_auto_1fr]">
-      <div className="flex flex-col gap-1">
+    // 登録用フォームとAI生成パネルは同じ枠スタイル・同じ高さ(グリッドの
+    // stretch+内部textareaのflex-1)で左右対称に揃える
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_1fr]">
+      <div className="flex h-full flex-col gap-2 rounded border p-3">
         <div className="flex items-baseline justify-between">
           <label htmlFor={id} className="text-sm font-medium">
             {label}
@@ -60,7 +62,7 @@ function FieldWithAiPanel({
           maxLength={MAX_LENGTH}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="rounded border px-3 py-2"
+          className="flex-1 rounded border px-3 py-2"
         />
         {fieldError ? <p className="text-sm text-red-600">{fieldError}</p> : null}
       </div>
@@ -71,7 +73,7 @@ function FieldWithAiPanel({
         disabled={aiValue === ""}
         title={`${label}の入力欄へ上書きコピー`}
         aria-label={`AI生成結果を${label}の入力欄へコピー`}
-        className="self-center rounded border px-3 py-1.5 text-sm disabled:opacity-50 md:mt-6"
+        className="self-center rounded border px-3 py-1.5 text-sm disabled:opacity-50 md:mt-6 hover:bg-zinc-50 dark:hover:bg-zinc-800"
       >
         ←
       </button>
@@ -108,9 +110,17 @@ export function CareerSummaryForm({ defaultValues }: CareerSummaryFormProps) {
       if (state.saved) sectionEdit?.onSaved();
     }
   }, [state, sectionEdit]);
+  // セクション編集ではヘッダの保存ボタン(EditableSection)に送信中状態を反映する
+  useEffect(() => {
+    sectionEdit?.setPending(isPending);
+  }, [isPending, sectionEdit]);
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form
+      id={sectionEdit?.formId}
+      action={formAction}
+      className="flex flex-col gap-6"
+    >
       <FieldWithAiPanel
         id="careerSummary"
         label="経歴概要"
@@ -137,13 +147,16 @@ export function CareerSummaryForm({ defaultValues }: CareerSummaryFormProps) {
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="self-start rounded bg-zinc-900 px-6 py-2 text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
-      >
-        {isPending ? "保存中..." : "保存"}
-      </button>
+      {/* セクション編集では保存ボタンはEditableSectionのヘッダ側に出す */}
+      {sectionEdit ? null : (
+        <button
+          type="submit"
+          disabled={isPending}
+          className="self-start rounded bg-zinc-900 px-6 py-2 text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+        >
+          {isPending ? "保存中..." : "保存"}
+        </button>
+      )}
     </form>
   );
 }

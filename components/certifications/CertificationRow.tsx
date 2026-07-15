@@ -1,5 +1,7 @@
 "use client";
 
+import { ClearableInput } from "@/components/ui/ClearableInput";
+import { DateField } from "@/components/ui/DateField";
 import type { CertificationOptions } from "@/lib/certification-options";
 import type { CertificationRowFieldErrors } from "@/lib/certification-schema";
 
@@ -20,6 +22,9 @@ type CertificationRowProps = {
   onRemove: () => void;
 };
 
+// 新規追加用の1行コンパクトフォーム(EDT004)。カテゴリ/資格名/取得年月日/
+// 有効期限/削除を1行に収める(登録済み分はCertificationRowsFormがタグ表示する)。
+// 認定団体は資格名を選ぶと下に小さく表示する。
 export function CertificationRow({
   index,
   row,
@@ -47,120 +52,104 @@ export function CertificationRow({
     });
   }
 
-  return (
-    <div className="flex flex-col gap-3 rounded border p-4">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium">
-            カテゴリ <span className="text-red-600">*</span>
-          </label>
-          <select
-            value={row.certificationCategoryId}
-            onChange={(e) =>
-              onChange({
-                certificationCategoryId: e.target.value,
-                certificationId: "",
-                certificationNameInput: "",
-              })
-            }
-            className="rounded border px-3 py-2"
-          >
-            <option value="">選択してください</option>
-            {options.categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.certificationCategoryName}
-              </option>
-            ))}
-          </select>
-          {/* Reactのフォームaction機能はaction完了後に非制御フィールドを自動
-              リセットするが、controlled <select> の復元がその対象外になる
-              ケースがあるため、送信値は非表示inputで別途保持する。 */}
-          <input
-            type="hidden"
-            name={`${namePrefix}.certificationCategoryId`}
-            value={row.certificationCategoryId}
-          />
-          {fieldErrors?.certificationCategoryId ? (
-            <p className="text-sm text-red-600">
-              {fieldErrors.certificationCategoryId}
-            </p>
-          ) : null}
-        </div>
+  const errors = [
+    fieldErrors?.certificationCategoryId,
+    fieldErrors?.certificationId,
+    fieldErrors?.acquiredDate,
+    fieldErrors?.expirationDate,
+  ].filter(Boolean);
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium">
-            資格名 <span className="text-red-600">*</span>
-          </label>
-          <input
+  return (
+    <div className="flex flex-col gap-1 rounded border p-2">
+      <div className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[1fr_1.3fr_1fr_1fr_auto]">
+        <select
+          aria-label="カテゴリ"
+          value={row.certificationCategoryId}
+          onChange={(e) =>
+            onChange({
+              certificationCategoryId: e.target.value,
+              certificationId: "",
+              certificationNameInput: "",
+            })
+          }
+          className="rounded border px-2 py-2 text-sm"
+        >
+          <option value="">カテゴリ *</option>
+          {options.categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.certificationCategoryName}
+            </option>
+          ))}
+        </select>
+        {/* Reactのフォームaction機能はaction完了後に非制御フィールドを自動
+            リセットするが、controlled <select> の復元がその対象外になる
+            ケースがあるため、送信値は非表示inputで別途保持する。 */}
+        <input
+          type="hidden"
+          name={`${namePrefix}.certificationCategoryId`}
+          value={row.certificationCategoryId}
+        />
+
+        <span className="inline-flex">
+          <ClearableInput
             list={datalistId}
+            aria-label="資格名"
             value={row.certificationNameInput}
             onChange={(e) => handleCertificationNameInput(e.target.value)}
             disabled={!row.certificationCategoryId}
-            placeholder="資格名を選択"
-            className="rounded border px-3 py-2 disabled:opacity-50"
+            placeholder="資格名を選択 *"
+            className="px-2 py-2 text-sm disabled:opacity-50"
           />
           <datalist id={datalistId}>
             {categoryCertifications.map((c) => (
               <option key={c.id} value={c.certificationName} />
             ))}
           </datalist>
-          <input
-            type="hidden"
-            name={`${namePrefix}.certificationId`}
-            value={row.certificationId}
-          />
-          {fieldErrors?.certificationId ? (
-            <p className="text-sm text-red-600">{fieldErrors.certificationId}</p>
-          ) : null}
-        </div>
+        </span>
+        <input
+          type="hidden"
+          name={`${namePrefix}.certificationId`}
+          value={row.certificationId}
+        />
 
-        <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium">認定団体</span>
-          <p className="rounded border bg-zinc-50 px-3 py-2 text-sm text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-            {selectedCertification?.certificationOrganization ?? "-"}
-          </p>
-        </div>
+        <DateField
+          aria-label="取得年月日"
+          title="取得年月日"
+          name={`${namePrefix}.acquiredDate`}
+          value={row.acquiredDate}
+          onChange={(e) => onChange({ acquiredDate: e.target.value })}
+          className="px-2 text-sm"
+        />
+
+        <DateField
+          aria-label="有効期限"
+          title="有効期限"
+          name={`${namePrefix}.expirationDate`}
+          value={row.expirationDate}
+          onChange={(e) => onChange({ expirationDate: e.target.value })}
+          className="px-2 text-sm"
+        />
+
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label="この行を削除"
+          className="rounded border border-red-300 px-3 py-1.5 text-sm text-red-600 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+        >
+          削除
+        </button>
       </div>
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium">
-            取得年月日 <span className="text-red-600">*</span>
-          </label>
-          <input
-            type="date"
-            name={`${namePrefix}.acquiredDate`}
-            value={row.acquiredDate}
-            onChange={(e) => onChange({ acquiredDate: e.target.value })}
-            className="rounded border px-3 py-2"
-          />
-          {fieldErrors?.acquiredDate ? (
-            <p className="text-sm text-red-600">{fieldErrors.acquiredDate}</p>
-          ) : null}
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium">有効期限</label>
-          <input
-            type="date"
-            name={`${namePrefix}.expirationDate`}
-            value={row.expirationDate}
-            onChange={(e) => onChange({ expirationDate: e.target.value })}
-            className="rounded border px-3 py-2"
-          />
-          {fieldErrors?.expirationDate ? (
-            <p className="text-sm text-red-600">{fieldErrors.expirationDate}</p>
-          ) : null}
-        </div>
-      </div>
-
-      <button
-        type="button"
-        onClick={onRemove}
-        className="self-start rounded border border-red-300 px-3 py-1 text-sm text-red-600"
-      >
-        削除
-      </button>
+      <p className="text-xs text-zinc-500">
+        日付は左が取得年月日(必須)・右が有効期限(任意)
+        {selectedCertification
+          ? ` ／ 認定団体: ${selectedCertification.certificationOrganization}`
+          : ""}
+      </p>
+      {errors.map((message, i) => (
+        <p key={i} className="text-sm text-red-600">
+          {message}
+        </p>
+      ))}
     </div>
   );
 }

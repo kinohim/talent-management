@@ -1,5 +1,6 @@
 import { genderLabel } from "@/lib/employee-labels";
 import { toDisplayDate } from "@/lib/date-format";
+import { formatExperienceMonths } from "@/lib/experience-years";
 import type { Gender } from "@/generated/prisma/client";
 
 type ResumeBasicInfoSectionProps = {
@@ -10,7 +11,9 @@ type ResumeBasicInfoSectionProps = {
   organizationPath: string;
   nearestStationLine: string;
   nearestStationName: string;
-  experienceYears: number | null;
+  experienceMonths: number | null;
+  // REF004ではEditableSection側が見出しを出すため内部見出しを抑制する
+  hideTitle?: boolean;
 };
 
 function Field({ label, value }: { label: string; value: string }) {
@@ -30,7 +33,8 @@ export function ResumeBasicInfoSection({
   organizationPath,
   nearestStationLine,
   nearestStationName,
-  experienceYears,
+  experienceMonths,
+  hideTitle = false,
 }: ResumeBasicInfoSectionProps) {
   const nearestStation = [nearestStationLine, nearestStationName]
     .filter(Boolean)
@@ -38,7 +42,9 @@ export function ResumeBasicInfoSection({
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-base font-semibold">基本情報</h2>
+      {hideTitle ? null : (
+        <h2 className="text-base font-semibold">基本情報</h2>
+      )}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="氏名" value={name} />
         <Field label="カナ" value={nameKana} />
@@ -48,7 +54,7 @@ export function ResumeBasicInfoSection({
         <Field label="最寄駅" value={nearestStation} />
         <Field
           label="経験年数"
-          value={experienceYears != null ? `${experienceYears}年` : ""}
+          value={experienceMonths != null ? formatExperienceMonths(experienceMonths) : ""}
         />
       </div>
     </section>

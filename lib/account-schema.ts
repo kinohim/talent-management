@@ -12,6 +12,18 @@ const roleSchema = z.enum(["EMPLOYEE", "HR_SALES", "MANAGER"], {
   error: "権限を選択してください。",
 });
 
+// 氏名は任意(初回未登録のアカウントにのみ管理職が仮の氏名を登録できる)。
+// 空文字はnull(未登録)として扱う。
+const nameSchema = z
+  .string()
+  .trim()
+  .max(50, "氏名は50文字以内で入力してください。")
+  .transform((value) => (value === "" ? null : value));
+
+function parseNameField(formData: FormData) {
+  return nameSchema.safeParse(formData.get("name")?.toString() ?? "");
+}
+
 export type NewAccountFormState = { error: string | null };
 export type EditAccountFormState = { error: string | null };
 
@@ -19,6 +31,7 @@ export type NewAccountFormInput = {
   employeeId: string;
   email: string;
   role: "EMPLOYEE" | "HR_SALES" | "MANAGER";
+  name: string | null;
 };
 
 export type NewAccountFormParseResult =
@@ -41,12 +54,18 @@ export function parseNewAccountForm(formData: FormData): NewAccountFormParseResu
     return { success: false, error: roleParsed.error.issues[0].message };
   }
 
+  const nameParsed = parseNameField(formData);
+  if (!nameParsed.success) {
+    return { success: false, error: nameParsed.error.issues[0].message };
+  }
+
   return {
     success: true,
     data: {
       employeeId: employeeIdParsed.data,
       email: emailParsed.data,
       role: roleParsed.data,
+      name: nameParsed.data,
     },
   };
 }
@@ -55,6 +74,7 @@ export type EditAccountFormInput = {
   employeeId: string;
   email: string;
   role: "EMPLOYEE" | "HR_SALES" | "MANAGER";
+  name: string | null;
 };
 
 export type EditAccountFormParseResult =
@@ -79,12 +99,18 @@ export function parseEditAccountForm(formData: FormData): EditAccountFormParseRe
     return { success: false, error: roleParsed.error.issues[0].message };
   }
 
+  const nameParsed = parseNameField(formData);
+  if (!nameParsed.success) {
+    return { success: false, error: nameParsed.error.issues[0].message };
+  }
+
   return {
     success: true,
     data: {
       employeeId: employeeIdParsed.data,
       email: emailParsed.data,
       role: roleParsed.data,
+      name: nameParsed.data,
     },
   };
 }

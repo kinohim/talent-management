@@ -39,6 +39,7 @@ model OrganizationUnit {
   parent    OrganizationUnit?  @relation("OrganizationUnitHierarchy", fields: [parentId], references: [id])
   children  OrganizationUnit[] @relation("OrganizationUnitHierarchy")
   employees Employee[]
+  sites     Site[]
 
   createdAt      DateTime  @default(now()) @map("created_at")
   createdBy      String    @map("created_by") @db.VarChar(6)
@@ -104,7 +105,7 @@ model Employee {
   nameKana            String?           @map("name_kana") @db.VarChar(50)
   birthDate           DateTime?         @map("birth_date") @db.Date
   gender              Gender?
-  experienceYears     Int?              @map("experience_years")
+  experienceMonths    Int?              @map("experience_months")
   careerSummary       String?           @map("career_summary") @db.Text
   selfPr              String?           @map("self_pr") @db.Text
   nearestStationLine  String?           @map("nearest_station_line") @db.VarChar(100)
@@ -414,8 +415,11 @@ model EmployeeCertification {
 model Site {
   id       Int    @id @default(autoincrement())
   siteName String @unique @map("site_name") @db.VarChar(100)
+  // 主管部署(部=DEPARTMENTのみをMST005で選択する。任意)
+  organizationUnitId Int? @map("organization_unit_id")
 
-  projects Project[]
+  organizationUnit OrganizationUnit? @relation(fields: [organizationUnitId], references: [id])
+  projects         Project[]
 
   createdAt      DateTime  @default(now()) @map("created_at")
   createdBy      String    @map("created_by") @db.VarChar(6)

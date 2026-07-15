@@ -3,12 +3,16 @@ import { formatSkillWithVersion, type SkillCategoryGroup } from "@/lib/resume-vi
 
 type ResumeSkillListProps = {
   groups: SkillCategoryGroup[];
+  // REF004ではEditableSection側が見出しを出すため内部見出しを抑制する
+  hideTitle?: boolean;
 };
 
-export function ResumeSkillList({ groups }: ResumeSkillListProps) {
+export function ResumeSkillList({ groups, hideTitle = false }: ResumeSkillListProps) {
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-base font-semibold">スキル一覧</h2>
+      {hideTitle ? null : (
+        <h2 className="text-base font-semibold">スキル一覧</h2>
+      )}
       {groups.length === 0 ? (
         <p className="text-sm text-zinc-500">登録されているスキルはありません。</p>
       ) : (

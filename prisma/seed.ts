@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { calculateExperienceYears } from "../lib/experience-years";
+import { calculateExperienceMonths } from "../lib/experience-years";
 import { prisma } from "../lib/prisma";
 
 // 開発用ログイン(lib/auth.tsのdev-employee-idプロバイダ)で使うサンプルデータ。
@@ -892,17 +892,17 @@ async function assignResumeData(
       }
     }
 
-    const experienceYears = calculateExperienceYears(projectPeriods, now);
+    const experienceMonths = calculateExperienceMonths(projectPeriods, now);
 
     if (e.bucket === "rich") {
       const skillNames = employeeSkillKeys.map((key) => skillNameByKey[key]);
       await prisma.employee.update({
         where: { employeeId: e.employeeId },
         data: {
-          experienceYears,
+          experienceMonths,
           careerSummary: buildCareerSummaryText(
             e.name ?? "",
-            experienceYears,
+            Math.floor(experienceMonths / 12),
             skillNames,
           ),
           selfPr: buildSelfPrText(skillNames),
@@ -911,7 +911,7 @@ async function assignResumeData(
     } else {
       await prisma.employee.update({
         where: { employeeId: e.employeeId },
-        data: { experienceYears },
+        data: { experienceMonths },
       });
     }
   }

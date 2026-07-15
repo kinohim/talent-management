@@ -4,6 +4,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { ClearableInput } from "@/components/ui/ClearableInput";
+
 export type ColumnFilterSpec =
   | { type: "text"; paramKey: string }
   | { type: "enum"; paramKey: string; options: { value: string; label: string }[] }
@@ -352,8 +354,7 @@ export function DataTableHeaderCell({
                 })}
               </div>
               <div className="flex gap-2">
-                <input
-                  type="text"
+                <ClearableInput
                   list={datalistId}
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
@@ -365,7 +366,7 @@ export function DataTableHeaderCell({
                   }}
                   placeholder={`${label}を選択`}
                   autoFocus
-                  className="w-full rounded border px-2 py-1 text-sm"
+                  className="px-2 py-1 text-sm"
                 />
                 <datalist id={datalistId}>
                   {filter.options.map((option) => (
@@ -375,7 +376,7 @@ export function DataTableHeaderCell({
                 <button
                   type="button"
                   onClick={addTagFromInput}
-                  className="rounded border px-2 py-1 text-xs"
+                  className="rounded border px-2 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
                 >
                   追加
                 </button>
@@ -387,14 +388,14 @@ export function DataTableHeaderCell({
             <button
               type="button"
               onClick={clearFilter}
-              className="rounded border px-2 py-1 text-xs"
+              className="rounded border px-2 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
             >
               クリア
             </button>
             <button
               type="button"
               onClick={applyFilter}
-              className="rounded bg-zinc-900 px-2 py-1 text-xs text-white dark:bg-zinc-100 dark:text-zinc-900"
+              className="rounded bg-zinc-900 hover:bg-zinc-700 px-2 py-1 text-xs text-white dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
             >
               適用
             </button>

@@ -21,6 +21,7 @@ erDiagram
     certification_category ||--o{ certification : "分類"
     certification ||--o{ employee_certification : "参照"
     site ||--o{ project : "現場"
+    organization_unit ||--o{ site : "主管部署"
     project ||--o| project_detail : "1対1 (project_id にUK)"
     project ||--o{ project_skill : "使用技術"
     project ||--o{ project_role_link : "役割"
@@ -42,7 +43,7 @@ erDiagram
         string name_kana
         date birth_date
         enum gender
-        int experience_years
+        int experience_months
         text career_summary
         text self_pr
         string nearest_station_line

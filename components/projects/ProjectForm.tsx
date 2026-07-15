@@ -8,10 +8,13 @@ import {
   type ProjectFormState,
 } from "@/app/(authenticated)/projects/actions";
 import {
-  ProjectSkillRow,
-  type ProjectSkillRowValue,
-} from "@/components/projects/ProjectSkillRow";
+  ProjectSkillEditor,
+  type ProjectSkillEditorRow,
+} from "@/components/projects/ProjectSkillEditor";
+import type { ProjectSkillRowValue } from "@/components/projects/ProjectSkillRow";
+import { ClearableInput } from "@/components/ui/ClearableInput";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { MonthField } from "@/components/ui/DateField";
 import { PillMultiSelect } from "@/components/ui/PillMultiSelect";
 import type { ProcessFlagKey } from "@/lib/project-schema";
 import type { ProjectRoleOption, SiteOption } from "@/lib/project-options";
@@ -64,9 +67,10 @@ const initialFormState: ProjectFormState = {
   formError: null,
 };
 
-function emptySkillRow(key: string): ProjectSkillRowValue & { key: string } {
+function emptySkillRow(key: string): ProjectSkillEditorRow {
   return {
     key,
+    existing: false,
     skillCategoryId: "",
     skillId: "",
     skillVersionId: "",
@@ -105,8 +109,12 @@ export function ProjectForm({
   }
 
   const nextSkillKeyRef = useRef(initialSkillRows.length);
-  const [skillRows, setSkillRows] = useState<(ProjectSkillRowValue & { key: string })[]>(
-    () => initialSkillRows.map((row, index) => ({ ...row, key: `row-${index}` })),
+  const [skillRows, setSkillRows] = useState<ProjectSkillEditorRow[]>(() =>
+    initialSkillRows.map((row, index) => ({
+      ...row,
+      key: `row-${index}`,
+      existing: true,
+    })),
   );
 
   function handleSiteNameInput(text: string) {
@@ -166,12 +174,11 @@ export function ProjectForm({
           <label className="text-sm font-medium">
             現場名 <span className="text-red-600">*</span>
           </label>
-          <input
+          <ClearableInput
             list="site-name-options"
             value={values.siteNameInput}
             onChange={(e) => handleSiteNameInput(e.target.value)}
             placeholder="現場名を選択"
-            className="rounded border px-3 py-2"
           />
           <datalist id="site-name-options">
             {siteOptions.map((s) => (
@@ -188,13 +195,11 @@ export function ProjectForm({
           <label htmlFor="projectTitle" className="text-sm font-medium">
             プロジェクトタイトル <span className="text-red-600">*</span>
           </label>
-          <input
+          <ClearableInput
             id="projectTitle"
             name="projectTitle"
-            type="text"
             value={values.projectTitle}
             onChange={(e) => setField("projectTitle", e.target.value)}
-            className="rounded border px-3 py-2"
           />
           {state.fieldErrors.projectTitle ? (
             <p className="text-sm text-red-600">{state.fieldErrors.projectTitle}</p>
@@ -205,13 +210,11 @@ export function ProjectForm({
           <label htmlFor="industry" className="text-sm font-medium">
             業種
           </label>
-          <input
+          <ClearableInput
             id="industry"
             name="industry"
-            type="text"
             value={values.industry}
             onChange={(e) => setField("industry", e.target.value)}
-            className="rounded border px-3 py-2"
           />
           {state.fieldErrors.industry ? (
             <p className="text-sm text-red-600">{state.fieldErrors.industry}</p>
@@ -223,13 +226,11 @@ export function ProjectForm({
             <label htmlFor="startYearMonth" className="text-sm font-medium">
               開始年月 <span className="text-red-600">*</span>
             </label>
-            <input
+            <MonthField
               id="startYearMonth"
               name="startYearMonth"
-              type="month"
               value={values.startYearMonth}
               onChange={(e) => setField("startYearMonth", e.target.value)}
-              className="rounded border px-3 py-2"
             />
             {state.fieldErrors.startYearMonth ? (
               <p className="text-sm text-red-600">{state.fieldErrors.startYearMonth}</p>
@@ -239,14 +240,13 @@ export function ProjectForm({
             <label htmlFor="endYearMonth" className="text-sm font-medium">
               終了年月
             </label>
-            <input
+            <MonthField
               id="endYearMonth"
               name="endYearMonth"
-              type="month"
               value={values.endYearMonth}
               onChange={(e) => setField("endYearMonth", e.target.value)}
               disabled={values.isOngoing}
-              className="rounded border px-3 py-2 disabled:opacity-50"
+              className="disabled:opacity-50"
             />
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -303,26 +303,22 @@ export function ProjectForm({
             <label htmlFor="totalTeamSize" className="text-sm font-medium">
               規模(全体人数)
             </label>
-            <input
+            <ClearableInput
               id="totalTeamSize"
               name="totalTeamSize"
-              type="text"
               value={values.totalTeamSize}
               onChange={(e) => setField("totalTeamSize", e.target.value)}
-              className="rounded border px-3 py-2"
             />
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="teamSize" className="text-sm font-medium">
               規模(チーム人数)
             </label>
-            <input
+            <ClearableInput
               id="teamSize"
               name="teamSize"
-              type="text"
               value={values.teamSize}
               onChange={(e) => setField("teamSize", e.target.value)}
-              className="rounded border px-3 py-2"
             />
           </div>
         </div>
@@ -362,27 +358,14 @@ export function ProjectForm({
           </div>
         </div>
 
-        <div className="flex flex-col gap-4">
-          <span className="text-sm font-medium">使用スキル</span>
-          {skillRows.map((row, index) => (
-            <ProjectSkillRow
-              key={row.key}
-              index={index}
-              row={row}
-              options={skillOptions}
-              fieldErrors={state.skillRowErrors[index]}
-              onChange={(patch) => updateSkillRow(row.key, patch)}
-              onRemove={() => removeSkillRow(row.key)}
-            />
-          ))}
-          <button
-            type="button"
-            onClick={addSkillRow}
-            className="self-start rounded border px-4 py-2 text-sm"
-          >
-            + スキルを追加
-          </button>
-        </div>
+        <ProjectSkillEditor
+          options={skillOptions}
+          rows={skillRows}
+          rowErrors={state.skillRowErrors}
+          onAdd={addSkillRow}
+          onRemove={removeSkillRow}
+          onUpdate={updateSkillRow}
+        />
 
         {state.formError ? (
           <p role="alert" className="text-sm text-red-600">
@@ -395,7 +378,7 @@ export function ProjectForm({
             <button
               type="button"
               onClick={() => setShowConfirm(true)}
-              className="rounded border border-red-300 px-4 py-2 text-sm text-red-600"
+              className="rounded border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-zinc-50 dark:hover:bg-zinc-800"
             >
               削除
             </button>
@@ -405,7 +388,7 @@ export function ProjectForm({
           <button
             type="submit"
             disabled={isPending}
-            className="rounded bg-zinc-900 px-6 py-2 text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+            className="rounded bg-zinc-900 hover:bg-zinc-700 px-6 py-2 text-white disabled:opacity-50 dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
           >
             {isPending ? "保存中..." : "保存"}
           </button>

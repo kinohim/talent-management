@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { DataTableHeaderCell } from "@/components/ui/DataTableHeaderCell";
 import type { UserRole } from "@/generated/prisma/client";
+import { employeeDisplayName } from "@/lib/employee-labels";
 import { accountStatusLabel, type AccountStatus } from "@/lib/account-list";
 import { toDisplayDateTime } from "@/lib/date-format";
 import { roleLabel } from "@/lib/role-label";
@@ -80,7 +81,10 @@ export function AccountTable({ accounts, orgFilterOptions }: AccountTableProps) 
           ) : (
             accounts.map((account) => (
               <tr key={account.employeeId} className="border-b">
-                <td className="p-2">{account.name ?? "(未登録)"}</td>
+                <td className="p-2">
+                  {employeeDisplayName(account.name, account.status !== "UNREGISTERED") ??
+                    "(未登録)"}
+                </td>
                 <td className="p-2">{account.email}</td>
                 <td className="p-2">{account.organizationUnitName ?? "未所属"}</td>
                 <td className="p-2">{roleLabel(account.role)}</td>

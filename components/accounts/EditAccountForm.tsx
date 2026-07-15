@@ -8,6 +8,7 @@ import {
   updateAccount,
 } from "@/app/(authenticated)/accounts/actions";
 import { OrganizationUnitSelect } from "@/components/basic-info/OrganizationUnitSelect";
+import { ClearableInput } from "@/components/ui/ClearableInput";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { EditAccountFormState } from "@/lib/account-schema";
 import type {
@@ -26,6 +27,9 @@ const ROLE_OPTIONS = [
 type EditAccountFormProps = {
   employeeId: string;
   displayName: string;
+  // 初回未登録(is_registered=false)の間のみ氏名を編集できる
+  isRegistered: boolean;
+  name: string;
   email: string;
   role: string;
   employmentStatus: "ACTIVE" | "RETIRED";
@@ -36,6 +40,8 @@ type EditAccountFormProps = {
 export function EditAccountForm({
   employeeId,
   displayName,
+  isRegistered,
+  name,
   email,
   role,
   employmentStatus,
@@ -102,6 +108,18 @@ export function EditAccountForm({
           <span className="text-sm font-medium">対象社員</span>
           <p className="text-sm">{displayName}</p>
         </div>
+
+        {isRegistered ? null : (
+          <div className="flex flex-col gap-1">
+            <label htmlFor="name" className="text-sm font-medium">
+              氏名
+            </label>
+            <ClearableInput id="name" name="name" maxLength={50} defaultValue={name} />
+            <p className="text-xs text-zinc-500">
+              初回未登録のアカウントのみ編集できます。本人が初回登録を済ませるまで「◯◯（仮登録）」と表示されます。
+            </p>
+          </div>
+        )}
 
         <div className="flex flex-col gap-1">
           <label htmlFor="employeeId" className="text-sm font-medium">
@@ -176,7 +194,7 @@ export function EditAccountForm({
         <button
           type="submit"
           disabled={isPending}
-          className="self-start rounded bg-zinc-900 px-6 py-2 text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+          className="self-start rounded bg-zinc-900 px-6 py-2 text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
         >
           {isPending ? "保存中..." : "保存"}
         </button>
@@ -187,7 +205,7 @@ export function EditAccountForm({
           <button
             type="button"
             onClick={() => setShowRetireConfirm(true)}
-            className="rounded border border-red-600 px-4 py-2 text-sm text-red-600"
+            className="rounded border border-red-600 px-4 py-2 text-sm text-red-600 hover:bg-zinc-50 dark:hover:bg-zinc-800"
           >
             退職処理
           </button>
@@ -195,7 +213,7 @@ export function EditAccountForm({
           <button
             type="button"
             onClick={() => setShowReinstateConfirm(true)}
-            className="rounded border px-4 py-2 text-sm"
+            className="rounded border px-4 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
           >
             現職に戻す
           </button>

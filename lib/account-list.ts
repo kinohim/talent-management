@@ -155,7 +155,11 @@ export function buildAccountOrderBy(
         { employeeId: "asc" },
       ];
     case "lastLogin":
-      return [{ user: { lastLoginAt: order } }, { employeeId: "asc" }];
+      // 未ログイン(-)は昇順・降順を問わず常に末尾に置く
+      return [
+        { user: { lastLoginAt: { sort: order, nulls: "last" } } },
+        { employeeId: "asc" },
+      ];
     default:
       return [
         { name: { sort: "asc", nulls: "last" } },

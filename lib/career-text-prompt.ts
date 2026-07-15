@@ -2,6 +2,8 @@
 // Anthropic API 呼び出し本体は app/api/career-summary/generate/route.ts が担い、
 // ここは入力データの整形とプロンプト文字列の組み立てのみを行う純粋関数群。
 
+import { formatExperienceMonths } from "@/lib/experience-years";
+
 export type CareerTextTarget = "careerSummary" | "selfPr";
 
 export type PromptProject = {
@@ -28,7 +30,7 @@ export type PromptCertification = {
 };
 
 export type CareerTextPromptInput = {
-  experienceYears: number | null;
+  experienceMonths: number | null;
   careerSummary: string | null;
   selfPr: string | null;
   projects: PromptProject[];
@@ -90,8 +92,8 @@ function formatCertification(certification: PromptCertification): string {
 function buildProfileSection(input: CareerTextPromptInput): string {
   const sections: string[] = [];
 
-  if (input.experienceYears !== null) {
-    sections.push(`## 経験年数\n${input.experienceYears}年`);
+  if (input.experienceMonths !== null) {
+    sections.push(`## 経験年数\n${formatExperienceMonths(input.experienceMonths)}`);
   }
 
   sections.push(

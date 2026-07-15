@@ -9,14 +9,19 @@ type ResumeCertificationListProps = {
       certificationOrganization: string;
     };
   }[];
+  // REF004ではEditableSection側が見出しを出すため内部見出しを抑制する
+  hideTitle?: boolean;
 };
 
 export function ResumeCertificationList({
   certifications,
+  hideTitle = false,
 }: ResumeCertificationListProps) {
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-base font-semibold">資格一覧</h2>
+      {hideTitle ? null : (
+        <h2 className="text-base font-semibold">資格一覧</h2>
+      )}
       {certifications.length === 0 ? (
         <p className="text-sm text-zinc-500">登録されている資格はありません。</p>
       ) : (

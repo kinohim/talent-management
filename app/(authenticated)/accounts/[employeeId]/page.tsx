@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { EditAccountForm } from "@/components/accounts/EditAccountForm";
 import { UserRole } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
+import { employeeDisplayName } from "@/lib/employee-labels";
 import { getOrganizationUnitOptions, resolveSelectionFromLeaf } from "@/lib/organization-unit";
 import { prisma } from "@/lib/prisma";
 
@@ -38,7 +39,11 @@ export default async function EditAccountPage({ params }: EditAccountPageProps) 
       <h1 className="text-lg font-semibold">アカウント編集</h1>
       <EditAccountForm
         employeeId={employee.employeeId}
-        displayName={employee.name ?? "(未登録)"}
+        displayName={
+          employeeDisplayName(employee.name, employee.isRegistered) ?? "(未登録)"
+        }
+        isRegistered={employee.isRegistered}
+        name={employee.name ?? ""}
         email={employee.user.email}
         role={employee.user.role}
         employmentStatus={employee.employmentStatus}

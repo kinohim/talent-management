@@ -20,9 +20,18 @@ describe("displayNameForEmployee", () => {
   });
 
   it("employee.nameが登録済みなら名前を返す", async () => {
-    findUniqueMock.mockResolvedValue({ name: "山田太郎" } as never);
+    findUniqueMock.mockResolvedValue({ name: "山田太郎", isRegistered: true } as never);
 
     expect(await displayNameForEmployee("000001")).toBe("山田太郎");
+  });
+
+  it("初回未登録の間は（仮登録）を付けて返す", async () => {
+    findUniqueMock.mockResolvedValue({
+      name: "山田太郎",
+      isRegistered: false,
+    } as never);
+
+    expect(await displayNameForEmployee("000001")).toBe("山田太郎（仮登録）");
   });
 
   it("employee.nameが未登録(null)なら社員IDを返す", async () => {

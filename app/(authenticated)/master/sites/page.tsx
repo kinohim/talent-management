@@ -15,16 +15,30 @@ export default async function SiteMasterPage() {
     redirect("/");
   }
 
-  const sites = await prisma.site.findMany({
-    where: { deletedAt: null },
-    select: { id: true, siteName: true },
-    orderBy: { siteName: "asc" },
-  });
+  const [sites, departmentUnits] = await Promise.all([
+    prisma.site.findMany({
+      where: { deletedAt: null },
+      select: { id: true, siteName: true, organizationUnitId: true },
+      orderBy: { siteName: "asc" },
+    }),
+    // 主管部署の選択肢は部(DEPARTMENT)のみ。同名部が別事業部にあり得るため
+    // 「事業部 / 部」の形式で表示する
+    prisma.organizationUnit.findMany({
+      where: { unitLevel: "DEPARTMENT", deletedAt: null },
+      select: { id: true, unitName: true, parent: { select: { unitName: true } } },
+      orderBy: [{ parentId: "asc" }, { unitName: "asc" }],
+    }),
+  ]);
+
+  const departments = departmentUnits.map((unit) => ({
+    id: unit.id,
+    name: unit.parent ? `${unit.parent.unitName} / ${unit.unitName}` : unit.unitName,
+  }));
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
       <h1 className="text-lg font-semibold">現場マスタ管理</h1>
-      <SiteMasterManager sites={sites} />
+      <SiteMasterManager sites={sites} departments={departments} />
     </main>
   );
 }

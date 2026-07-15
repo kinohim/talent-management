@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { UserRole } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { parseYearMonth } from "@/lib/date-format";
-import { recalculateExperienceYears } from "@/lib/experience-years";
+import { recalculateExperienceMonths } from "@/lib/experience-years";
 import {
   getProjectOptions,
   validateProjectFormAgainstMaster,
@@ -165,7 +165,7 @@ export async function saveProject(
         });
       }
 
-      await recalculateExperienceYears(tx, employeeId);
+      await recalculateExperienceMonths(tx, employeeId);
     });
   } catch {
     return {
@@ -216,7 +216,7 @@ export async function deleteProject(projectId: number): Promise<void> {
       data: auditDelete,
     });
 
-    await recalculateExperienceYears(tx, employeeId);
+    await recalculateExperienceMonths(tx, employeeId);
   });
 
   redirect("/mypage?tab=projects");

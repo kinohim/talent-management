@@ -73,7 +73,7 @@ export function PaginationControls({
             type="button"
             onClick={() => goToPage(page - 1)}
             disabled={page <= 1}
-            className="rounded border px-2 py-1 disabled:opacity-40"
+            className="rounded border px-2 py-1 disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-zinc-800"
           >
             前へ
           </button>
@@ -102,7 +102,7 @@ export function PaginationControls({
             type="button"
             onClick={() => goToPage(page + 1)}
             disabled={page >= pageCount}
-            className="rounded border px-2 py-1 disabled:opacity-40"
+            className="rounded border px-2 py-1 disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-zinc-800"
           >
             次へ
           </button>

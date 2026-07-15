@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useRef } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   saveBasicInfo,
@@ -8,8 +8,11 @@ import {
   type BasicInfoFormVariant,
 } from "@/app/(authenticated)/mypage/actions";
 import { OrganizationUnitSelect } from "@/components/basic-info/OrganizationUnitSelect";
+import { ClearableInput } from "@/components/ui/ClearableInput";
+import { DateField, MonthField } from "@/components/ui/DateField";
 import { useSectionEdit } from "@/components/my-resume/EditableSection";
 import { PillSelect } from "@/components/ui/PillSelect";
+import { predictGraduationYearMonth } from "@/lib/graduation";
 import type {
   FinalSchoolType,
   Gender,
@@ -66,6 +69,9 @@ export function BasicInfoForm({
   // セクション編集(私の経歴書)では保存成功をEditableSectionへ通知して
   // 編集モードを解除する。単独画面(初回登録)ではContextが無いため何もしない。
   const sectionEdit = useSectionEdit();
+  // 卒業年月の初期表示(学年考慮の生年+22/23年の3月)を出すため、
+  // 生年月日は入力中の値を追跡する
+  const [birthDate, setBirthDate] = useState(defaultValues.birthDate);
   const prevStateRef = useRef(state);
   useEffect(() => {
     if (prevStateRef.current !== state) {
@@ -73,21 +79,27 @@ export function BasicInfoForm({
       if (state.saved) sectionEdit?.onSaved();
     }
   }, [state, sectionEdit]);
+  // セクション編集ではヘッダの保存ボタン(EditableSection)に送信中状態を反映する
+  useEffect(() => {
+    sectionEdit?.setPending(isPending);
+  }, [isPending, sectionEdit]);
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form
+      id={sectionEdit?.formId}
+      action={formAction}
+      className="flex flex-col gap-6"
+    >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
           <label htmlFor="name" className="text-sm font-medium">
             氏名 <span className="text-red-600">*</span>
           </label>
-          <input
+          <ClearableInput
             id="name"
             name="name"
-            type="text"
             defaultValue={defaultValues.name}
             required
-            className="rounded border px-3 py-2"
           />
           {state.fieldErrors.name ? (
             <p className="text-sm text-red-600">{state.fieldErrors.name}</p>
@@ -98,13 +110,11 @@ export function BasicInfoForm({
           <label htmlFor="nameKana" className="text-sm font-medium">
             カナ <span className="text-red-600">*</span>
           </label>
-          <input
+          <ClearableInput
             id="nameKana"
             name="nameKana"
-            type="text"
             defaultValue={defaultValues.nameKana}
             required
-            className="rounded border px-3 py-2"
           />
           {state.fieldErrors.nameKana ? (
             <p className="text-sm text-red-600">{state.fieldErrors.nameKana}</p>
@@ -115,13 +125,12 @@ export function BasicInfoForm({
           <label htmlFor="birthDate" className="text-sm font-medium">
             生年月日 <span className="text-red-600">*</span>
           </label>
-          <input
+          <DateField
             id="birthDate"
             name="birthDate"
-            type="date"
-            defaultValue={defaultValues.birthDate}
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
             required
-            className="rounded border px-3 py-2"
           />
           {state.fieldErrors.birthDate ? (
             <p className="text-sm text-red-600">{state.fieldErrors.birthDate}</p>
@@ -153,25 +162,31 @@ export function BasicInfoForm({
 
         <div className="flex flex-col gap-1">
           <span className="text-sm font-medium">最寄駅</span>
+          {/* 所属組織(内側ラベル付きの3セレクト)と行の高さが揃うよう、
+              こちらも路線名/駅名の内側ラベルを持たせる */}
           <div className="grid grid-cols-2 gap-2">
-            <input
-              id="nearestStationLine"
-              name="nearestStationLine"
-              type="text"
-              placeholder="例: JR山手線"
-              aria-label="最寄駅(路線名)"
-              defaultValue={defaultValues.nearestStationLine}
-              className="rounded border px-3 py-2"
-            />
-            <input
-              id="nearestStationName"
-              name="nearestStationName"
-              type="text"
-              placeholder="例: 渋谷駅"
-              aria-label="最寄駅(駅名)"
-              defaultValue={defaultValues.nearestStationName}
-              className="rounded border px-3 py-2"
-            />
+            <div className="flex flex-col gap-1">
+              <label htmlFor="nearestStationLine" className="text-sm font-medium">
+                路線名
+              </label>
+              <ClearableInput
+                id="nearestStationLine"
+                name="nearestStationLine"
+                placeholder="例: JR山手線"
+                defaultValue={defaultValues.nearestStationLine}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="nearestStationName" className="text-sm font-medium">
+                駅名
+              </label>
+              <ClearableInput
+                id="nearestStationName"
+                name="nearestStationName"
+                placeholder="例: 渋谷駅"
+                defaultValue={defaultValues.nearestStationName}
+              />
+            </div>
           </div>
         </div>
 
@@ -209,12 +224,10 @@ export function BasicInfoForm({
           <label htmlFor="finalSchoolName" className="text-sm font-medium">
             学校名
           </label>
-          <input
+          <ClearableInput
             id="finalSchoolName"
             name="finalSchoolName"
-            type="text"
             defaultValue={defaultValues.finalSchoolName}
-            className="rounded border px-3 py-2"
           />
         </div>
 
@@ -222,12 +235,10 @@ export function BasicInfoForm({
           <label htmlFor="finalDepartmentName" className="text-sm font-medium">
             学部・学科名
           </label>
-          <input
+          <ClearableInput
             id="finalDepartmentName"
             name="finalDepartmentName"
-            type="text"
             defaultValue={defaultValues.finalDepartmentName}
-            className="rounded border px-3 py-2"
           />
         </div>
 
@@ -235,12 +246,11 @@ export function BasicInfoForm({
           <label htmlFor="graduationYearMonth" className="text-sm font-medium">
             卒業年月
           </label>
-          <input
+          <MonthField
             id="graduationYearMonth"
             name="graduationYearMonth"
-            type="month"
             defaultValue={defaultValues.graduationYearMonth}
-            className="rounded border px-3 py-2"
+            defaultWhenEmpty={predictGraduationYearMonth(birthDate) ?? undefined}
           />
         </div>
 
@@ -257,19 +267,22 @@ export function BasicInfoForm({
         </div>
       </div>
 
-      {/* 参考情報(編集不可)。主要項目の位置を閲覧表示と揃えるため末尾に置く */}
-      <div className="grid grid-cols-1 gap-4 border-t pt-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-zinc-500">社員ID</span>
-          <span>{employeeId}</span>
+      {/* 参考情報(編集不可)。初回登録画面でのみ本人確認用に表示する
+          (私の経歴書のセクション編集では表示しない) */}
+      {variant === "register" ? (
+        <div className="grid grid-cols-1 gap-4 border-t pt-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-zinc-500">社員ID</span>
+            <span>{employeeId}</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-zinc-500">
+              メールアドレス
+            </span>
+            <span>{email}</span>
+          </div>
         </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-zinc-500">
-            メールアドレス
-          </span>
-          <span>{email}</span>
-        </div>
-      </div>
+      ) : null}
 
       {state.formError ? (
         <p role="alert" className="text-sm text-red-600">
@@ -277,13 +290,16 @@ export function BasicInfoForm({
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="self-start rounded bg-zinc-900 px-6 py-2 text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
-      >
-        {isPending ? "保存中..." : "保存"}
-      </button>
+      {/* セクション編集では保存ボタンはEditableSectionのヘッダ側に出す */}
+      {sectionEdit ? null : (
+        <button
+          type="submit"
+          disabled={isPending}
+          className="self-start rounded bg-zinc-900 px-6 py-2 text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+        >
+          {isPending ? "保存中..." : "保存"}
+        </button>
+      )}
     </form>
   );
 }

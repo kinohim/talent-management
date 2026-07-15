@@ -95,13 +95,13 @@ export function AiGeneratePanel({
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded border border-dashed border-zinc-300 p-3 dark:border-zinc-600">
+    <div className="flex h-full flex-col gap-2 rounded border border-dashed border-zinc-300 p-3 dark:border-zinc-600">
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={handleGenerateClick}
           disabled={isGenerating}
-          className="rounded bg-zinc-900 px-4 py-1.5 text-sm text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+          className="rounded bg-zinc-900 hover:bg-zinc-700 px-4 py-1.5 text-sm text-white disabled:opacity-50 dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
         >
           {isGenerating ? "生成中..." : "AI生成"}
         </button>
@@ -125,14 +125,14 @@ export function AiGeneratePanel({
             <button
               type="button"
               onClick={handleConfirmGenerate}
-              className="rounded bg-zinc-900 px-4 py-1.5 text-sm text-white dark:bg-zinc-100 dark:text-zinc-900"
+              className="rounded bg-zinc-900 hover:bg-zinc-700 px-4 py-1.5 text-sm text-white dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
             >
               生成する
             </button>
             <button
               type="button"
               onClick={() => setShowReplaceConfirm(false)}
-              className="rounded border px-4 py-1.5 text-sm"
+              className="rounded border px-4 py-1.5 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
             >
               キャンセル
             </button>
@@ -152,7 +152,7 @@ export function AiGeneratePanel({
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-1 flex-col gap-1">
         <div className="flex items-baseline justify-between">
           <label htmlFor={outputId} className="text-xs text-zinc-500">
             AI生成結果(出力フォーム)
@@ -167,7 +167,7 @@ export function AiGeneratePanel({
           maxLength={MAX_LENGTH}
           value={value}
           onChange={(event) => onValueChange(event.target.value)}
-          className="rounded border px-3 py-2"
+          className="flex-1 rounded border px-3 py-2"
         />
         <p className="text-xs text-zinc-500">
           この内容は保存されません。反映するには ←

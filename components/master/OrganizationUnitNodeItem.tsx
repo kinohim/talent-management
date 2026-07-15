@@ -117,7 +117,7 @@ export function OrganizationUnitNodeItem({
               <button
                 type="submit"
                 disabled={isRenamePending}
-                className="rounded border px-3 py-1 text-xs"
+                className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
               >
                 {isRenamePending ? "保存中..." : "保存"}
               </button>
@@ -152,7 +152,7 @@ export function OrganizationUnitNodeItem({
             <button
               type="button"
               onClick={() => setMode("rename")}
-              className="rounded border px-2 py-1"
+              className="rounded border px-2 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800"
             >
               編集
             </button>
@@ -160,7 +160,7 @@ export function OrganizationUnitNodeItem({
               <button
                 type="button"
                 onClick={() => setMode("add-child")}
-                className="rounded border px-2 py-1"
+                className="rounded border px-2 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800"
               >
                 配下に追加
               </button>
@@ -168,7 +168,7 @@ export function OrganizationUnitNodeItem({
             <button
               type="button"
               onClick={() => setShowConfirm(true)}
-              className="rounded border px-2 py-1 text-red-600"
+              className="rounded border px-2 py-1 text-red-600 hover:bg-zinc-50 dark:hover:bg-zinc-800"
             >
               削除
             </button>
@@ -199,7 +199,7 @@ export function OrganizationUnitNodeItem({
           <button
             type="submit"
             disabled={isAddChildPending}
-            className="rounded border px-3 py-1 text-xs"
+            className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
           >
             {isAddChildPending ? "追加中..." : "追加"}
           </button>

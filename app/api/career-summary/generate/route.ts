@@ -77,7 +77,7 @@ export async function POST(request: Request) {
   }
 
   const promptInput: CareerTextPromptInput = {
-    experienceYears: employee.experienceYears,
+    experienceMonths: employee.experienceMonths,
     careerSummary: employee.careerSummary,
     selfPr: employee.selfPr,
     projects: employee.projects.map((project) => ({

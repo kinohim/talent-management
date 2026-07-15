@@ -4,6 +4,7 @@ import { useActionState } from "react";
 
 import { createAccount } from "@/app/(authenticated)/accounts/actions";
 import { OrganizationUnitSelect } from "@/components/basic-info/OrganizationUnitSelect";
+import { ClearableInput } from "@/components/ui/ClearableInput";
 import type { NewAccountFormState } from "@/lib/account-schema";
 import type { OrganizationUnitOption } from "@/lib/organization-unit";
 
@@ -15,7 +16,14 @@ const ROLE_OPTIONS = [
   { value: "MANAGER", label: "管理職" },
 ];
 
-export function NewAccountForm({ units }: { units: OrganizationUnitOption[] }) {
+export function NewAccountForm({
+  units,
+  defaultEmployeeId,
+}: {
+  units: OrganizationUnitOption[];
+  // 初期表示用の採番済み社員ID(既存最大+1)。上書き入力可
+  defaultEmployeeId: string;
+}) {
   const [state, formAction, isPending] = useActionState(createAccount, initialState);
 
   return (
@@ -24,13 +32,15 @@ export function NewAccountForm({ units }: { units: OrganizationUnitOption[] }) {
         <label className="text-sm font-medium">
           社員ID <span className="text-red-600">*</span>
         </label>
-        <input
-          type="text"
+        <ClearableInput
           name="employeeId"
           maxLength={6}
           placeholder="000000"
-          className="rounded border px-3 py-2"
+          defaultValue={defaultEmployeeId}
         />
+        <p className="text-xs text-zinc-500">
+          既存の社員IDの最大値+1を初期表示しています(変更可)。
+        </p>
       </div>
 
       <div className="flex flex-col gap-1">
@@ -38,6 +48,14 @@ export function NewAccountForm({ units }: { units: OrganizationUnitOption[] }) {
           メールアドレス <span className="text-red-600">*</span>
         </label>
         <input type="email" name="email" className="rounded border px-3 py-2" />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium">氏名</label>
+        <ClearableInput name="name" maxLength={50} placeholder="任意" />
+        <p className="text-xs text-zinc-500">
+          入力した場合、本人が初回登録を済ませるまで「◯◯（仮登録）」と表示されます。
+        </p>
       </div>
 
       <div className="flex flex-col gap-1">
@@ -75,7 +93,7 @@ export function NewAccountForm({ units }: { units: OrganizationUnitOption[] }) {
       <button
         type="submit"
         disabled={isPending}
-        className="self-start rounded bg-zinc-900 px-6 py-2 text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+        className="self-start rounded bg-zinc-900 px-6 py-2 text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
       >
         {isPending ? "登録中..." : "登録"}
       </button>
