@@ -1,6 +1,9 @@
 import "dotenv/config";
 
-import { calculateExperienceMonths } from "../lib/experience-years";
+import {
+  calculateExperienceMonths,
+  recalculateExperienceMonths,
+} from "../lib/experience-years";
 import { prisma } from "../lib/prisma";
 
 // 開発用ログイン(lib/auth.tsのdev-employee-idプロバイダ)で使うサンプルデータ。
@@ -251,33 +254,54 @@ async function createCertificationMasters(): Promise<Record<string, number>> {
 }
 
 // ---------------------------------------------------------------------------
-// 現場マスタ8・現場ポジションマスタ5
+// 現場マスタ8(+社外プロジェクト1)・現場ポジションマスタ5
+// departmentKeyは主管部署(MST005で部のみ選択可・任意)。nullは主管部署なし
 // ---------------------------------------------------------------------------
 
-const siteNames = [
-  "A社基幹システム更改",
-  "B社ECサイト構築",
-  "C社在庫管理システム刷新",
-  "D社人事給与システム構築",
-  "E社モバイルアプリ開発",
-  "F社データ基盤構築",
-  "G社顧客管理システム刷新",
-  "H社決済システム開発",
+const siteDefs: { siteName: string; departmentKey: string | null }[] = [
+  { siteName: "A社基幹システム更改", departmentKey: "finance" },
+  { siteName: "B社ECサイト構築", departmentKey: "dist" },
+  { siteName: "C社在庫管理システム刷新", departmentKey: "dist" },
+  { siteName: "D社人事給与システム構築", departmentKey: "hr-svc" },
+  { siteName: "E社モバイルアプリ開発", departmentKey: "sol" },
+  { siteName: "F社データ基盤構築", departmentKey: "dx" },
+  { siteName: "G社顧客管理システム刷新", departmentKey: null },
+  { siteName: "H社決済システム開発", departmentKey: "finance" },
 ];
+
+// 入社前(前職)の経歴を登録するための現場(docs/decisions.md「経験年数の計算」の
+// 社外プロジェクト運用)。通常プロジェクトのローテーションには使わない
+const externalSiteName = "社外プロジェクト";
+
+const siteNames = siteDefs.map((s) => s.siteName);
 
 const projectRoleNames = ["SE", "PG", "リーダー", "PM", "PL"];
 
 const industries = ["IT", "金融", "小売", "製造", "医療"];
 
-async function createSiteAndRoleMasters(): Promise<{
+async function createSiteAndRoleMasters(
+  orgUnitIdByKey: Record<string, number>,
+): Promise<{
   siteIds: number[];
+  externalSiteId: number;
   projectRoleIds: number[];
 }> {
   const siteIds: number[] = [];
-  for (const siteName of siteNames) {
-    const created = await prisma.site.create({ data: { siteName, ...audit } });
+  for (const def of siteDefs) {
+    const created = await prisma.site.create({
+      data: {
+        siteName: def.siteName,
+        organizationUnitId: def.departmentKey
+          ? orgUnitIdByKey[def.departmentKey]
+          : null,
+        ...audit,
+      },
+    });
     siteIds.push(created.id);
   }
+  const externalSite = await prisma.site.create({
+    data: { siteName: externalSiteName, ...audit },
+  });
 
   const projectRoleIds: number[] = [];
   for (const projectRoleName of projectRoleNames) {
@@ -287,7 +311,7 @@ async function createSiteAndRoleMasters(): Promise<{
     projectRoleIds.push(created.id);
   }
 
-  return { siteIds, projectRoleIds };
+  return { siteIds, externalSiteId: externalSite.id, projectRoleIds };
 }
 
 // ---------------------------------------------------------------------------
@@ -667,12 +691,39 @@ const employeeSeeds: EmployeeSeed[] = [
     email: "emp000030@example.com",
     bucket: "none",
   },
+
+  // 実メンバー(SSOログインの動作確認用)。メールアドレスのみ実在のもので、
+  // 社員IDは900001からの連番。初回未登録(is_registered=false)のため氏名は
+  // 本人のEDT001保存で登録する。全員管理職(ユーザー指示)
+  ...(
+    [
+      "hiramoto@sas-com.com",
+      "m_matsuda@sas-com.com",
+      "kanazawa@sas-com.com",
+      "h_kinoshita@sas-com.com",
+      "s_anzo@sas-com.com",
+      "inamura@sas-com.com",
+      "shoji@sas-com.com",
+    ] as const
+  ).map((email, index) => ({
+    employeeId: String(900001 + index),
+    name: null,
+    nameKana: null,
+    role: "MANAGER" as const,
+    employmentStatus: "ACTIVE" as const,
+    isRegistered: false,
+    orgKey: null,
+    email,
+    bucket: "none" as const,
+  })),
 ];
 
 async function createEmployees(
   orgUnitIdByKey: Record<string, number>,
 ): Promise<void> {
-  for (const e of employeeSeeds) {
+  const now = new Date();
+  for (let i = 0; i < employeeSeeds.length; i++) {
+    const e = employeeSeeds[i];
     await prisma.employee.create({
       data: {
         employeeId: e.employeeId,
@@ -684,11 +735,18 @@ async function createEmployees(
         ...audit,
       },
     });
+    // 最終ログイン(REF007のソート・null末尾の確認用): 登録済み現職の
+    // 3/4にばらつきのある日時を入れ、残りはnull(未ログイン「-」)にする
+    const lastLoginAt =
+      e.isRegistered && e.employmentStatus === "ACTIVE" && i % 4 !== 3
+        ? new Date(now.getTime() - i * 7 * 60 * 60 * 1000)
+        : null;
     await prisma.user.create({
       data: {
         employeeId: e.employeeId,
         email: e.email,
         role: e.role,
+        lastLoginAt,
         ...audit,
       },
     });
@@ -917,11 +975,62 @@ async function assignResumeData(
   }
 }
 
+// 再実行できるよう、投入前に既存データを全削除する(FKの子→親の順)。
+// 手動作成されたデータもすべて消えるため、seedは開発環境専用。
+async function resetDatabase(): Promise<void> {
+  await prisma.projectSkill.deleteMany();
+  await prisma.projectRoleLink.deleteMany();
+  await prisma.projectDetail.deleteMany();
+  await prisma.project.deleteMany();
+  await prisma.employeeSkill.deleteMany();
+  await prisma.employeeCertification.deleteMany();
+  await prisma.session.deleteMany();
+  await prisma.account.deleteMany();
+  await prisma.verificationToken.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.employee.deleteMany();
+  await prisma.skillVersion.deleteMany();
+  await prisma.skill.deleteMany();
+  await prisma.skillCategory.deleteMany();
+  await prisma.certification.deleteMany();
+  await prisma.certificationCategory.deleteMany();
+  await prisma.site.deleteMany();
+  await prisma.projectRole.deleteMany();
+  await prisma.organizationUnit.deleteMany();
+}
+
+// 社外プロジェクト運用(docs/decisions.md「経験年数の計算」)のサンプル:
+// 「一般 一郎」に入社前(前職)の経歴を1件付与し、経験月数を再計算する。
+// 同一社員×同一現場の複数プロジェクト許容の確認も兼ねる
+async function assignExternalProjectSample(
+  externalSiteId: number,
+): Promise<void> {
+  const employeeId = "000010";
+  await prisma.project.create({
+    data: {
+      employeeId,
+      siteId: externalSiteId,
+      projectTitle: "前職: 受託開発(Webシステム保守)",
+      industry: "IT",
+      projectSummary: "前職で担当した受託Webシステムの保守・機能追加。",
+      startDate: new Date(Date.UTC(2018, 3, 1)),
+      endDate: new Date(Date.UTC(2019, 11, 31)),
+      totalTeamSize: "8",
+      teamSize: "3",
+      ...audit,
+    },
+  });
+  await recalculateExperienceMonths(prisma, employeeId);
+}
+
 async function main() {
+  await resetDatabase();
+
   const orgUnitIdByKey = await createOrganizationUnits();
   const { skillIds, skillVersionIds } = await createSkillMasters();
   const certificationIds = await createCertificationMasters();
-  const { siteIds, projectRoleIds } = await createSiteAndRoleMasters();
+  const { siteIds, externalSiteId, projectRoleIds } =
+    await createSiteAndRoleMasters(orgUnitIdByKey);
 
   await createEmployees(orgUnitIdByKey);
   await assignResumeData(
@@ -931,6 +1040,7 @@ async function main() {
     siteIds,
     projectRoleIds,
   );
+  await assignExternalProjectSample(externalSiteId);
 }
 
 main()
