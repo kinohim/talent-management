@@ -43,8 +43,8 @@ function FieldWithAiPanel({
   onAiValueChange: (text: string) => void;
 }) {
   return (
-    // 登録用フォームとAI生成パネルは同じ枠スタイル・同じ高さ(グリッドの
-    // stretch+内部textareaのflex-1)で左右対称に揃える
+    // 登録用フォームとAI生成パネルは同じ枠スタイル・同じ高さ(グリッドのstretch)で
+    // 左右対称に揃える。textareaはユーザーがリサイズできるようflex-1を付けない
     <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_1fr]">
       <div className="flex h-full flex-col gap-2 rounded border p-3">
         <div className="flex items-baseline justify-between">
@@ -55,15 +55,21 @@ function FieldWithAiPanel({
             {value.length}/{MAX_LENGTH}
           </span>
         </div>
-        <textarea
-          id={id}
-          name={id}
-          rows={6}
-          maxLength={MAX_LENGTH}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="flex-1 rounded border px-3 py-2"
-        />
+        {/* flex-1のwrapperで初期表示はカードを埋めつつ、textarea自体は
+            リサイズ可能に保つ(textareaに直接flex-1を付けると高さが固定される)。
+            min-hはrows=6相当(6行×24px+py-2+border=162px)。textareaを初期より
+            小さくしてもwrapperが高さを保ち、外枠が初期サイズより縮まない */}
+        <div className="min-h-[10.125rem] flex-1">
+          <textarea
+            id={id}
+            name={id}
+            rows={6}
+            maxLength={MAX_LENGTH}
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            className="block h-full w-full rounded border px-3 py-2"
+          />
+        </div>
         {fieldError ? <p className="text-sm text-red-600">{fieldError}</p> : null}
       </div>
 
