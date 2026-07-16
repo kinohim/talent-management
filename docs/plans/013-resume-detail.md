@@ -6,12 +6,17 @@
 
 ## 前提(依存するplan)
 
-- 008〜012(表示対象のデータ入力手段一式)
+- 008 mypage 私の経歴書(セクション骨格)
+- 009 経歴概要・自己PR登録
+- 010 スキル登録
+- 011 資格登録
+- 012 project-form プロジェクト経歴登録
+(表示対象のデータ入力手段一式)
 
 ## 実装内容
 
 - `app/(authenticated)/resumes/[employeeId]/page.tsx`: 経歴書詳細
-  - 表示項目は docs/screens.md resume-detail の表のとおり(基本情報・最終学歴・経歴概要・自己PR・スキル(カテゴリ別ピル+凡例)・資格・プロジェクト経歴の繰り返し)
+  - 表示項目は docs/screens.md resume-detail の表のとおり(基本情報・最終学歴・経歴概要・自己PR・スキル(カテゴリ別ピル+凡例)・資格(取得年月日「YYYY年M月D日」・資格名・認定団体)・プロジェクト経歴の繰り返し)
   - 経験年数は「◯年◯か月」の月精度表示(端数のない側は省略)
   - 所属組織は「事業部 / 部署 / Gr」の連結表示(`formatOrganizationUnitPath`)
   - PDF出力は「準備中」表示(`ResumeExportButtons`)

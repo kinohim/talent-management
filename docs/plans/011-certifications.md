@@ -16,8 +16,8 @@
   - 「+ 資格を追加」でカテゴリ/資格名/取得年月日/有効期限の1行フォームを追加(認定団体は資格名選択時に行の下へ小さく自動表示)
   - カテゴリはマスタからの選択のみ。資格名はカテゴリで絞り込んだサジェスト付き入力
   - 日付は`yyyy/mm/dd`が全桁見える幅で表示
-- バリデーション(`lib/certification-schema.ts`+単体テスト): 取得年月日は必須かつ**JST基準の本日以前**、有効期限は任意で取得年月日より後
-- 保存Server Action: 本人の`employee_certification`を入力内容で置き換える。同じ資格の再取得は新規レコードとして追加できる(重複制約は設けない)
+- バリデーション(`lib/certification-schema.ts`+単体テスト): 取得年月日は必須かつ**JST基準の本日以前**、有効期限は任意で取得年月日より後(同日は不可)
+- 保存Server Action `saveCertifications`(`app/(authenticated)/mypage/actions.ts`に置く。007・008と同じ集約先): 本人の`employee_certification`を入力内容で置き換える(deleteMany→createManyの洗い替え)。同じ資格の再取得は新規レコードとして追加できる(重複制約は設けない)
 
 ## 受け入れ基準
 

@@ -15,7 +15,7 @@
   - 登録済みスキルは編集モードでも閲覧時と同じタグ(チップ)表示。×で削除、タグ押下で習熟度のみ変更可
   - 「+ スキルを追加」でカテゴリ/スキル名/バージョン/習熟度の1行フォームを追加(上限なし)
   - カテゴリはマスタからの選択のみ(新規作成不可)。スキル名はカテゴリで絞り込んだサジェスト付き入力。バージョンは`has_version=true`のスキルのみ表示・必須
-- 保存Server Action: 本人の`employee_skill`を入力内容で置き換える。マスタ整合(存在しないスキル・バージョン必須違反)をサーバー側でも検証する(`lib/skill-options.ts`+単体テスト)
+- 保存Server Action `saveSkills`(`app/(authenticated)/mypage/actions.ts`に置く。007・008と同じ集約先): 本人の`employee_skill`を入力内容で置き換える(deleteMany→createManyの洗い替え)。マスタ整合(存在しないスキル・バージョン必須違反)と同一スキル(同一バージョン)の重複行をサーバー側でも検証する(`lib/skill-options.ts`・`lib/skill-schema.ts`+単体テスト)
 - 閲覧表示: カテゴリ別に「スキル名(バージョン) 記号」のピルを横並び表示し、凡例(◎得意/○経験あり/△基礎知識)をセクション末尾に出す(resume-detailと共通の表示)
 
 ## 受け入れ基準
@@ -26,6 +26,6 @@
 
 ## 検証方法
 
-1. `lib/skill-options.test.ts`等でサーバー側検証を網羅する
+1. `lib/skill-options.test.ts`・`lib/skill-schema.test.ts`でサーバー側検証を網羅する
 2. Playwrightで追加・習熟度変更・削除・保存の一連を確認する
 3. `npm run verify`が通ることを確認する

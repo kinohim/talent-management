@@ -51,6 +51,9 @@ flowchart TD
     end
 
     %% ---- 認証・初回ログイン（ロール別分岐） ----
+    %% ログイン処理自体は常にトップ（/）へリダイレクトし、未登録の
+    %% 一般社員／管理職は認証必須ページ共通のガードがbasic-infoへ誘導する
+    %% （screens.md冒頭「認証・認可の共通仕様」参照）。図は結果としての導線を描く。
     login -->|"一般社員・管理職 かつ is_registered=false"| basicinfo
     login -->|"登録済み、または人事・営業（basic-infoを経ず直行）"| home
 
@@ -68,8 +71,8 @@ flowchart TD
 
     %% ---- 私の経歴書 ----
     %% 基本情報／経歴概要・自己PR／スキル／資格の編集はmypage[表紙]タブ内の
-    %% セクション編集に統合済みで画面遷移を伴わない。
-    %% プロジェクト経歴一覧はmypage[実績]タブに統合済み。
+    %% セクション編集のため画面遷移を伴わない。
+    %% プロジェクト経歴一覧はmypage[実績]タブが担う。
     mypage -->|"新規追加・編集（[実績]タブ）"| projectform
     basicinfo -->|"保存（初回登録）"| mypage
     projectform -->|"保存・削除（[実績]タブへ）"| mypage
@@ -87,5 +90,5 @@ flowchart TD
 - **アカウント管理**: account-listから「新規アカウント登録」でaccount-newへ、行の「編集」でaccount-editへ。保存後はどちらもaccount-listへ戻る
 - **人事・営業の初回ログイン**: 経歴書を作成しないため、basic-info（初回登録）を経ずhomeへ直行する。ログイン成立時に`is_registered`を自動でTRUEに更新（login参照）
 - **ログインのエラー分岐**（未登録／退職済み／プロバイダ不一致）は遷移を伴わない（loginに留まる）ため図から省略。文言はscreens.mdのlogin参照
-- **account-editの退職処理・現職に戻す**は`employment_status`による排他表示。どちらもconfirm-dialogで確認後、account-listへ戻る
+- **account-editの退職処理・現職に戻す**は`employment_status`による排他表示。どちらもconfirm-dialogで確認後、account-editに留まる
 - **PDF出力（print-preview）は未実装**。resume-detail/mypageには「準備中」タイルのみ配置している。Excel出力は提供しない
