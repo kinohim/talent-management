@@ -132,6 +132,7 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
   const rows: AccountRow[] = employees.map((employee) => ({
     employeeId: employee.employeeId,
     name: employee.name,
+    isRegistered: employee.isRegistered,
     email: employee.user?.email ?? "",
     organizationUnitName: employee.organizationUnitId
       ? (orgUnitById.get(employee.organizationUnitId)?.unitName ?? null)

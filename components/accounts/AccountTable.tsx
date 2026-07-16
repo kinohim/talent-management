@@ -10,6 +10,7 @@ import { roleLabel } from "@/lib/role-label";
 export type AccountRow = {
   employeeId: string;
   name: string | null;
+  isRegistered: boolean;
   email: string;
   organizationUnitName: string | null;
   role: UserRole;
@@ -82,8 +83,9 @@ export function AccountTable({ accounts, orgFilterOptions }: AccountTableProps) 
             accounts.map((account) => (
               <tr key={account.employeeId} className="border-b">
                 <td className="p-2">
-                  {employeeDisplayName(account.name, account.status !== "UNREGISTERED") ??
-                    "(未登録)"}
+                  {/* (仮登録)の判定はis_registeredのみで行う。状態(退職が最優先)とは
+                      独立のため、退職済み・未登録の社員にも付く(docs/screens.md account-new) */}
+                  {employeeDisplayName(account.name, account.isRegistered) ?? "(未登録)"}
                 </td>
                 <td className="p-2">{account.email}</td>
                 <td className="p-2">{account.organizationUnitName ?? "未所属"}</td>
