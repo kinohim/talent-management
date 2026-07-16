@@ -22,7 +22,7 @@ type CertificationRowProps = {
   onRemove: () => void;
 };
 
-// 新規追加用の1行コンパクトフォーム(EDT004)。カテゴリ/資格名/取得年月日/
+// 新規追加用の1行コンパクトフォーム(mypageの資格セクション)。カテゴリ/資格名/取得年月日/
 // 有効期限/削除を1行に収める(登録済み分はCertificationRowsFormがタグ表示する)。
 // 認定団体は資格名を選ぶと下に小さく表示する。
 export function CertificationRow({

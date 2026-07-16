@@ -1,11 +1,11 @@
 export type BreadcrumbNode = { label: string; parentPath: string | null };
 
-// 論理階層はURLのネスト構造と必ずしも一致しない(例: /register は /mypage の子だが、
+// 論理階層はURLのネスト構造と必ずしも一致しない(例: /basic-info は /mypage の子だが、
 // URLパスとしては兄弟)ため、URLから自動導出せず明示的なマップで管理する。
 export const BREADCRUMB_MAP: Record<string, BreadcrumbNode> = {
   "/": { label: "トップ", parentPath: null },
   "/mypage": { label: "私の経歴書", parentPath: "/" },
-  "/register": { label: "基本情報登録", parentPath: "/mypage" },
+  "/basic-info": { label: "基本情報登録", parentPath: "/mypage" },
   // "/mypage?tab=projects"はパンくずの親リンク専用の合成キー(実パスは/mypage)。
   // プロジェクト経歴の登録・編集からは実績タブへ戻すために使う。
   "/mypage?tab=projects": { label: "私の経歴書", parentPath: "/" },

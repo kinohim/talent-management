@@ -3,7 +3,7 @@ import { formatSkillWithVersion, type SkillCategoryGroup } from "@/lib/resume-vi
 
 type ResumeSkillListProps = {
   groups: SkillCategoryGroup[];
-  // REF004ではEditableSection側が見出しを出すため内部見出しを抑制する
+  // mypageではEditableSection側が見出しを出すため内部見出しを抑制する
   hideTitle?: boolean;
 };
 

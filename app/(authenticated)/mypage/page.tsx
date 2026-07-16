@@ -32,21 +32,21 @@ type MyPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-// REF004「私の経歴書」。プレビュー(REF003)と同じ閲覧表示をベースに、
+// mypage「私の経歴書」。プレビュー(resume-detail)と同じ閲覧表示をベースに、
 // [表紙]タブでは各セクションを編集モードに切り替えてその場で保存できる。
-// [実績]タブはプロジェクト経歴一覧(登録・編集はEDT005へ遷移)。
+// [実績]タブはプロジェクト経歴一覧(登録・編集はproject-formへ遷移)。
 export default async function MyPage({ searchParams }: MyPageProps) {
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
   }
   if (session.user.role === UserRole.HR_SALES) {
-    // 人事・営業は経歴書を作成しないため対象外(REF001参照)
+    // 人事・営業は経歴書を作成しないため対象外(home参照)
     redirect("/");
   }
 
-  // 未登録の一般社員/管理職が直接/mypageを開いた場合もEDT001へ戻す恒常ガード
-  // (REF001と同じ方針)。
+  // 未登録の一般社員/管理職が直接/mypageを開いた場合もbasic-infoへ戻す恒常ガード
+  // (homeと同じ方針)。
   const destination = await resolveDestination(session.user);
   if (destination !== "/") {
     redirect(destination);
@@ -99,7 +99,7 @@ export default async function MyPage({ searchParams }: MyPageProps) {
     employee.organizationUnitId,
   );
 
-  // 編集フォームの初期値整形(旧EDT003/EDT004の単独ページから移植)
+  // 編集フォームの初期値整形(旧スキル登録・資格登録の単独ページから移植)
   const initialSkillRows = employee.employeeSkills.map((employeeSkill) => ({
     skillCategoryId: String(employeeSkill.skill.skillCategoryId),
     skillId: String(employeeSkill.skillId),

@@ -255,7 +255,7 @@ async function createCertificationMasters(): Promise<Record<string, number>> {
 
 // ---------------------------------------------------------------------------
 // 現場マスタ8(+社外プロジェクト1)・現場ポジションマスタ5
-// departmentKeyは主管部署(MST005で部のみ選択可・任意)。nullは主管部署なし
+// departmentKeyは主管部署(master-sitesで部のみ選択可・任意)。nullは主管部署なし
 // ---------------------------------------------------------------------------
 
 const siteDefs: { siteName: string; departmentKey: string | null }[] = [
@@ -694,7 +694,7 @@ const employeeSeeds: EmployeeSeed[] = [
 
   // 実メンバー(SSOログインの動作確認用)。メールアドレスのみ実在のもので、
   // 社員IDは900001からの連番。初回未登録(is_registered=false)のため氏名は
-  // 本人のEDT001保存で登録する。全員管理職(ユーザー指示)
+  // 本人のbasic-info保存で登録する。全員管理職(ユーザー指示)
   ...(
     [
       "hiramoto@sas-com.com",
@@ -735,7 +735,7 @@ async function createEmployees(
         ...audit,
       },
     });
-    // 最終ログイン(REF007のソート・null末尾の確認用): 登録済み現職の
+    // 最終ログイン(account-listのソート・null末尾の確認用): 登録済み現職の
     // 3/4にばらつきのある日時を入れ、残りはnull(未ログイン「-」)にする
     const lastLoginAt =
       e.isRegistered && e.employmentStatus === "ACTIVE" && i % 4 !== 3

@@ -12,7 +12,7 @@ export type SkillVersionDiffPlan = {
   toRemoveIds: number[];
 };
 
-// MST001の保存時に、既存バージョン一覧と送信されたタグ名を比較する純粋関数。
+// master-skillsの保存時に、既存バージョン一覧と送信されたタグ名を比較する純粋関数。
 // 同名の既存バージョン(active/inactive問わず)があれば再利用(新規重複作成を
 // 避ける)。削除対象(toRemoveIds)を物理削除するか非表示化(is_active=false)
 // するかはバージョンごとの参照有無に依存するため、呼び出し側(Server Action)が
@@ -42,10 +42,10 @@ export function planSkillVersionDiff(
   return { toCreate, toReactivateIds, toRemoveIds };
 }
 
-// MST001の削除制約(docs/screens.md「使用中のため削除できません」)。
+// master-skillsの削除制約(docs/screens.md「使用中のため削除できません」)。
 // projectSkillは`deleteProject`(プロジェクト削除)でdeletedAtが付与される
 // (論理削除)ため、deletedAt: nullで絞り込み、既に削除されたプロジェクトの
-// 残骸を「使用中」と誤判定しないようにする(EmployeeSkillはEDT003で常に
+// 残骸を「使用中」と誤判定しないようにする(EmployeeSkillはmypageのスキルセクションで常に
 // 洗い替え(ハード削除)のためdeletedAtは付与されず、絞り込み不要)。
 export async function getSkillDeleteBlockReason(skillId: number): Promise<string | null> {
   const [employeeSkillCount, projectSkillCount] = await Promise.all([

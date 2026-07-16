@@ -33,7 +33,7 @@
 
 - `docs/schema.md` — DB スキーマ全 19 テーブルの定義。**スキーマや Prisma モデルに
   触れる変更の前には必ず読むこと**
-- `docs/screens.md` — 全 22 画面の仕様。画面の新規実装・修正の前に該当画面の節を読むこと
+- `docs/screens.md` — 全 18 画面の仕様。画面の新規実装・修正の前に該当画面の節を読むこと
 - `docs/er-diagram.md` — ER 図 (Mermaid)。テーブル間のリレーションを確認したいとき
 - `docs/screen-flow.md` — 画面遷移図 (Mermaid)。導線に関わる変更のとき
 - `docs/decisions.md` — 設計判断の経緯。**既存の設計に疑問を持ったり変更を提案する前に、

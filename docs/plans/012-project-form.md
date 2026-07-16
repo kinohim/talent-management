@@ -1,22 +1,22 @@
-# 012 EDT005 プロジェクト経歴登録・REF004[実績]タブ
+# 012 project-form プロジェクト経歴登録・mypage[実績]タブ
 
 ## 目的
 
-プロジェクト経歴の一覧([実績]タブ=旧REF006)と登録・編集・削除の単独画面(EDT005)を提供し、保存・削除時に経験月数を自動再計算する(docs/screens.md EDT005・REF004[実績]タブ)。
+プロジェクト経歴の一覧(mypage[実績]タブ。旧: プロジェクト経歴一覧)と登録・編集・削除の単独画面(project-form)を提供し、保存・削除時に経験月数を自動再計算する(docs/screens.md project-form・mypage[実績]タブ)。
 
 ## 前提(依存するplan)
 
-- 008 REF004 私の経歴書(タブ骨格)
-- 010 EDT003 スキル登録(使用スキルのタグ型UIを流用)
+- 008 mypage 私の経歴書(タブ骨格)
+- 010 スキル登録(使用スキルのタグ型UIを流用)
 - 004 シードデータ(現場マスタ・現場ポジションマスタ)
 
 ## 実装内容
 
-- REF004[実績]タブ: プロジェクト経歴一覧(期間・現場名・役割)。「新規追加」で`/projects/new`、行クリックで`/projects/[id]`(編集)へ
-- `app/(authenticated)/projects/new/page.tsx`・`[id]/page.tsx`+`actions.ts`: EDT005単独画面
-  - 入力項目・バリデーションは docs/screens.md EDT005 の表のとおり(現場はマスタからサジェスト選択、タイトル必須100文字、期間は開始必須+「現在」チェックで終了入力不可、概要・業務詳細300文字、役割1つ以上、規模20文字、担当工程7項目)
-  - 使用スキル: EDT003と同じタグ型UI(習熟度なし。タグ押下でバージョンのみ変更可)
-  - 削除ボタンは誤操作防止のため左端に配置し、CMN001で確認
+- mypage[実績]タブ: プロジェクト経歴一覧(期間・現場名・役割)。「新規追加」で`/projects/new`、行クリックで`/projects/[id]`(編集)へ
+- `app/(authenticated)/projects/new/page.tsx`・`[id]/page.tsx`+`actions.ts`: project-form単独画面
+  - 入力項目・バリデーションは docs/screens.md project-form の表のとおり(現場はマスタからサジェスト選択、タイトル必須100文字、期間は開始必須+「現在」チェックで終了入力不可、概要・業務詳細300文字、役割1つ以上、規模20文字、担当工程7項目)
+  - 使用スキル: mypageのスキルセクションと同じタグ型UI(習熟度なし。タグ押下でバージョンのみ変更可)
+  - 削除ボタンは誤操作防止のため左端に配置し、confirm-dialogで確認
   - 保存・削除後は`/mypage?tab=projects`へ戻る
 - 削除は論理削除とし、`project_detail`・`project_skill`・`project_role_link`も**同一トランザクションで論理削除**する(docs/schema.md 一般ルール)
 - `lib/project-schema.ts`: バリデーション+単体テスト

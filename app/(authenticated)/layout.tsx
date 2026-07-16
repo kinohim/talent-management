@@ -21,7 +21,7 @@ export default async function AuthenticatedLayout({
   }
 
   // セッションのnameではなくemployee.nameを都度参照する(SSOログインでは
-  // セッションにnameが入らず、EDT001での名前登録も即時反映したいため)
+  // セッションにnameが入らず、basic-infoでの名前登録も即時反映したいため)
   const displayName = await displayNameForEmployee(session.user.employeeId);
 
   return (

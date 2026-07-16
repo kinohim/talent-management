@@ -74,7 +74,7 @@ function SingleSiteSelect({
   );
 }
 
-// REF002のフィルタ。REF007のAccountFilterFormと同じく、送信は`router.push`
+// resume-listのフィルタ。account-listのAccountFilterFormと同じく、送信は`router.push`
 // によるURLのsearchParams更新で行う(Server Componentがそのままwhere条件に
 // 変換する)。上段に基本条件+所属組織+現場、下段にスキル条件と資格条件を横並び。
 export function ResumeFilterForm({
@@ -162,7 +162,7 @@ export function ResumeFilterForm({
   }
 
   // 項目順: 氏名カナ→経験年数→所属組織→スキル→資格→携わったプロジェクト→
-  // 退職者を含める→検索/クリア(docs/screens.md REF002)
+  // 退職者を含める→検索/クリア(docs/screens.md resume-list)
   // ローディングはカードの外に置く(検索後に閉じる=ONだと検索直後にカードの
   // 中身がhiddenになり、内側に置くとオーバーレイごと消えてしまうため)
   return (

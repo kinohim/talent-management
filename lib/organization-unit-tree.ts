@@ -10,11 +10,11 @@ export type OrganizationUnitNode = OrganizationUnitOption & {
   children: OrganizationUnitNode[];
 };
 
-// MST004(部署マスタ管理)の階層インデント表示用。フラットな一覧を
+// master-org-units(部署マスタ管理)の階層インデント表示用。フラットな一覧を
 // parentIdでグルーピングし、事業部>部署>Grのツリーに組み立てる。
 // 各階層内はunitNameの昇順。
 // rootIdsを指定すると、そのidの集合をツリーの根として探索を開始する(親が
-// null以外でも根として扱える)。REF002で一般社員の閲覧範囲に絞ったunitsを
+// null以外でも根として扱える)。resume-listで一般社員の閲覧範囲に絞ったunitsを
 // 渡す場合、根となる部署の親(事業部)はunitsに含まれずparentIdがnullでも
 // ないため、rootIdsを渡さないとbuild(null)が何も見つけられず空のツリーに
 // なってしまう。
@@ -59,7 +59,7 @@ export function deriveChildLevel(
   return null;
 }
 
-// REF007(アカウント一覧)の所属組織フィルタ用。選択された組織単位idに、
+// account-list(アカウント一覧)の所属組織フィルタ用。選択された組織単位idに、
 // その配下すべて(子・孫…)のidを加えたSetを返す(上位を選ぶと配下も
 // 対象に含まれる階層フィルタの挙動)。
 export function collectDescendantIds(

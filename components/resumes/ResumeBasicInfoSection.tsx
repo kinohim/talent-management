@@ -12,7 +12,7 @@ type ResumeBasicInfoSectionProps = {
   nearestStationLine: string;
   nearestStationName: string;
   experienceMonths: number | null;
-  // REF004ではEditableSection側が見出しを出すため内部見出しを抑制する
+  // mypageではEditableSection側が見出しを出すため内部見出しを抑制する
   hideTitle?: boolean;
 };
 

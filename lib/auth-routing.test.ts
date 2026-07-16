@@ -48,11 +48,11 @@ describe("resolveDestination", () => {
     expect(findUniqueMock).not.toHaveBeenCalled();
   });
 
-  it("EMPLOYEEでisRegistered=falseなら/registerを返す", async () => {
+  it("EMPLOYEEでisRegistered=falseなら/basic-infoを返す", async () => {
     findUniqueMock.mockResolvedValue({ isRegistered: false } as never);
     expect(
       await resolveDestination({ employeeId: "000005", role: UserRole.EMPLOYEE }),
-    ).toBe("/register");
+    ).toBe("/basic-info");
   });
 
   it("MANAGERでisRegistered=trueなら/を返す", async () => {

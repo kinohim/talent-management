@@ -1,23 +1,23 @@
-# 014 MST004 部署マスタ管理
+# 014 master-org-units 部署マスタ管理
 
 ## 目的
 
-組織単位(事業部＞部署＞Gr)の階層を管理職が画面から管理できるようにする(docs/screens.md MST004)。
+組織単位(事業部＞部署＞Gr)の階層を管理職が画面から管理できるようにする(docs/screens.md master-org-units)。
 
 ## 前提(依存するplan)
 
-- 003 共通レイアウト・UI部品(CMN001)
-- 006 REF001 トップ(マスタ管理ハブからの導線)
+- 003 共通レイアウト・UI部品(confirm-dialog)
+- 006 home トップ(マスタ管理ハブからの導線)
 
 ## 実装内容
 
-- `app/(authenticated)/master/page.tsx`: マスタ管理ハブ(MST001〜005へのタイル。管理職のみ)
-- `app/(authenticated)/master/organization-units/page.tsx`+`actions.ts`: MST004
+- `app/(authenticated)/master/page.tsx`: マスタ管理ハブ(master-*の5マスタ画面へのタイル。管理職のみ)
+- `app/(authenticated)/master/organization-units/page.tsx`+`actions.ts`: master-org-units
   - 初期表示は事業部のみ。行頭の▶/▼で配下を展開し、閉じている行には配下件数(「部署3件」等)を表示
   - 画面最上部に「事業部を追加」のコンパクトな1行フォーム(unit_level=division, parent_id=NULL)
   - 各行は「名称は左、[編集][配下に追加][削除]は右端」。「配下に追加」は直下階層を追加し追加後に自動展開(Gr行には非表示)
   - 同名チェック: 同一親の配下内で一意(アプリ側チェック)。重複時は「同じ階層に同名の組織単位が既に存在します。」
-  - 削除: 配下の子・所属社員・現場マスタの主管部署としての参照のいずれかがあれば「使用中のため削除できません」(`getOrganizationUnitDeleteBlockReason`)。削除はCMN001で確認し論理削除
+  - 削除: 配下の子・所属社員・現場マスタの主管部署としての参照のいずれかがあれば「使用中のため削除できません」(`getOrganizationUnitDeleteBlockReason`)。削除はconfirm-dialogで確認し論理削除
 - 全マスタ画面共通のアクセス制御: 管理職以外はリダイレクト
 
 ## 受け入れ基準

@@ -17,7 +17,7 @@ export type ProjectOptions = {
   roles: ProjectRoleOption[];
 };
 
-// REF002の「携わったプロジェクト(現場)」検索用。役割は不要なため現場のみを取る。
+// resume-listの「携わったプロジェクト(現場)」検索用。役割は不要なため現場のみを取る。
 export async function getSiteOptions(): Promise<SiteOption[]> {
   return prisma.site.findMany({
     where: { deletedAt: null },
@@ -64,7 +64,7 @@ export function validateProjectFormAgainstMaster(
   return null;
 }
 
-// 使用スキルのタグ入力もEDT003(スキル登録)と同様にマスタ実在・カテゴリの親子関係・
+// 使用スキルのタグ入力もmypageのスキルセクションと同様にマスタ実在・カテゴリの親子関係・
 // hasVersionの要否をサーバー側で再検証する(docs/decisions.md「スキル・資格・マスタ
 // 全般」)。
 export function validateProjectSkillsAgainstMaster(

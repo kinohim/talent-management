@@ -22,7 +22,7 @@ const SECTIONS: { key: Section; label: string }[] = [
   { key: "heat", label: "ヒートマップ" },
 ];
 
-// REF008 スキルマップ/組織ダッシュボード本体。全社分のDTOを受け取り、
+// skill-map スキルマップ/組織ダッシュボード本体。全社分のDTOを受け取り、
 // 部署・カテゴリ等の絞り込みはすべてクライアント側で行う
 // (docs/dashboard-design.md)。タブ切替で各パネルの状態(フィルタ・展開・
 // 並び順)を保持するため、非表示パネルはアンマウントせずhiddenにする。

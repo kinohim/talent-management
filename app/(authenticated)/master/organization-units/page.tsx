@@ -12,7 +12,7 @@ export default async function OrganizationUnitsPage() {
     redirect("/login");
   }
   if (session.user.role !== UserRole.MANAGER) {
-    // マスタ管理は管理職専用(REF001参照)
+    // マスタ管理は管理職専用(home参照)
     redirect("/");
   }
 

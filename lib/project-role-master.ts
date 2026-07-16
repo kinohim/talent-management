@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-// MST003の削除制約(docs/screens.md「使用中のため削除できません」)。
+// master-project-rolesの削除制約(docs/screens.md「使用中のため削除できません」)。
 // projectRoleLinkは`deleteProject`(プロジェクト削除)でdeletedAtが付与される
 // (論理削除)ため、deletedAt: nullで絞り込み、既に削除されたプロジェクトの
 // 残骸を「使用中」と誤判定しないようにする(lib/skill-master.tsと同じ理由)。

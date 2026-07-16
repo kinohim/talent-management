@@ -21,7 +21,7 @@ type SkillRowProps = {
   onRemove: () => void;
 };
 
-// 新規追加用の1行コンパクトフォーム(EDT003)。カテゴリ/スキル名/バージョン/
+// 新規追加用の1行コンパクトフォーム(mypageのスキルセクション)。カテゴリ/スキル名/バージョン/
 // 習熟度/削除を1行に収める(登録済み分はSkillRowsFormがタグ表示する)。
 export function SkillRow({
   index,

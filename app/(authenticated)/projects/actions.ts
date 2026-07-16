@@ -25,7 +25,7 @@ export type ProjectFormState = {
   formError: string | null;
 };
 
-const PROGRAM = "EDT005";
+const PROGRAM = "project-form";
 
 export async function saveProject(
   _prevState: ProjectFormState,
@@ -175,7 +175,7 @@ export async function saveProject(
     };
   }
 
-  // 保存後はREF006(プロジェクト経歴一覧)へ遷移する(docs/screens.md EDT005参照)。
+  // 保存後はmypage[実績]タブ(プロジェクト経歴一覧)へ遷移する(docs/screens.md project-form参照)。
   redirect("/mypage?tab=projects");
 }
 

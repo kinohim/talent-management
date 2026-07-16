@@ -1,7 +1,7 @@
 "use client";
 
 // 検索実行中などの待ち時間に画面全体へ表示するローディングオーバーレイ
-// (REF002/REF007共通)。呼び出し側でuseTransitionのisPendingを渡す。
+// (resume-list/account-list共通)。呼び出し側でuseTransitionのisPendingを渡す。
 export function LoadingOverlay({ show }: { show: boolean }) {
   if (!show) return null;
   return (

@@ -17,7 +17,7 @@ type ConditionTagFilterProps = {
   onModeChange?: (mode: ConditionMatchMode) => void;
 };
 
-// REF002のスキル条件/取得資格条件/現場条件: マスタからの複数選択+サジェスト。
+// resume-listのスキル条件/取得資格条件/現場条件: マスタからの複数選択+サジェスト。
 // AND/ORは表示切替トグルではなくラジオで明示的に選択する。
 export function ConditionTagFilter({
   label,

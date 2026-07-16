@@ -16,7 +16,7 @@ export default async function BasicInfoRegisterPage() {
     redirect("/login");
   }
   if (session.user.role === UserRole.HR_SALES) {
-    // 人事・営業は経歴書を作成しないため対象外(REF001参照)
+    // 人事・営業は経歴書を作成しないため対象外(home参照)
     redirect("/");
   }
 

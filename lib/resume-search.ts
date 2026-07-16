@@ -71,7 +71,7 @@ function parseColumnOrgUnitIds(
     .filter((v): v is number | "none" => v === "none" || Number.isInteger(v));
 }
 
-// REF002のフィルタをURLのsearchParamsからパースする純粋関数。
+// resume-listのフィルタをURLのsearchParamsからパースする純粋関数。
 export function parseResumeSearchFilters(searchParams: SearchParamsInput): ResumeSearchFilters {
   const name = (toArray(searchParams.name)[0] ?? "").trim();
   const organizationUnitIds = toIdArray(searchParams.orgUnitId);

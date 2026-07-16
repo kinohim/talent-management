@@ -22,7 +22,7 @@ verifier / code-reviewer と同様にコストの軽いモデルに寄せる。
 - `docs/README.md` — 全体像・システム概要・ロール定義
 - `docs/schema.md` — テーブル定義（全テーブル共通の監査カラム含む）
 - `docs/er-diagram.md` — ER 図（Mermaid）
-- `docs/screens.md` — 全 22 画面の仕様・入力項目・バリデーション
+- `docs/screens.md` — 全 18 画面の仕様・入力項目・バリデーション
 - `docs/screen-flow.md` — 画面遷移図（Mermaid）
 - `docs/decisions.md` — 設計判断の記録（最終仕様とその理由のみを書く方針）
 
@@ -34,11 +34,11 @@ verifier / code-reviewer と同様にコストの軽いモデルに寄せる。
 2. **仕様書間の整合性**:
    - `schema.md` ⇔ `er-diagram.md`（テーブル・リレーションの一致）
    - `screens.md` ⇔ `screen-flow.md`（画面の過不足・遷移の食い違い）
-   - `README.md` のロール・権限記述 ⇔ 各画面仕様（特に screens.md の REF002 閲覧範囲ルール）
+   - `README.md` のロール・権限記述 ⇔ 各画面仕様（特に screens.md の resume-list 閲覧範囲ルール）
    - README.md と CLAUDE.md に書かれたテーブル数・画面数などのメタ情報が実態と合っているか
 3. **実装との乖離**: `schema.md` ⇔ `prisma/schema.prisma`、`screens.md` ⇔ `app/` の実ルート。乖離を見つけても**どちらが正か勝手に判断しない**。「仕様が古い」か「実装のバグ」かの見立てを添えて報告し、決定はユーザーに委ねる（このリポジトリの規約: 食い違いはどちらが正か人間に確認する）
 4. **decisions.md との整合性**: 設計判断が該当する仕様書に反映されているか。逆に、決定と矛盾する記述が残っていないか
-5. **網羅性**: 画面 22 個が screens.md・screen-flow.md 双方に揃っているか、全テーブルに共通監査カラムの記述があるか、章の欠落
+5. **網羅性**: 画面 18 個が screens.md・screen-flow.md 双方に揃っているか、全テーブルに共通監査カラムの記述があるか、章の欠落
 6. **記述方針の遵守**: このリポジトリの仕様書は「今の正解」のみを書く方針。改訂経緯・改訂日・「〜から変更した」等の履歴記述が紛れ込んでいたら指摘する
 
 ## 出力形式

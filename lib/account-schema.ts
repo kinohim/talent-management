@@ -81,7 +81,7 @@ export type EditAccountFormParseResult =
   | { success: true; data: EditAccountFormInput }
   | { success: false; error: string };
 
-// EDT007では誤登録対策として社員ID・メールアドレスも変更可能(新規登録と同じ
+// account-editでは誤登録対策として社員ID・メールアドレスも変更可能(新規登録と同じ
 // バリデーション)。メールはSSOログインの照合キーのため、UI側で警告+確認を挟む。
 export function parseEditAccountForm(formData: FormData): EditAccountFormParseResult {
   const employeeIdParsed = employeeIdSchema.safeParse(formData.get("employeeId"));

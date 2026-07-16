@@ -17,7 +17,7 @@ export default async function EditAccountPage({ params }: EditAccountPageProps) 
     redirect("/login");
   }
   if (session.user.role !== UserRole.MANAGER) {
-    // アカウント管理は管理職専用(REF001参照)
+    // アカウント管理は管理職専用(home参照)
     redirect("/");
   }
 

@@ -16,10 +16,10 @@ import {
   type SkillMasterFormState,
 } from "@/lib/skill-master-schema";
 
-const PROGRAM = "MST001";
+const PROGRAM = "master-skills";
 const PATH = "/master/skills";
 
-// MST001の「カテゴリを追加」(カテゴリのみ新規作成)。スキルの追加は
+// master-skillsの「カテゴリを追加」(カテゴリのみ新規作成)。スキルの追加は
 // カテゴリ見出しごとのフォームからsaveSkillで行う。
 export async function createSkillCategory(
   _prevState: SkillMasterFormState,

@@ -15,10 +15,10 @@ describe("getBreadcrumbTrail", () => {
   });
 
   it("基本情報登録はトップ→私の経歴書→基本情報登録の3件を返す", () => {
-    expect(getBreadcrumbTrail("/register")).toEqual([
+    expect(getBreadcrumbTrail("/basic-info")).toEqual([
       { path: "/", label: "トップ" },
       { path: "/mypage", label: "私の経歴書" },
-      { path: "/register", label: "基本情報登録" },
+      { path: "/basic-info", label: "基本情報登録" },
     ]);
   });
 

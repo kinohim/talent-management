@@ -149,7 +149,7 @@ model Employee {
 //
 // Userのid はAuth.jsアダプタの要件によりString(cuid)とする。他テーブルの
 // SERIAL PK統一方針(docs/decisions.md「命名規則」)の例外。
-// createdBy等の監査カラムはEDT006(管理職による事前登録)実行時のみ設定され、
+// createdBy等の監査カラムはaccount-new(管理職による事前登録)実行時のみ設定され、
 // Auth.js自身によるupdateUser呼び出し(ログイン時のname/emailVerified更新等)は
 // 監査情報を持たないためnull許容とする(この4カラムのみ他テーブルと異なる)。
 // ---------------------------------------------------------------------------
@@ -415,7 +415,7 @@ model EmployeeCertification {
 model Site {
   id       Int    @id @default(autoincrement())
   siteName String @unique @map("site_name") @db.VarChar(100)
-  // 主管部署(部=DEPARTMENTのみをMST005で選択する。任意)
+  // 主管部署(部=DEPARTMENTのみをmaster-sitesで選択する。任意)
   organizationUnitId Int? @map("organization_unit_id")
 
   organizationUnit OrganizationUnit? @relation(fields: [organizationUnitId], references: [id])

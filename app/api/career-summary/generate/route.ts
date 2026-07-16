@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   if (!session?.user) {
     return errorResponse(401, "ログインしてください。");
   }
-  // 人事・営業は自分の経歴書を持たないためEDT002(AI生成含む)の対象外
+  // 人事・営業は自分の経歴書を持たないためmypageの経歴概要・自己PRセクション(AI生成含む)の対象外
   if (session.user.role === UserRole.HR_SALES) {
     return errorResponse(403, "この機能を利用する権限がありません。");
   }

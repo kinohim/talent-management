@@ -15,7 +15,7 @@ const TABS: { key: MyResumeTab; label: string }[] = [
   { key: "projects", label: "実績" },
 ];
 
-// REF004「私の経歴書」のタブ切替。両パネルはServer Componentでレンダリング済みの
+// mypage「私の経歴書」のタブ切替。両パネルはServer Componentでレンダリング済みの
 // ものをスロットで受け取り、切替はクライアント側の表示切替のみで行う(RSCの
 // 再フェッチなしで即時)。URLの?tab=はreplaceStateで同期し、リロードや
 // プロジェクト編集からの戻りで実績タブへ復帰できるようにする。

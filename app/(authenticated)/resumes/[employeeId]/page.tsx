@@ -27,8 +27,8 @@ export default async function ResumePage({ params }: ResumePageProps) {
     redirect("/login");
   }
 
-  // 未登録の一般社員/管理職が直接開いた場合はEDT001へ戻す(既存ページと同じ
-  // 恒常ガード)。HR_SALESはresolveDestinationが常に"/"を返すため、REF003は
+  // 未登録の一般社員/管理職が直接開いた場合はbasic-infoへ戻す(既存ページと同じ
+  // 恒常ガード)。HR_SALESはresolveDestinationが常に"/"を返すため、resume-detailは
   // HR_SALESも閲覧するページとして他ページのようなHR_SALES弾き出しガードは
   // 入れない。
   const destination = await resolveDestination(session.user);
@@ -106,7 +106,7 @@ export default async function ResumePage({ params }: ResumePageProps) {
       <h1 className="text-lg font-semibold">経歴書詳細</h1>
 
       {/* 戻り導線はグローバルのBackLink(「経歴書一覧に戻る」)に一本化している。
-          本人の編集・確認は REF004「私の経歴書」が担うため、本ページ独自の
+          本人の編集・確認は mypage「私の経歴書」が担うため、本ページ独自の
           戻りリンクは持たない。 */}
 
       <ResumeBasicInfoSection

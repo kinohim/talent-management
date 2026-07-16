@@ -1,20 +1,20 @@
-# 018 MST005 現場マスタ管理
+# 018 master-sites 現場マスタ管理
 
 ## 目的
 
-プロジェクト経歴で選択する現場と、その主管部署を管理職が管理できるようにする(docs/screens.md MST005)。
+プロジェクト経歴で選択する現場と、その主管部署を管理職が管理できるようにする(docs/screens.md master-sites)。
 
 ## 前提(依存するplan)
 
-- 014 MST004 部署マスタ管理(主管部署の選択肢)
+- 014 master-org-units 部署マスタ管理(主管部署の選択肢)
 
 ## 実装内容
 
-- `app/(authenticated)/master/sites/page.tsx`+`actions.ts`+`components/master/SiteMasterManager.tsx`: MST005
+- `app/(authenticated)/master/sites/page.tsx`+`actions.ts`+`components/master/SiteMasterManager.tsx`: master-sites
   - 画面最上部の「現場を追加」1行フォーム: 現場名(100文字・システム全体でユニーク・必須)+主管部署(任意)
   - 主管部署は**部署(unit_level=department)のみ**から単一選択し、「事業部 / 部」形式で表示。`site.organization_unit_id`に保存
   - 絞り込み: 現場名の部分一致(大文字小文字無視)+主管部署(「主管部署なし」含む)
-  - 一覧は「名称・主管部署は左、ボタンは右端」。編集では主管部署も変更可。削除はCMN001で確認し、`project`から参照中なら「使用中のため削除できません」(`lib/site-master.ts`)
+  - 一覧は「名称・主管部署は左、ボタンは右端」。編集では主管部署も変更可。削除はconfirm-dialogで確認し、`project`から参照中なら「使用中のため削除できません」(`lib/site-master.ts`)
   - 同名の論理削除済み現場の復活に対応する
 
 ## 受け入れ基準

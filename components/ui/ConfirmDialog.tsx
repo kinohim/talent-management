@@ -9,7 +9,7 @@ type ConfirmDialogProps = {
   onCancel: () => void;
 };
 
-// CMN001(削除確認モーダル)。表示するかどうかは呼び出し元がstateで管理し、
+// confirm-dialog(削除確認モーダル)。表示するかどうかは呼び出し元がstateで管理し、
 // 表示する時だけこのコンポーネントをレンダーする。
 export function ConfirmDialog({
   message,

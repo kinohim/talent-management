@@ -31,7 +31,7 @@ button:not(:disabled) {
   cursor: pointer;
 }
 
-/* REF008 🎉ティッカー: 右から左へ途切れず流れるマーキー。
+/* skill-map 🎉ティッカー: 右から左へ途切れず流れるマーキー。
    コンテンツを2周分並べて-50%まで移動するとシームレスにループする */
 @keyframes skill-map-marquee {
   from {

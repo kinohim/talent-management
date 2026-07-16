@@ -20,7 +20,7 @@ export type ColumnFilterSpec =
 
 type DataTableHeaderCellProps = {
   label: string;
-  // 未指定の列はソート不可(REF002の「主なスキル」等)
+  // 未指定の列はソート不可(resume-listの「主なスキル」等)
   sortKey?: string;
   filter?: ColumnFilterSpec;
   align?: "left" | "right";
@@ -28,7 +28,7 @@ type DataTableHeaderCellProps = {
 
 const POPOVER_WIDTH = 288; // w-72
 
-// REF002/REF007の一覧テーブル用ヘッダセル。ラベルクリックで昇順→降順→解除の
+// resume-list/account-listの一覧テーブル用ヘッダセル。ラベルクリックで昇順→降順→解除の
 // ソートトグル、フィルタアイコンでExcelオートフィルタ風のポップオーバーを開く。
 // ソート・フィルタの状態はすべてURLのsearchParamsに載せ、DB絞込はサーバー側で行う。
 // ポップオーバーはテーブルラッパの overflow にクリップされないよう

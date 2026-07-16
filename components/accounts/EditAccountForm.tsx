@@ -56,7 +56,7 @@ export function EditAccountForm({
   const [isStatusPending, startStatusTransition] = useTransition();
 
   // 社員ID・メールアドレスは誤登録対策で変更可能だが、影響が大きいため
-  // 変更を検知した保存時のみ確認ダイアログを挟む(CMN001)。
+  // 変更を検知した保存時のみ確認ダイアログを挟む(confirm-dialog)。
   const [employeeIdValue, setEmployeeIdValue] = useState(employeeId);
   const [emailValue, setEmailValue] = useState(email);
   const [showChangeConfirm, setShowChangeConfirm] = useState(false);

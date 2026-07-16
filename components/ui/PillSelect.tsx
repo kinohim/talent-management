@@ -10,7 +10,7 @@ type PillSelectProps = {
   // value/onChangeを指定すると制御コンポーネントとして動作する。
   // React DOMのフォームaction機能は「action完了後に非制御フィールドを自動リセット
   // する」ため、保存前(検証エラーで同じ画面に留まる場合等)に選択状態が消えると
-  // 都合が悪い呼び出し元(EDT003の明細行等)はこちらを使う。
+  // 都合が悪い呼び出し元(mypageのスキルセクションの明細行等)はこちらを使う。
   value?: string;
   onChange?: (value: string) => void;
 };

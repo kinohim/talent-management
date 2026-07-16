@@ -1,4 +1,4 @@
-// REF004「私の経歴書」のタブ。URLの?tab=でリロード・戻り導線からも
+// mypage「私の経歴書」のタブ。URLの?tab=でリロード・戻り導線からも
 // タブ位置を復元できるようにする。
 export type MyResumeTab = "cover" | "projects";
 

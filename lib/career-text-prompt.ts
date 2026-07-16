@@ -1,4 +1,4 @@
-// EDT002 のAI生成(経歴概要・自己PR)で使うプロンプト構築ロジック。
+// mypageの経歴概要・自己PRセクションのAI生成で使うプロンプト構築ロジック。
 // Anthropic API 呼び出し本体は app/api/career-summary/generate/route.ts が担い、
 // ここは入力データの整形とプロンプト文字列の組み立てのみを行う純粋関数群。
 

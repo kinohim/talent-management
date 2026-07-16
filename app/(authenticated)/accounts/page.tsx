@@ -31,7 +31,7 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
     redirect("/login");
   }
   if (session.user.role !== UserRole.MANAGER) {
-    // アカウント一覧は管理職専用(REF001参照)
+    // アカウント一覧は管理職専用(home参照)
     redirect("/");
   }
 
