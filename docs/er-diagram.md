@@ -1,11 +1,12 @@
 # ER図
 
-Mermaid記法。GitHub/VS Code/Claude Codeでそのまま図としてレンダリングされる。システムカラム（作成日・更新日・削除日等）は省略。
+Mermaid記法。GitHub/VS Code/Claude Codeでそのまま図としてレンダリングされる。システムカラム（作成日・更新日・削除日等）は省略。テーブル定義の詳細は `schema.md` を参照。
 
 ```mermaid
 erDiagram
     organization_unit |o--o{ organization_unit : "parent_id (自己参照、事業部はNULL)"
     organization_unit |o--o{ employee : "所属 (未所属=NULL可)"
+    organization_unit |o--o{ site : "主管部署 (NULL可)"
     employee ||--o| users : "1対1 (employee_idで結合)"
     users ||--o{ accounts : "1対多"
     users ||--o{ sessions : "1対多"
@@ -21,7 +22,6 @@ erDiagram
     certification_category ||--o{ certification : "分類"
     certification ||--o{ employee_certification : "参照"
     site ||--o{ project : "現場"
-    organization_unit ||--o{ site : "主管部署"
     project ||--o| project_detail : "1対1 (project_id にUK)"
     project ||--o{ project_skill : "使用技術"
     project ||--o{ project_role_link : "役割"
@@ -31,13 +31,13 @@ erDiagram
         int id PK
         int parent_id FK
         string unit_name
-        enum unit_level "1:事業部 2:部署 3:Gr"
+        enum unit_level "division:事業部 department:部署 group:Gr"
     }
     employee {
         int id PK
         string employee_id "UK"
         boolean is_registered
-        enum employment_status "1:現職 2:退職"
+        enum employment_status "active:現職 retired:退職"
         int organization_unit_id FK
         string name
         string name_kana
@@ -83,7 +83,7 @@ erDiagram
     }
     skill_category {
         int id PK
-        string skill_category_name
+        string skill_category_name "UK"
     }
     skill {
         int id PK
@@ -107,7 +107,7 @@ erDiagram
     }
     certification_category {
         int id PK
-        string certification_category_name
+        string certification_category_name "UK"
     }
     certification {
         int id PK
@@ -125,6 +125,7 @@ erDiagram
     site {
         int id PK
         string site_name "UK"
+        int organization_unit_id FK "主管部署 (NULL可)"
     }
     project {
         int id PK
