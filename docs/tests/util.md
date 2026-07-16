@@ -1,0 +1,160 @@
+# 共通ユーティリティ テスト仕様
+
+日付整形・パンくずリスト・一覧クエリ（ページング／ソート）・Prisma エラー判定の共通ユーティリティを対象とする。
+
+| テストファイル | 対象ソース | ケース数 |
+|---|---|---|
+| `lib/date-format.test.ts` | `lib/date-format.ts` | 18 |
+| `lib/breadcrumbs.test.ts` | `lib/breadcrumbs.ts` | 8 |
+| `lib/list-query.test.ts` | `lib/list-query.ts` | 12 |
+| `lib/prisma-errors.test.ts` | `lib/prisma-errors.ts` | 4 |
+
+## toDateInputValue / parseDateOnly
+
+対象: `lib/date-format.ts` / テスト: `lib/date-format.test.ts`
+概要: `<input type="date">` 用の YYYY-MM-DD 文字列と Date（UTC 深夜）を相互変換する
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | nullish 値は空文字を返す | 境界値 |
+| 2 | UTC 基準で往復一致する | 正常系 |
+| 3 | 年始・月末などの境界日でもズレない | 境界値 |
+
+## toMonthInputValue / parseYearMonth
+
+対象: `lib/date-format.ts` / テスト: `lib/date-format.test.ts`
+概要: `<input type="month">` 用の YYYY-MM 文字列と Date（1日固定）を相互変換する
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | nullish 値は空文字を返す | 境界値 |
+| 2 | YYYYMM01 形式（1日固定）で往復一致する | 正常系 |
+| 3 | 年をまたぐ月でもズレない | 境界値 |
+
+## toDisplayDate
+
+対象: `lib/date-format.ts` / テスト: `lib/date-format.test.ts`
+概要: Date を「YYYY年M月D日」の日本語表示文字列に変換する
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | nullish 値は空文字を返す | 境界値 |
+| 2 | 日本語形式に変換する | 正常系 |
+| 3 | 年始の境界日でもズレない | 境界値 |
+
+## toDisplayYearMonth
+
+対象: `lib/date-format.ts` / テスト: `lib/date-format.test.ts`
+概要: Date を「YYYY年M月」の日本語表示文字列に変換する
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | nullish 値は空文字を返す | 境界値 |
+| 2 | 日本語形式に変換する | 正常系 |
+| 3 | 年をまたぐ月でもズレない | 境界値 |
+
+## toDisplayDateTime
+
+対象: `lib/date-format.ts` / テスト: `lib/date-format.test.ts`
+概要: UTC の瞬間を JST の「YYYY年M月D日 HH:mm」表示に変換する
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | nullish 値は空文字を返す | 境界値 |
+| 2 | UTC 瞬間を JST の日本語形式（時分まで）に変換する | 正常系 |
+| 3 | JST で日付が繰り上がる UTC 瞬間でも正しく変換する | 境界値 |
+
+## todayJstDateOnly
+
+対象: `lib/date-format.ts` / テスト: `lib/date-format.test.ts`
+概要: 現在時刻から JST 基準の「今日」を UTC 深夜の Date として返す
+前提: モックなし（純粋関数。基準時刻は引数で注入）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | JST の今日を UTC 深夜の Date として返す（JST/UTC が別日の時刻） | 境界値 |
+| 2 | JST と UTC が同日の時刻ではその日を返す | 正常系 |
+
+## nowJstClock
+
+対象: `lib/date-format.ts` / テスト: `lib/date-format.test.ts`
+概要: 現在時刻を JST の壁時計として UTC getter で読める Date に変換する
+前提: モックなし（純粋関数。基準時刻は引数で注入）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | JST の壁時計を UTC getter で読める Date を返す（月が繰り上がる時刻） | 境界値 |
+
+## getBreadcrumbTrail
+
+対象: `lib/breadcrumbs.ts` / テスト: `lib/breadcrumbs.test.ts`
+概要: パス名からパンくずリスト（トップからの階層配列）を解決する
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | トップは単独のパンくずを返す | 正常系 |
+| 2 | 私の経歴書はトップ→私の経歴書の2件を返す | 正常系 |
+| 3 | 基本情報登録はトップ→私の経歴書→基本情報登録の3件を返す | 正常系 |
+| 4 | プロジェクト経歴登録の親は私の経歴書（実績タブの合成キー） | 正常系 |
+| 5 | プロジェクト経歴編集（動的 ID）は数値セグメントを `[id]` に正規化して解決する | 正常系 |
+| 6 | 経歴書詳細（動的 ID）の親は経歴書一覧（戻り導線の一本化） | 正常系 |
+| 7 | 廃止した単独編集画面のパスは未登録として空配列を返す | 異常系 |
+| 8 | 未登録パスは空配列を返す | 異常系 |
+
+## parsePagination
+
+対象: `lib/list-query.ts` / テスト: `lib/list-query.test.ts`
+概要: クエリパラメータからページ番号・ページサイズを安全にパースする
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | 未指定は page=1・pageSize=30 | 境界値 |
+| 2 | 正常値をパースする | 正常系 |
+| 3 | 不正な page は1にフォールバックする | 異常系 |
+| 4 | 許可リスト外の pageSize は30にフォールバックする | 異常系 |
+| 5 | 配列値は先頭を使う | 正常系 |
+
+## parseSort
+
+対象: `lib/list-query.ts` / テスト: `lib/list-query.test.ts`
+概要: クエリパラメータからソートキー・並び順を許可リストに基づいてパースする
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | 許可リスト内のキーと order をパースする | 正常系 |
+| 2 | 許可リスト外・未指定は sortKey=null | 異常系 |
+| 3 | order は desc 以外すべて asc | 異常系 |
+
+## clampPage
+
+対象: `lib/list-query.ts` / テスト: `lib/list-query.test.ts`
+概要: 総件数に対してページ番号を丸め、skip とページ総数を算出する
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | 範囲内のページはそのまま | 正常系 |
+| 2 | 最終ページ超過は最終ページへ丸める | 境界値 |
+| 3 | 0件でも pageCount は1（page=1, skip=0） | 境界値 |
+| 4 | 件数がページサイズちょうどのとき pageCount は1 | 境界値 |
+
+## isUniqueConstraintViolation
+
+対象: `lib/prisma-errors.ts` / テスト: `lib/prisma-errors.test.ts`
+概要: unknown なエラーが Prisma の一意制約違反（P2002）かを判定する
+前提: モックなし（実際の `Prisma.PrismaClientKnownRequestError` インスタンスを生成して判定）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | P2002 なら true | 正常系 |
+| 2 | P2002 以外の Prisma エラーコードなら false | 正常系 |
+| 3 | Prisma のエラーでなければ false | 異常系 |
+| 4 | エラーでない値（null/undefined/文字列）なら false | 境界値 |
