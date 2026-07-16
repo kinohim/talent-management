@@ -161,10 +161,15 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
     conditions.push({ name: { contains: filters.colName, mode: "insensitive" } });
   }
   if (filters.colOrganizationUnitIds.length > 0) {
-    // 一般社員は閲覧範囲内のidのみ許可(スコープ外の直接指定をクランプ)
-    const numericIds = filters.colOrganizationUnitIds
-      .filter((v): v is number => v !== "none")
-      .filter((id) => (scopeUnitIds ? scopeUnitIds.has(id) : true));
+    // 選択した組織単位の配下も含めて判定する(検索カードのカスケード選択と
+    // 同じ配下展開。docs/screens.md resume-list)。展開後、一般社員は
+    // 閲覧範囲内のidのみ許可(スコープ外の直接指定をクランプ)
+    const selectedIds = filters.colOrganizationUnitIds.filter(
+      (v): v is number => v !== "none",
+    );
+    const numericIds = [...resolveEffectiveOrgUnitIds(units, selectedIds)].filter(
+      (id) => (scopeUnitIds ? scopeUnitIds.has(id) : true),
+    );
     const orConditions: Prisma.EmployeeWhereInput[] = [];
     if (numericIds.length > 0) {
       orConditions.push({ organizationUnitId: { in: numericIds } });
