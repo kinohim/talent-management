@@ -27,32 +27,45 @@ type GenerateResponse = {
   missingData: MissingDataKind[];
 };
 
+type AiProvider = "gemini" | "claude";
+
+const PROVIDER_LABELS: Record<AiProvider, string> = {
+  gemini: "Geminiで生成",
+  claude: "Claudeで生成",
+};
+
 export function AiGeneratePanel({
   target,
   label,
   value,
   onValueChange,
 }: AiGeneratePanelProps) {
-  const [isGenerating, setIsGenerating] = useState(false);
+  // 生成中はクリックしたボタン側のみ「生成中...」表示にするため provider を保持
+  const [generatingProvider, setGeneratingProvider] =
+    useState<AiProvider | null>(null);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [missingDataMessage, setMissingDataMessage] = useState<string | null>(
     null,
   );
-  const [showReplaceConfirm, setShowReplaceConfirm] = useState(false);
+  // 置き換え確認パネル表示中に、どちらのボタンから来たかを保持する
+  const [confirmProvider, setConfirmProvider] = useState<AiProvider | null>(
+    null,
+  );
   const [skipConfirmChecked, setSkipConfirmChecked] = useState(false);
 
+  const isGenerating = generatingProvider !== null;
   const outputId = `${target}AiOutput`;
 
-  async function generate() {
-    setShowReplaceConfirm(false);
-    setIsGenerating(true);
+  async function generate(provider: AiProvider) {
+    setConfirmProvider(null);
+    setGeneratingProvider(provider);
     setGenerateError(null);
     setMissingDataMessage(null);
     try {
       const response = await fetch("/api/career-summary/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ target }),
+        body: JSON.stringify({ target, provider }),
       });
       const body = (await response.json().catch(() => null)) as
         | GenerateResponse
@@ -72,45 +85,58 @@ export function AiGeneratePanel({
         "AI生成に失敗しました。通信環境をご確認のうえ再度お試しください。",
       );
     } finally {
-      setIsGenerating(false);
+      setGeneratingProvider(null);
     }
   }
 
-  function handleGenerateClick() {
+  function handleGenerateClick(provider: AiProvider) {
     const skipConfirm =
       sessionStorage.getItem(SKIP_CONFIRM_STORAGE_KEY) === "true";
     if (value !== "" && !skipConfirm) {
       setSkipConfirmChecked(false);
-      setShowReplaceConfirm(true);
+      setConfirmProvider(provider);
       return;
     }
-    void generate();
+    void generate(provider);
   }
 
   function handleConfirmGenerate() {
+    if (confirmProvider === null) return;
     if (skipConfirmChecked) {
       sessionStorage.setItem(SKIP_CONFIRM_STORAGE_KEY, "true");
     }
-    void generate();
+    void generate(confirmProvider);
   }
 
   return (
     <div className="flex h-full flex-col gap-2 rounded border border-dashed border-zinc-300 p-3 dark:border-zinc-600">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
-          onClick={handleGenerateClick}
+          onClick={() => handleGenerateClick("gemini")}
           disabled={isGenerating}
           className="rounded bg-zinc-900 hover:bg-zinc-700 px-4 py-1.5 text-sm text-white disabled:opacity-50 dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
         >
-          {isGenerating ? "生成中..." : "AI生成"}
+          {generatingProvider === "gemini"
+            ? "生成中..."
+            : PROVIDER_LABELS.gemini}
+        </button>
+        <button
+          type="button"
+          onClick={() => handleGenerateClick("claude")}
+          disabled={isGenerating}
+          className="rounded border px-4 py-1.5 text-sm hover:bg-zinc-50 disabled:opacity-50 dark:hover:bg-zinc-800"
+        >
+          {generatingProvider === "claude"
+            ? "生成中..."
+            : PROVIDER_LABELS.claude}
         </button>
         <span className="text-xs text-zinc-500">
-          登録済みの経歴・スキル・資格から{label}の下書きを生成します。
+          登録済みの経歴・スキル・資格から{label}の下書きをAIで生成します。
         </span>
       </div>
 
-      {showReplaceConfirm ? (
+      {confirmProvider !== null ? (
         <div className="flex flex-col gap-2 rounded border border-amber-400 bg-amber-50 p-3 text-sm dark:border-amber-600 dark:bg-amber-950">
           <p>出力フォームの内容を置き換えます。よろしいですか?</p>
           <label className="flex items-center gap-2 text-xs">
@@ -131,7 +157,7 @@ export function AiGeneratePanel({
             </button>
             <button
               type="button"
-              onClick={() => setShowReplaceConfirm(false)}
+              onClick={() => setConfirmProvider(null)}
               className="rounded border px-4 py-1.5 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
             >
               キャンセル

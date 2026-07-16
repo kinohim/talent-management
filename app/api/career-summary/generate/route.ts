@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { ApiError, GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -13,8 +14,13 @@ import { prisma } from "@/lib/prisma";
 
 const MAX_TEXT_LENGTH = 1000;
 
+// 無料枠対象モデル。pro 系は無料枠対象外のため flash を採用
+// (gemini-2.5-flash は新規ユーザー利用不可のため 3.5 を使用)
+const GEMINI_MODEL = "gemini-3.5-flash";
+
 const requestSchema = z.object({
   target: z.enum(["careerSummary", "selfPr"]),
+  provider: z.enum(["claude", "gemini"]).default("gemini"),
 });
 
 function errorResponse(status: number, message: string) {
@@ -37,7 +43,11 @@ export async function POST(request: Request) {
     return errorResponse(400, "リクエストが不正です。");
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const apiKeyByProvider = {
+    claude: process.env.ANTHROPIC_API_KEY,
+    gemini: process.env.GEMINI_API_KEY,
+  };
+  if (!apiKeyByProvider[parsed.data.provider]) {
     return errorResponse(
       500,
       "AI生成機能が利用できません(サーバー設定エラー)。管理者にお問い合わせください。",
@@ -113,28 +123,10 @@ export async function POST(request: Request) {
   const { system, user } = buildCareerTextPrompt(parsed.data.target, promptInput);
 
   try {
-    const client = new Anthropic();
-    const response = await client.messages.create({
-      model: "claude-opus-4-8",
-      max_tokens: 2048, // 出力は最大1000文字程度のため意図的に小さめ
-      thinking: { type: "adaptive" },
-      system,
-      messages: [{ role: "user", content: user }],
-    });
-
-    if (response.stop_reason === "refusal") {
-      return errorResponse(
-        502,
-        "AIが文章を生成できませんでした。時間をおいて再度お試しください。",
-      );
-    }
-
-    const text = response.content
-      .filter((block) => block.type === "text")
-      .map((block) => block.text)
-      .join("")
-      .trim()
-      .slice(0, MAX_TEXT_LENGTH);
+    const text =
+      parsed.data.provider === "gemini"
+        ? await generateWithGemini(system, user)
+        : await generateWithClaude(system, user);
     if (!text) {
       return errorResponse(
         502,
@@ -148,6 +140,19 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error(error);
+    if (error instanceof ApiError) {
+      // 無料枠のquota超過・レート制限はいずれも429で返る
+      if (error.status === 429) {
+        return errorResponse(
+          429,
+          "AI生成の無料利用枠の上限に達しました。時間をおいて再度お試しください。",
+        );
+      }
+      return errorResponse(
+        502,
+        "AI生成に失敗しました。時間をおいて再度お試しください。",
+      );
+    }
     // クレジット残高不足(400 invalid_request_error、メッセージに"credit balance"を含む)は
     // リトライしても解決しないため、他のAPIエラーと区別する
     if (
@@ -176,6 +181,48 @@ export async function POST(request: Request) {
       "AI生成に失敗しました。時間をおいて再度お試しください。",
     );
   }
+}
+
+// 生成失敗(refusal・safety block・空文字)は null を返し、呼び出し側で502にする
+async function generateWithClaude(
+  system: string,
+  user: string,
+): Promise<string | null> {
+  const client = new Anthropic();
+  const response = await client.messages.create({
+    model: "claude-opus-4-8",
+    max_tokens: 2048, // 出力は最大1000文字程度のため意図的に小さめ
+    thinking: { type: "adaptive" },
+    system,
+    messages: [{ role: "user", content: user }],
+  });
+
+  if (response.stop_reason === "refusal") {
+    return null;
+  }
+
+  const text = response.content
+    .filter((block) => block.type === "text")
+    .map((block) => block.text)
+    .join("")
+    .trim()
+    .slice(0, MAX_TEXT_LENGTH);
+  return text || null;
+}
+
+async function generateWithGemini(
+  system: string,
+  user: string,
+): Promise<string | null> {
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const response = await ai.models.generateContent({
+    model: GEMINI_MODEL,
+    contents: user,
+    config: { systemInstruction: system },
+  });
+  // text は safety block 時に undefined になる
+  const text = response.text?.trim().slice(0, MAX_TEXT_LENGTH);
+  return text || null;
 }
 
 type ProjectDetailPhases = {

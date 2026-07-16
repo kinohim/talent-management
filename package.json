@@ -17,6 +17,7 @@
     "@anthropic-ai/sdk": "^0.111.0",
     "@auth/core": "0.41.2",
     "@auth/prisma-adapter": "^2.11.2",
+    "@google/genai": "^2.11.0",
     "@neondatabase/serverless": "1.1.0",
     "@prisma/adapter-neon": "7.8.0",
     "@prisma/client": "7.8.0",
