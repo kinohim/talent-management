@@ -11,7 +11,7 @@ type DateFieldBaseProps = NativeInputProps & {
   className?: string;
   min?: string;
   max?: string;
-  // 空の状態でフォーカスされたときに自動セットする値
+  // 空の状態でカレンダーボタンをクリックしたときに自動セットする値
   // (例: 卒業年月に生年月日から予想した年月を初期表示する)
   defaultWhenEmpty?: string;
 };
@@ -22,7 +22,8 @@ type DateFieldBaseProps = NativeInputProps & {
 // - ネイティブのカレンダーインジケータは非表示にし、×の左に自前の
 //   カレンダーボタン(showPicker)を置く(×とピッカー起動領域の重なり防止)
 // - フィールド内×(右端)で値をクリアできる
-// - defaultWhenEmptyで「空のままフォーカスした瞬間の初期値」を差し込める
+// - defaultWhenEmptyで「空のままカレンダーボタンを押した瞬間の初期値」を
+//   差し込める(フォーカスや×クリアでは差し込まない。クリアで空に戻せること)
 function DateFieldBase({
   type,
   fallbackMin,
@@ -32,7 +33,6 @@ function DateFieldBase({
   max,
   defaultWhenEmpty,
   onChange,
-  onFocus,
   ...rest
 }: DateFieldBaseProps & {
   type: "date" | "month";
@@ -70,12 +70,6 @@ function DateFieldBase({
           setHasValue(e.currentTarget.value !== "");
           onChange?.(e);
         }}
-        onFocus={(e) => {
-          if (defaultWhenEmpty && e.currentTarget.value === "") {
-            setNativeValue(defaultWhenEmpty);
-          }
-          onFocus?.(e);
-        }}
         className={`w-full rounded border px-3 py-2 pr-14 [&::-webkit-calendar-picker-indicator]:hidden ${className}`}
         {...rest}
       />
@@ -87,6 +81,9 @@ function DateFieldBase({
           onClick={() => {
             const input = inputRef.current;
             if (!input) return;
+            if (defaultWhenEmpty && input.value === "") {
+              setNativeValue(defaultWhenEmpty);
+            }
             try {
               input.showPicker();
             } catch {
