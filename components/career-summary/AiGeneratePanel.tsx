@@ -187,14 +187,20 @@ export function AiGeneratePanel({
             {value.length}/{MAX_LENGTH}
           </span>
         </div>
-        <textarea
-          id={outputId}
-          rows={6}
-          maxLength={MAX_LENGTH}
-          value={value}
-          onChange={(event) => onValueChange(event.target.value)}
-          className="flex-1 rounded border px-3 py-2"
-        />
+        {/* flex-1のwrapperで初期表示はカードを埋めつつ、textarea自体は
+            リサイズ可能に保つ(textareaに直接flex-1を付けると高さが固定される)。
+            min-hはrows=6相当(6行×24px+py-2+border=162px)。textareaを初期より
+            小さくしてもwrapperが高さを保ち、外枠が初期サイズより縮まない */}
+        <div className="min-h-[10.125rem] flex-1">
+          <textarea
+            id={outputId}
+            rows={6}
+            maxLength={MAX_LENGTH}
+            value={value}
+            onChange={(event) => onValueChange(event.target.value)}
+            className="block h-full w-full rounded border px-3 py-2"
+          />
+        </div>
         <p className="text-xs text-zinc-500">
           この内容は保存されません。反映するには ←
           ボタンで入力欄へコピーしてください。
