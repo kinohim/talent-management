@@ -238,11 +238,11 @@ type ProjectDetailPhases = {
 function projectPhases(detail: ProjectDetailPhases): string[] {
   if (!detail) return [];
   const phases: [boolean | null, string][] = [
-    [detail.researchAnalysis, "調査・分析"],
+    [detail.researchAnalysis, "調査分析"],
     [detail.requirementsDefinition, "要件定義"],
     [detail.basicDesign, "基本設計"],
     [detail.detailedDesign, "詳細設計"],
-    [detail.development, "開発"],
+    [detail.development, "製造"],
     [detail.testing, "テスト"],
     [detail.operation, "運用"],
   ];
