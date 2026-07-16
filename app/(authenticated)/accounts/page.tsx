@@ -13,6 +13,7 @@ import {
   parseAccountFilters,
 } from "@/lib/account-list";
 import { auth } from "@/lib/auth";
+import { resolveDestination } from "@/lib/auth-routing";
 import { clampPage, parsePagination, parseSort } from "@/lib/list-query";
 import { getOrganizationUnitOptions } from "@/lib/organization-unit";
 import {
@@ -29,6 +30,11 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
+  }
+  // 未登録の管理職はbasic-info(初回登録)へ誘導する(全認証必須ページ共通のガード)
+  const destination = await resolveDestination(session.user);
+  if (destination !== "/") {
+    redirect(destination);
   }
   if (session.user.role !== UserRole.MANAGER) {
     // アカウント一覧は管理職専用(home参照)

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Tile } from "@/components/ui/Tile";
 import { UserRole } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
+import { resolveDestination } from "@/lib/auth-routing";
 
 const MASTER_TILES = [
   { key: "organization-units", label: "部署マスタ管理", href: "/master/organization-units" },
@@ -16,6 +17,11 @@ export default async function MasterPage() {
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
+  }
+  // 未登録の管理職はbasic-info(初回登録)へ誘導する(全認証必須ページ共通のガード)
+  const destination = await resolveDestination(session.user);
+  if (destination !== "/") {
+    redirect(destination);
   }
   if (session.user.role !== UserRole.MANAGER) {
     // マスタ管理は管理職専用(home参照)
