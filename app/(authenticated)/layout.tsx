@@ -1,10 +1,12 @@
 import { Suspense } from "react";
 
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { BackLink } from "@/components/layout/BackLink";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { HeaderNav } from "@/components/layout/HeaderNav";
 import { ListQueryRecorder } from "@/components/layout/ListQueryRecorder";
 import { auth } from "@/lib/auth";
 import { displayNameForEmployee } from "@/lib/employee-name";
@@ -34,8 +36,13 @@ export default async function AuthenticatedLayout({
       {/* ヘッダとパンくずはスクロールしても画面上部に固定する(全画面共通)。
           sticky要素は背景が透けると下の内容が重なって見えるため背景色を明示する */}
       <div className="sticky top-0 z-40 bg-[var(--background)] print:hidden">
-        <header className="flex items-center justify-between border-b px-6 py-4 text-sm">
-          <span className="font-semibold">業務経歴書</span>
+        <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b px-6 py-4 text-sm">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <Link href="/" className="font-semibold">
+              業務経歴書
+            </Link>
+            <HeaderNav role={session.user.role} />
+          </div>
           <div className="flex items-center gap-3">
             <span>
               {displayName}（{session.user.employeeId} /{" "}
