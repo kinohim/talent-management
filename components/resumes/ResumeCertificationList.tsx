@@ -29,7 +29,7 @@ export function ResumeCertificationList({
           {certifications.map((certification) => (
             <li
               key={certification.id}
-              className="flex flex-wrap items-baseline gap-3 rounded border px-3 py-2 text-sm"
+              className="flex break-inside-avoid flex-wrap items-baseline gap-3 rounded border px-3 py-2 text-sm"
             >
               <span className="text-zinc-500">
                 {toDisplayDate(certification.acquiredDate)}

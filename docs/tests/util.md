@@ -5,7 +5,7 @@
 | テストファイル | 対象ソース | ケース数 |
 |---|---|---|
 | `lib/date-format.test.ts` | `lib/date-format.ts` | 18 |
-| `lib/breadcrumbs.test.ts` | `lib/breadcrumbs.ts` | 8 |
+| `lib/breadcrumbs.test.ts` | `lib/breadcrumbs.ts` | 12 |
 | `lib/list-query.test.ts` | `lib/list-query.ts` | 12 |
 | `lib/prisma-errors.test.ts` | `lib/prisma-errors.ts` | 4 |
 
@@ -93,7 +93,7 @@
 ## getBreadcrumbTrail
 
 対象: `lib/breadcrumbs.ts` / テスト: `lib/breadcrumbs.test.ts`
-概要: パス名からパンくずリスト（トップからの階層配列）を解決する
+概要: パス名からパンくずリスト（トップからの階層配列）を解決する。動的セグメントはマップ照合時のみ `[id]` に正規化し、返す `path` は入力パスの実セグメントに復元する（動的ルートが親になってもリンクが壊れない）
 前提: モックなし（純粋関数）
 
 | No | 確認観点 | 分類 |
@@ -102,10 +102,14 @@
 | 2 | 私の経歴書はトップ→私の経歴書の2件を返す | 正常系 |
 | 3 | 基本情報登録はトップ→私の経歴書→基本情報登録の3件を返す | 正常系 |
 | 4 | プロジェクト経歴登録の親は私の経歴書（実績タブの合成キー） | 正常系 |
-| 5 | プロジェクト経歴編集（動的 ID）は数値セグメントを `[id]` に正規化して解決する | 正常系 |
+| 5 | プロジェクト経歴編集（動的 ID）は `[id]` 正規化で解決し、自身の path は実パスで返す | 正常系 |
 | 6 | 経歴書詳細（動的 ID）の親は経歴書一覧（戻り導線の一本化） | 正常系 |
 | 7 | 廃止した単独編集画面のパスは未登録として空配列を返す | 異常系 |
 | 8 | 未登録パスは空配列を返す | 異常系 |
+| 9 | PDF出力プレビュー（/resumes/000001/pdf-preview）の親は経歴書詳細で、親の path も実パス（/resumes/000001）で返す | 正常系 |
+| 10 | /mypage/pdf-preview の親は私の経歴書 | 正常系 |
+| 11 | from=list のとき PDF出力プレビューの親は経歴書一覧（一覧の「PDF」発の合成キー） | 正常系 |
+| 12 | 合成キーがない画面では from=list を無視して従来どおり解決する | 境界値 |
 
 ## parsePagination
 

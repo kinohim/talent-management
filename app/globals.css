@@ -41,3 +41,30 @@ button:not(:disabled) {
     transform: translateX(-50%);
   }
 }
+
+/* pdf-preview: プレビューシートは印刷結果と同一の配色(白背景・黒文字)に
+   固定する。ダークモードでも紙面の見た目を再現するため、配下のdark:系の
+   色をライト側へ寄せる(color-scheme: light + 変数上書き) */
+.print-sheet {
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #171717;
+  background: #ffffff;
+  color: #171717;
+  border-color: #e4e4e7; /* zinc-200 */
+}
+
+/* 印刷時: A4縦・余白12mm。アプリクローム(ヘッダ・パンくず等)はTailwindの
+   print:hiddenで非表示にしているため、ここでは紙面設定と配色のみ扱う。
+   ダークモード環境で印刷しても紙面は白背景・黒文字にする */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body {
+    background: #ffffff;
+    color: #171717;
+  }
+}

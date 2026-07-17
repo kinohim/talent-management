@@ -16,7 +16,13 @@ export const basicInfoSchema = z.object({
     .trim()
     .min(1, "カナを入力してください。")
     .max(50, "カナは50文字以内で入力してください。")
-    .regex(KATAKANA_PATTERN, "カナは全角カタカナで入力してください。"),
+    .regex(KATAKANA_PATTERN, "カナは全角カタカナで入力してください。")
+    // PDF出力(pdf-preview)のイニシャル生成が姓・名の区切りを前提とするため、
+    // 「姓 名」のちょうど2語(スペース区切り)を必須とする(docs/screens.md basic-info)
+    .refine(
+      (value) => value.split(/[\s　]+/).filter(Boolean).length === 2,
+      "カナは姓と名の間にスペースを入れて入力してください。",
+    ),
   birthDate: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "生年月日を入力してください。"),

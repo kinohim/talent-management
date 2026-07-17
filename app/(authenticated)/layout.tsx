@@ -33,7 +33,7 @@ export default async function AuthenticatedLayout({
       </Suspense>
       {/* ヘッダとパンくずはスクロールしても画面上部に固定する(全画面共通)。
           sticky要素は背景が透けると下の内容が重なって見えるため背景色を明示する */}
-      <div className="sticky top-0 z-40 bg-[var(--background)]">
+      <div className="sticky top-0 z-40 bg-[var(--background)] print:hidden">
         <header className="flex items-center justify-between border-b px-6 py-4 text-sm">
           <span className="font-semibold">業務経歴書</span>
           <div className="flex items-center gap-3">
@@ -44,11 +44,16 @@ export default async function AuthenticatedLayout({
             <LogoutButton />
           </div>
         </header>
-        <Breadcrumbs />
+        {/* useSearchParamsを使うためSuspenseで包む(ListQueryRecorderと同様) */}
+        <Suspense fallback={null}>
+          <Breadcrumbs />
+        </Suspense>
       </div>
       <div className="flex flex-1 flex-col">
-        <div className="px-6 pt-4">
-          <BackLink />
+        <div className="px-6 pt-4 print:hidden">
+          <Suspense fallback={null}>
+            <BackLink />
+          </Suspense>
         </div>
         {children}
       </div>

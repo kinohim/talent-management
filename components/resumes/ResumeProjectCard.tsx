@@ -46,7 +46,7 @@ export function ResumeProjectCard({ project }: ResumeProjectCardProps) {
     .join("、");
 
   return (
-    <li className="flex flex-col gap-3 rounded border p-4">
+    <li className="flex break-inside-avoid flex-col gap-3 rounded border p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <span className="font-medium">{project.site.siteName}</span>
         <span className="text-sm text-zinc-500">{period}</span>

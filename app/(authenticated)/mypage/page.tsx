@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { BasicInfoForm } from "@/components/basic-info/BasicInfoForm";
@@ -9,7 +10,6 @@ import { ProjectListPanel } from "@/components/projects/ProjectListPanel";
 import { ResumeBasicInfoSection } from "@/components/resumes/ResumeBasicInfoSection";
 import { ResumeCertificationList } from "@/components/resumes/ResumeCertificationList";
 import { ResumeEducationSection } from "@/components/resumes/ResumeEducationSection";
-import { ResumeExportButtons } from "@/components/resumes/ResumeExportButtons";
 import { ResumeSkillList } from "@/components/resumes/ResumeSkillList";
 import { ResumeTextSection } from "@/components/resumes/ResumeTextSection";
 import { SkillRowsForm } from "@/components/skills/SkillRowsForm";
@@ -32,7 +32,7 @@ type MyPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-// mypage「私の経歴書」。プレビュー(resume-detail)と同じ閲覧表示をベースに、
+// mypage「私の経歴書」。resume-detailと同じ閲覧表示をベースに、
 // [表紙]タブでは各セクションを編集モードに切り替えてその場で保存できる。
 // [実績]タブはプロジェクト経歴一覧(登録・編集はproject-formへ遷移)。
 export default async function MyPage({ searchParams }: MyPageProps) {
@@ -208,7 +208,6 @@ export default async function MyPage({ searchParams }: MyPageProps) {
         }
       />
 
-      <ResumeExportButtons />
     </div>
   );
 
@@ -232,6 +231,15 @@ export default async function MyPage({ searchParams }: MyPageProps) {
       <MyResumeTabs
         initialTab={initialTab}
         coverPanel={coverPanel}
+        actions={
+          /* PDF出力はタブ行の右端(pdf-previewのダウンロードボタンと同じ配置イメージ) */
+          <Link
+            href="/mypage/pdf-preview"
+            className="rounded border bg-zinc-900 px-4 py-2 text-sm text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+          >
+            PDF出力
+          </Link>
+        }
         projectsPanel={projectsPanel}
       />
     </main>

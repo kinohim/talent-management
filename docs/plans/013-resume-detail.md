@@ -19,7 +19,7 @@
   - 表示項目は docs/screens.md resume-detail の表のとおり(基本情報・最終学歴・経歴概要・自己PR・スキル(カテゴリ別ピル+凡例)・資格(取得年月日「YYYY年M月D日」・資格名・認定団体)・プロジェクト経歴の繰り返し)
   - 経験年数は「◯年◯か月」の月精度表示(端数のない側は省略)
   - 所属組織は「事業部 / 部署 / Gr」の連結表示(`formatOrganizationUnitPath`)
-  - PDF出力は「準備中」表示(`ResumeExportButtons`)
+  - 画面右上に「PDF出力」ボタン(pdf-previewへ。人事・営業/管理職または本人のとき表示。022参照)
 - 表示コンポーネントは`components/resumes/`に置き、mypage[表紙]タブの閲覧表示と共用する
 - アクセス制御(`lib/organization-unit.ts`の`canViewEmployeeResume`+単体テスト):
   - 本人・人事・営業・管理職は常に閲覧可

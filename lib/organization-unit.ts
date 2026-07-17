@@ -119,8 +119,8 @@ export function resolveResumeViewScopeUnitIds(
   return scope;
 }
 
-// resume-detail(経歴書詳細)のアクセス可否。本人・人事・営業・管理職は常に閲覧可、
-// 一般社員が他社員を見る場合のみ閲覧範囲判定に従う。
+// 経歴書詳細(resume-detail)のアクセス可否。本人・人事・営業・管理職は常に
+// 閲覧可、一般社員が他社員を見る場合のみ閲覧範囲判定に従う。
 export function canViewEmployeeResume(params: {
   viewerRole: UserRole;
   isSelf: boolean;
@@ -149,7 +149,7 @@ type OrganizationUnitPathNode = {
   parent?: OrganizationUnitPathNode | null;
 };
 
-// 所属組織を「事業部 / 部署 / Gr」の形式で連結する(resume-detailの所属組織表示用)。
+// 所属組織を「事業部 / 部署 / Gr」の形式で連結する(経歴書閲覧の所属組織表示用)。
 export function formatOrganizationUnitPath(
   leaf: OrganizationUnitPathNode | null,
 ): string {

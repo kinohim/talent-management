@@ -21,7 +21,7 @@ type EmployeeSkillForGrouping = {
 };
 
 // employeeSkillsはPrisma側でカテゴリ名→スキル名の昇順にソート済みの前提で、
-// 連続する同カテゴリをまとめる(resume-detailのスキル一覧をカテゴリ別に表示するため)。
+// 連続する同カテゴリをまとめる(経歴書閲覧のスキル一覧をカテゴリ別に表示するため)。
 export function groupSkillsByCategory(
   employeeSkills: EmployeeSkillForGrouping[],
 ): SkillCategoryGroup[] {
@@ -43,7 +43,7 @@ export function groupSkillsByCategory(
   return groups;
 }
 
-// 担当工程のうちtrueのものだけを日本語ラベルの配列にする(resume-detailのプロジェクト
+// 担当工程のうちtrueのものだけを日本語ラベルの配列にする(経歴書閲覧のプロジェクト
 // 経歴カード表示用)。
 export function buildProcessFlagLabels(
   detail: Record<ProcessFlagKey, boolean | null> | null | undefined,

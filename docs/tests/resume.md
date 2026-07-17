@@ -1,10 +1,10 @@
 # 経歴書の作成・編集 テスト仕様
 
-経歴書の作成・編集(基本情報・経歴要約・プロジェクト実績・スキル・資格)に関わるフォームバリデーション、マスタ整合チェック、AI文章生成プロンプト組み立て、および経験年数・卒業年月の計算ロジックをテストする。
+経歴書の作成・編集(基本情報・経歴要約・プロジェクト実績・スキル・資格)に関わるフォームバリデーション、マスタ整合チェック、AI文章生成プロンプト組み立て、経験年数・卒業年月の計算ロジック、およびPDF出力(pdf-preview)の氏名表記・出力設定ロジックをテストする。
 
 | テストファイル | 対象ソース | ケース数 |
 |---|---|---|
-| `lib/basic-info-schema.test.ts` | `lib/basic-info-schema.ts` | 7 |
+| `lib/basic-info-schema.test.ts` | `lib/basic-info-schema.ts` | 9 |
 | `lib/career-summary-schema.test.ts` | `lib/career-summary-schema.ts` | 4 |
 | `lib/career-text-prompt.test.ts` | `lib/career-text-prompt.ts` | 11 |
 | `lib/project-schema.test.ts` | `lib/project-schema.ts` | 13 |
@@ -16,6 +16,8 @@
 | `lib/my-resume-tabs.test.ts` | `lib/my-resume-tabs.ts` | 3 |
 | `lib/graduation.test.ts` | `lib/graduation.ts` | 3 |
 | `lib/experience-years.test.ts` | `lib/experience-years.ts` | 14 |
+| `lib/print-name.test.ts` | `lib/print-name.ts` | 8 |
+| `lib/pdf-preview-settings.test.ts` | `lib/pdf-preview-settings.ts` | 5 |
 
 ## parseBasicInfoForm
 
@@ -32,6 +34,8 @@
 | 5 | 生年月日の形式が不正(スラッシュ区切り)なら失敗する | 異常系 |
 | 6 | 任意項目の空文字は undefined として扱われ成功する | 境界値 |
 | 7 | 任意項目(性別・最寄駅・最終学歴・卒業年月等)を正しく入力すると値が反映される | 正常系 |
+| 8 | カナにスペースがない(1語)なら失敗し、姓名区切りエラーを返す | 異常系 |
+| 9 | カナが3語以上なら失敗し、姓名区切りエラーを返す | 異常系 |
 
 ## parseCareerSummaryForm
 
@@ -279,3 +283,34 @@
 | 2 | 1年未満は「◯か月」のみ | 正常系 |
 | 3 | 端数0か月は「◯年」のみ | 境界値 |
 | 4 | 0か月は「0か月」 | 境界値 |
+
+## initialsFromKana
+
+対象: `lib/print-name.ts` / テスト: `lib/print-name.test.ts`
+概要: カナ（姓 名）から「Y.T」（姓.名）形式のイニシャルを生成する（頭文字のヘボン式ローマ字化）。生成できない場合は null を返し、pdf-preview はイニシャル選択肢を非活性にする
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | 「ヤマダ タロウ」（半角スペース）を「Y.T」に変換する | 正常系 |
+| 2 | 全角スペース区切り・前後空白付きでも変換する | 正常系 |
+| 3 | 濁音・半濁音（ガ→G、ザ→Z、ダ→D、バ→B、パ→P）を変換する | 正常系 |
+| 4 | ヘボン式特殊音（シ→S、チ→C、ツ→T、フ→F、ジ→J、ヂ→J、ヅ→Z、ヲ→O、ヴ→V）を変換する | 正常系 |
+| 5 | null・空文字・空白のみは null を返す | 境界値 |
+| 6 | スペースなし（1トークン）は null を返す | 境界値 |
+| 7 | 3トークン以上は null を返す | 境界値 |
+| 8 | 先頭が変換不可文字（ー・ッ・ン・小書き）のトークンは null を返す | 異常系 |
+
+## defaultPdfPreviewSettings
+
+対象: `lib/pdf-preview-settings.ts` / テスト: `lib/pdf-preview-settings.test.ts`
+概要: pdf-preview のマスク・氏名表記のロール別初期値を返す（一般社員=実名・マスクなし、人事・営業／管理職の他人=イニシャル＋経験年数以外の全項目マスクON、管理職の自身分は一般社員と同じ）
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | EMPLOYEE は実名・全項目マスクなし | 正常系 |
+| 2 | HR_SALES はイニシャル・経験年数以外の全項目マスクON | 正常系 |
+| 3 | MANAGER で他人の経歴書はイニシャル・経験年数以外の全項目マスクON | 正常系 |
+| 4 | MANAGER で自身の経歴書は実名・全項目マスクなし | 正常系 |
+| 5 | イニシャル初期値でも hasInitials=false なら実名にフォールバックする | 異常系 |

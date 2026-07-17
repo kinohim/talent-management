@@ -240,6 +240,10 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
       employee.employeeId === session.user.employeeId ||
       (employee.organizationUnitId != null &&
         scopeUnitIds!.has(employee.organizationUnitId)),
+    // PDF出力の権限(本人・人事・営業/管理職)に合わせ、一般社員は自分自身の
+    // 行にのみ「PDF」を表示する(docs/screens.md resume-list)
+    canDownloadPdf:
+      !isEmployeeRole || employee.employeeId === session.user.employeeId,
     organizationUnitName: employee.organizationUnitId
       ? (orgUnitById.get(employee.organizationUnitId)?.unitName ?? null)
       : null,
