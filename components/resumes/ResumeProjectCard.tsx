@@ -53,15 +53,15 @@ export function ResumeProjectCard({ project }: ResumeProjectCardProps) {
       </div>
       <span className="text-sm">{project.projectTitle}</span>
       <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-        <span className="text-zinc-500">業種: {project.industry || "未登録"}</span>
-        <span className="text-zinc-500">役割: {roles || "未登録"}</span>
-        <span className="text-zinc-500">規模: {teamSize || "未登録"}</span>
+        <span className="break-words text-zinc-500">業種: {project.industry || "未登録"}</span>
+        <span className="break-words text-zinc-500">役割: {roles || "未登録"}</span>
+        <span className="break-words text-zinc-500">規模: {teamSize || "未登録"}</span>
       </div>
       {project.projectSummary ? (
-        <p className="whitespace-pre-wrap text-sm">{project.projectSummary}</p>
+        <p className="whitespace-pre-wrap break-words text-sm">{project.projectSummary}</p>
       ) : null}
       {project.projectDetail?.overview ? (
-        <p className="whitespace-pre-wrap text-sm text-zinc-500">
+        <p className="whitespace-pre-wrap break-words text-sm text-zinc-500">
           {project.projectDetail.overview}
         </p>
       ) : null}

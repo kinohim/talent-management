@@ -133,7 +133,7 @@ function MaskableField({
       : "print:hidden"
     : "";
   return (
-    <div className={`flex flex-col gap-1 ${printClass}`}>
+    <div className={`flex min-w-0 flex-col gap-1 ${printClass}`}>
       <div className="flex items-center justify-between gap-2">
         <span
           className={`text-sm font-medium ${masked ? "text-zinc-400" : "text-zinc-500"}`}
@@ -146,7 +146,9 @@ function MaskableField({
           ariaLabel={`${label}をマスクする`}
         />
       </div>
-      <span className={masked ? "text-zinc-400" : ""}>{value || "未登録"}</span>
+      <span className={`break-words ${masked ? "text-zinc-400" : ""}`}>
+        {value || "未登録"}
+      </span>
     </div>
   );
 }
@@ -221,7 +223,7 @@ export function PdfResumeDocument({
         />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* 氏名は表示兼入力。入力欄の値がそのまま出力される(カナと横並び) */}
-          <div className="flex flex-col gap-1">
+          <div className="flex min-w-0 flex-col gap-1">
             <div className="flex items-center justify-between gap-2">
               <span className="text-sm font-medium text-zinc-500">氏名</span>
               <div className="flex items-center gap-1 text-xs print:hidden">
@@ -263,7 +265,7 @@ export function PdfResumeDocument({
               className="w-full rounded border px-2 py-1 print:hidden"
             />
             {/* 印刷時は入力欄の値をテキストとして出力する */}
-            <span className="hidden print:inline">{nameValue}</span>
+            <span className="hidden break-words print:inline">{nameValue}</span>
           </div>
           <MaskableField
             fieldKey="kana"

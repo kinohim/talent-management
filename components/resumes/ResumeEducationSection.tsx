@@ -12,9 +12,9 @@ type ResumeEducationSectionProps = {
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex min-w-0 flex-col gap-1">
       <span className="text-sm font-medium text-zinc-500">{label}</span>
-      <span>{value || "未登録"}</span>
+      <span className="break-words">{value || "未登録"}</span>
     </div>
   );
 }

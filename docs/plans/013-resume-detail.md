@@ -21,6 +21,7 @@
   - 所属組織は「事業部 / 部署 / Gr」の連結表示(`formatOrganizationUnitPath`)
   - 画面右上に「PDF出力」ボタン(pdf-previewへ。人事・営業/管理職または本人のとき表示。022参照)
 - 表示コンポーネントは`components/resumes/`に置き、mypage[表紙]タブの閲覧表示と共用する
+  - 経歴概要・自己PR・プロジェクト概要/業務詳細等の自由記述は`break-words`で単語途中でも折り返し、基本情報・最終学歴のグリッド項目は`min-w-0`+`break-words`で枠からはみ出さないようにする
 - アクセス制御(`lib/organization-unit.ts`の`canViewEmployeeResume`+単体テスト):
   - 本人・人事・営業・管理職は常に閲覧可
   - 一般社員が他社員を見る場合は閲覧範囲判定(`isWithinResumeViewScope`: 部署一致、事業部直下が絡む場合は事業部一致、未所属は対象外。docs/screens.md resume-listの判定ルール)
