@@ -16,7 +16,7 @@
 | `lib/my-resume-tabs.test.ts` | `lib/my-resume-tabs.ts` | 3 |
 | `lib/graduation.test.ts` | `lib/graduation.ts` | 3 |
 | `lib/experience-years.test.ts` | `lib/experience-years.ts` | 14 |
-| `lib/print-name.test.ts` | `lib/print-name.ts` | 8 |
+| `lib/print-name.test.ts` | `lib/print-name.ts` | 13 |
 | `lib/pdf-preview-settings.test.ts` | `lib/pdf-preview-settings.ts` | 5 |
 
 ## parseBasicInfoForm
@@ -300,6 +300,20 @@
 | 6 | スペースなし（1トークン）は null を返す | 境界値 |
 | 7 | 3トークン以上は null を返す | 境界値 |
 | 8 | 先頭が変換不可文字（ー・ッ・ン・小書き）のトークンは null を返す | 異常系 |
+
+## buildPdfFileName
+
+対象: `lib/print-name.ts` / テスト: `lib/print-name.test.ts`
+概要: pdf-previewのダウンロード時、氏名欄の表示値（実名／イニシャル／手修正値）から保存ファイル名（拡張子なし）を組み立てる
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | 「経歴書_<氏名欄の値>」を返す | 正常系 |
+| 2 | イニシャル表示中の値（例: Y.T）でも「経歴書_Y.T」を返す | 正常系 |
+| 3 | 氏名内の空白（半角・全角、前後・途中とも）はすべて除去する（例: 「テスト 太郎」→「経歴書_テスト太郎」） | 境界値 |
+| 4 | 空文字・空白のみは「経歴書」を返す | 境界値 |
+| 5 | ファイル名に使えない記号（\ / : * ? " < > \|）は _ に置換する | 異常系 |
 
 ## defaultPdfPreviewSettings
 

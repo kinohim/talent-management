@@ -10,7 +10,7 @@
 
 | ラベル | 遷移先 | 表示ロール |
 |---|---|---|
-| 業務経歴書(既存表記) | `/` | 全ロール(ブランド表記をトップへのリンクに変更) |
+| 経歴書(既存表記) | `/` | 全ロール(ブランド表記をトップへのリンクに変更) |
 | 私の経歴書 | `/mypage` | 一般社員, 管理職 |
 | 経歴書一覧 | `/resumes` | 全ロール |
 | ダッシュボード | `/skill-map` | 全ロール |
@@ -20,7 +20,7 @@
 ## 実装内容
 
 - `components/layout/HeaderNav.tsx`(新規): ロールでフィルタしたナビリンクを返す `getHeaderNavLinks(role)` と、それを描画する `HeaderNav` コンポーネント。`HomeTiles.tsx` のロールフィルタパターンを踏襲
-- `app/(authenticated)/layout.tsx`: ヘッダーの「業務経歴書」表記を`/`へのLinkに変更し、`HeaderNav`をブランドリンクの隣に配置。幅が狭い画面での折り返しに対応
+- `app/(authenticated)/layout.tsx`: ヘッダーの「経歴書」表記を`/`へのLinkに変更し、`HeaderNav`をブランドリンクの隣に配置。幅が狭い画面での折り返しに対応
 - `components/home/HomeTiles.tsx`: `ADMIN_TILE_DEFS`の並びを「マスタ管理」→「アカウント一覧」に変更(表示ロジックは変更なし)
 - `docs/screens.md`: ヘッダーの共通ナビゲーションの存在とロール別表示ルールを追記
 

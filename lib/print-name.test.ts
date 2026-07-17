@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { initialsFromKana } from "./print-name";
+import { buildPdfFileName, initialsFromKana } from "./print-name";
 
 describe("initialsFromKana", () => {
   it("「ヤマダ タロウ」(半角スペース)を「Y.T」に変換する", () => {
@@ -46,5 +46,32 @@ describe("initialsFromKana", () => {
     expect(initialsFromKana("ヤマダ ッロウ")).toBeNull();
     expect(initialsFromKana("ンダ タロウ")).toBeNull();
     expect(initialsFromKana("ャマダ タロウ")).toBeNull();
+  });
+});
+
+describe("buildPdfFileName", () => {
+  it("「経歴書_<氏名欄の値>」を返す", () => {
+    expect(buildPdfFileName("山田太郎")).toBe("経歴書_山田太郎");
+  });
+
+  it("イニシャル表示中の値(例: Y.T)でも「経歴書_Y.T」を返す", () => {
+    expect(buildPdfFileName("Y.T")).toBe("経歴書_Y.T");
+  });
+
+  it("氏名内の空白(半角・全角、前後・途中とも)はすべて除去する", () => {
+    expect(buildPdfFileName("  山田太郎  ")).toBe("経歴書_山田太郎");
+    expect(buildPdfFileName("テスト 太郎")).toBe("経歴書_テスト太郎");
+    expect(buildPdfFileName("テスト　太郎")).toBe("経歴書_テスト太郎");
+  });
+
+  it("空文字・空白のみは「経歴書」を返す", () => {
+    expect(buildPdfFileName("")).toBe("経歴書");
+    expect(buildPdfFileName("   ")).toBe("経歴書");
+  });
+
+  it('ファイル名に使えない記号(\\ / : * ? " < > |)は_に置換する', () => {
+    expect(buildPdfFileName('a\\b/c:d*e?f"g<h>i|j')).toBe(
+      "経歴書_a_b_c_d_e_f_g_h_i_j",
+    );
   });
 });

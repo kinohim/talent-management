@@ -211,7 +211,7 @@ export function PdfResumeDocument({
   return (
     <div className="print-sheet mx-auto flex w-full max-w-[210mm] flex-col gap-8 rounded border p-8 shadow-sm print:max-w-none print:gap-6 print:rounded-none print:border-0 print:p-0 print:shadow-none">
       <h2 className="break-after-avoid text-center text-lg font-semibold">
-        業務経歴書
+        経歴書
       </h2>
 
       <section className="flex flex-col gap-4">

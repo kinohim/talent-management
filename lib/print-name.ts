@@ -40,6 +40,16 @@ const KANA_TO_INITIAL = new Map<string, string>(
 // カナ(姓 名)から「Y.T」(姓.名)形式のイニシャルを生成する。
 // 姓名2語に分割できない・頭文字が変換不可の場合はnullを返す
 // (pdf-preview側でイニシャル選択肢を非活性化するシグナル)。
+// pdf-previewのダウンロード時、氏名欄の表示値(実名/イニシャル/手修正値)から
+// 保存ファイル名(拡張子なし。ブラウザが.pdfを付与する)を組み立てる。
+// 氏名欄が空(意図的なマスク等)の場合は接尾辞なしの「経歴書」にする。
+export function buildPdfFileName(nameValue: string): string {
+  const noSpaces = nameValue.replace(/[\s　]+/g, "");
+  if (!noSpaces) return "経歴書";
+  const sanitized = noSpaces.replace(/[\\/:*?"<>|]/g, "_");
+  return `経歴書_${sanitized}`;
+}
+
 export function initialsFromKana(
   nameKana: string | null | undefined,
 ): string | null {

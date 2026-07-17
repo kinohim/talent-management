@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-業務経歴書 Web アプリ(PWA)。Next.js App Router + Prisma + Neon + Auth.js 構成。
+経歴書 Web アプリ(PWA)。Next.js App Router + Prisma + Neon + Auth.js 構成。
 
 <!--
 このファイルの役割:

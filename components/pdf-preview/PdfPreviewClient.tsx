@@ -11,6 +11,7 @@ import type {
   PdfPreviewSettings,
   PrintNameMode,
 } from "@/lib/pdf-preview-settings";
+import { buildPdfFileName } from "@/lib/print-name";
 
 type PdfPreviewClientProps = {
   data: PdfResumeData;
@@ -45,6 +46,16 @@ export function PdfPreviewClient({
     setSettings((current) => ({ ...current, nameMode: mode }));
   };
 
+  // ダウンロード時だけ保存ファイル名を氏名欄の値に合わせて一時変更する。
+  // window.print()は印刷ダイアログが閉じるまで処理をブロックするため、
+  // 呼び出し直後にタイトルを元に戻せる
+  const handleDownload = () => {
+    const previousTitle = document.title;
+    document.title = buildPdfFileName(nameValue);
+    window.print();
+    document.title = previousTitle;
+  };
+
   const toggleSection = (
     keys: readonly MaskableFieldKey[],
     masked: boolean,
@@ -74,7 +85,7 @@ export function PdfPreviewClient({
       <div className="mx-auto flex w-full max-w-[210mm] justify-end print:hidden">
         <button
           type="button"
-          onClick={() => window.print()}
+          onClick={handleDownload}
           className="rounded border bg-zinc-900 px-4 py-2 text-sm text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
         >
           ダウンロード

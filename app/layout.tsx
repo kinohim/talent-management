@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "業務経歴書",
-  description: "業務経歴書 Web アプリ",
+  title: "経歴書",
+  description: "経歴書 Web アプリ",
 };
 
 export default function RootLayout({

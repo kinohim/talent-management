@@ -39,7 +39,7 @@ export default async function AuthenticatedLayout({
         <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b px-6 py-4 text-sm">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <Link href="/" className="font-semibold">
-              業務経歴書
+              経歴書
             </Link>
             <HeaderNav role={session.user.role} />
           </div>
