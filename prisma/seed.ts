@@ -764,6 +764,43 @@ function monthsAgo(now: Date, months: number): Date {
   return d;
 }
 
+function daysAgo(now: Date, days: number): Date {
+  return new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+}
+
+// skill-mapの年度定義(3月1日〜翌2月末)における、nowが属する年度の開始日。
+function fiscalYearStart(now: Date): Date {
+  const year = now.getUTCFullYear() - (now.getUTCMonth() < 2 ? 1 : 0); // 1-2月は前年度扱い
+  return new Date(Date.UTC(year, 2, 1));
+}
+
+// 今年度内・かつ直近3か月(ティッカーのNEWバッジ判定)より前の取得日を返す。
+// 年度開始から日が浅くシード実行日時点で3か月分の余白が取れない場合は、
+// 素直に直近3か月前ぎりぎりの日付を返す(その場合NEWバッジが付くことを許容する)。
+function currentFyNonRecentDate(now: Date): Date {
+  const fyStart = fiscalYearStart(now);
+  const daysSinceFyStart = Math.floor(
+    (now.getTime() - fyStart.getTime()) / (24 * 60 * 60 * 1000),
+  );
+  if (daysSinceFyStart > 111) {
+    const d = new Date(fyStart);
+    d.setUTCDate(d.getUTCDate() + 20);
+    return d;
+  }
+  return daysAgo(now, 91);
+}
+
+// 年度推移グラフ(直近5年度)の過去分確認用。nowが属する年度からyearsAgo年前の
+// 年度の中間あたり(年度開始+180日)の日付を返す。
+function fyOffsetDate(now: Date, yearsAgo: number): Date {
+  const fyStart = fiscalYearStart(now);
+  const d = new Date(
+    Date.UTC(fyStart.getUTCFullYear() - yearsAgo, fyStart.getUTCMonth(), fyStart.getUTCDate()),
+  );
+  d.setUTCDate(d.getUTCDate() + 180);
+  return d;
+}
+
 // count件のプロジェクト期間を、直近ほど新しくなる順で生成する。
 // overlapSecond: 2件目の開始を1件目の終了に食い込ませ、経験年数の和集合計算
 // (重複月は1回)を確認できるようにする。
@@ -999,6 +1036,54 @@ async function resetDatabase(): Promise<void> {
   await prisma.organizationUnit.deleteMany();
 }
 
+// skill-map(スキルマップ)の🎉ティッカー・ヘッダーKPI・年度推移確認用に、
+// 実行時点(now)から相対的に計算した資格取得日で employee_certification を
+// 追加で付与する(既存の社員・スキル・資格マスタ・他の資格レコードは変更しない)。
+// 部署・カテゴリが分散するよう対象社員を選定している。
+type CertHighlight =
+  | { employeeId: string; certKey: string; recentDays: number }
+  | { employeeId: string; certKey: string; currentFyNonRecent: true }
+  | { employeeId: string; certKey: string; yearsAgo: number };
+
+const certHighlights: CertHighlight[] = [
+  // 直近3か月以内取得(NEWバッジ確認用)
+  { employeeId: "000002", certKey: "awssaa", recentDays: 15 },
+  { employeeId: "000017", certKey: "toeic", recentDays: 50 },
+  // 今年度取得・NEWバッジなし(直近3か月より前)
+  { employeeId: "000021", certKey: "pmp", currentFyNonRecent: true },
+  { employeeId: "000011", certKey: "itil", currentFyNonRecent: true },
+  { employeeId: "000024", certKey: "eiken", currentFyNonRecent: true },
+  // 年度推移(直近5年度)の過去4年度分
+  { employeeId: "000014", certKey: "fe", yearsAgo: 1 },
+  { employeeId: "000019", certKey: "ap", yearsAgo: 2 },
+  { employeeId: "000025", certKey: "boki", yearsAgo: 3 },
+  { employeeId: "000013", certKey: "itc", yearsAgo: 4 },
+];
+
+async function assignRecentCertificationHighlights(
+  certificationIds: Record<string, number>,
+): Promise<void> {
+  const now = new Date();
+
+  for (const h of certHighlights) {
+    const acquiredDate =
+      "recentDays" in h
+        ? daysAgo(now, h.recentDays)
+        : "currentFyNonRecent" in h
+          ? currentFyNonRecentDate(now)
+          : fyOffsetDate(now, h.yearsAgo);
+
+    await prisma.employeeCertification.create({
+      data: {
+        employeeId: h.employeeId,
+        certificationId: certificationIds[h.certKey],
+        acquiredDate,
+        ...audit,
+      },
+    });
+  }
+}
+
 // 社外プロジェクト運用(docs/decisions.md「経験年数の計算」)のサンプル:
 // 「一般 一郎」に入社前(前職)の経歴を1件付与し、経験月数を再計算する。
 // 同一社員×同一現場の複数プロジェクト許容の確認も兼ねる
@@ -1041,6 +1126,7 @@ async function main() {
     projectRoleIds,
   );
   await assignExternalProjectSample(externalSiteId);
+  await assignRecentCertificationHighlights(certificationIds);
 }
 
 main()
