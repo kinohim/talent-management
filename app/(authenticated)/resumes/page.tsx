@@ -58,6 +58,9 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
 
   const isEmployeeRole = session.user.role === UserRole.EMPLOYEE;
 
+  // 検索対象はロールによらず全社員(docs/screens.md resume-list)。閲覧範囲は
+  // 検索の限定には使わず、行ごとの「詳細」導線(resume-detailへのリンク)の
+  // 出し分けにのみ使う。
   let scopeUnitIds: Set<number> | null = null;
   if (isEmployeeRole) {
     const viewer = await prisma.employee.findUnique({
@@ -67,16 +70,7 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
     scopeUnitIds = resolveResumeViewScopeUnitIds(units, viewer?.organizationUnitId ?? null);
   }
 
-  // 所属組織フィルタのUI選択肢自体を、一般社員は自身の閲覧範囲内に限定する。
-  const orgTreeUnits = scopeUnitIds ? units.filter((u) => scopeUnitIds!.has(u.id)) : units;
-  // 閲覧範囲で絞り込むと根(部署)の親(事業部)がorgTreeUnitsに含まれずparentId
-  // もnullではないため、根を明示的に指定する(親がスコープ外/nullな要素が根)。
-  const orgTreeRootIds = scopeUnitIds
-    ? orgTreeUnits
-        .filter((u) => u.parentId == null || !scopeUnitIds!.has(u.parentId))
-        .map((u) => u.id)
-    : null;
-  const orgTree = buildOrganizationUnitTree(orgTreeUnits, orgTreeRootIds);
+  const orgTree = buildOrganizationUnitTree(units);
 
   // カスケード選択(上位+下位が両方選択されている場合は最深の選択配下のみ)
   const selectedOrgIds =
@@ -109,20 +103,7 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
     conditions.push({ experienceMonths: { lte: filters.experienceMax * 12 + 11 } });
   }
 
-  if (isEmployeeRole) {
-    // URLのsearchParamsはユーザー操作可能なため、選択された組織idは常に
-    // 自身の閲覧範囲(scopeUnitIds)と積集合をとってからクエリに使う
-    // (閲覧範囲外を直接指定されてもサーバー側でクランプする)。
-    const effectiveOrgIds = selectedOrgIds
-      ? [...selectedOrgIds].filter((id) => scopeUnitIds!.has(id))
-      : [...scopeUnitIds!];
-    conditions.push({
-      OR: [
-        { employeeId: session.user.employeeId },
-        { organizationUnitId: { in: effectiveOrgIds } },
-      ],
-    });
-  } else if (selectedOrgIds) {
+  if (selectedOrgIds) {
     conditions.push({ organizationUnitId: { in: [...selectedOrgIds] } });
   }
 
@@ -162,14 +143,11 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
   }
   if (filters.colOrganizationUnitIds.length > 0) {
     // 選択した組織単位の配下も含めて判定する(検索カードのカスケード選択と
-    // 同じ配下展開。docs/screens.md resume-list)。展開後、一般社員は
-    // 閲覧範囲内のidのみ許可(スコープ外の直接指定をクランプ)
+    // 同じ配下展開。docs/screens.md resume-list)
     const selectedIds = filters.colOrganizationUnitIds.filter(
       (v): v is number => v !== "none",
     );
-    const numericIds = [...resolveEffectiveOrgUnitIds(units, selectedIds)].filter(
-      (id) => (scopeUnitIds ? scopeUnitIds.has(id) : true),
-    );
+    const numericIds = [...resolveEffectiveOrgUnitIds(units, selectedIds)];
     const orConditions: Prisma.EmployeeWhereInput[] = [];
     if (numericIds.length > 0) {
       orConditions.push({ organizationUnitId: { in: numericIds } });
@@ -254,6 +232,14 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
   const rows: ResumeSearchResultRow[] = employees.map((employee) => ({
     employeeId: employee.employeeId,
     name: employee.name ?? "",
+    // 一般社員は閲覧範囲内(+本人)の行にのみ「詳細」導線を出す。範囲外でも
+    // 一覧表示はする(検索は全社員が対象)。resume-detail側でも同じ判定で
+    // ガードしているため、これはUI上の出し分けであって権限境界ではない。
+    canViewDetail:
+      !isEmployeeRole ||
+      employee.employeeId === session.user.employeeId ||
+      (employee.organizationUnitId != null &&
+        scopeUnitIds!.has(employee.organizationUnitId)),
     organizationUnitName: employee.organizationUnitId
       ? (orgUnitById.get(employee.organizationUnitId)?.unitName ?? null)
       : null,
@@ -268,9 +254,9 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
     ),
   }));
 
-  // 列フィルタ「所属組織」の選択肢(一般社員は閲覧範囲内のみ)。"none"=未所属
+  // 列フィルタ「所属組織」の選択肢(全組織)。"none"=未所属
   const orgFilterOptions = [
-    ...orgTreeUnits.map((u) => ({ value: String(u.id), label: u.unitName })),
+    ...units.map((u) => ({ value: String(u.id), label: u.unitName })),
     { value: "none", label: "未所属" },
   ];
 

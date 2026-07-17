@@ -97,13 +97,13 @@ export function isWithinResumeViewScope(
   return viewer.departmentId === target.departmentId; // (a)
 }
 
-// resume-list(経歴書一覧)で一般社員が検索対象にできる組織単位id集合(閲覧範囲
+// 一般社員が経歴書詳細を閲覧できる相手(閲覧範囲)の組織単位id集合。
+// resume-list(経歴書一覧)で「詳細」導線を出し分けるのに使う(閲覧範囲
 // ルールa/bをまとめて1回の集合計算に落とし込んだもの。判定ロジック自体は
 // isWithinResumeViewScopeと同じ規則)。事業部直下所属なら事業部全体、
 // 部署以下所属なら遡って到達する部署とその配下(Gr)に加え、事業部直下所属者
 // (ルールbで相手が事業部直下なら双方向で許可されるため)も対象に含める。
-// 未所属なら空集合を返す(ルールc。本人はemployeeIdの別枠一致で引き続き
-// 検索可能)。
+// 未所属なら空集合を返す(ルールc。本人の行はisSelfの別枠判定で導線を出す)。
 export function resolveResumeViewScopeUnitIds(
   units: OrganizationUnitOption[],
   viewerOrganizationUnitId: number | null,
