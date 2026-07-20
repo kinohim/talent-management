@@ -10,8 +10,8 @@ export type ProjectListItem = {
   roleNames: string[];
 };
 
-// REF004「私の経歴書」[実績]タブのプロジェクト経歴一覧。新規登録・編集は
-// 従来どおりEDT005(/projects/new・/projects/[id])へ遷移する。
+// mypage「私の経歴書」[実績]タブのプロジェクト経歴一覧。新規登録・編集は
+// 従来どおりproject-form(/projects/new・/projects/[id])へ遷移する。
 export function ProjectListPanel({ projects }: { projects: ProjectListItem[] }) {
   return (
     <div className="flex flex-col gap-4">

@@ -33,10 +33,10 @@ type AccountFilterFormProps = {
   initialStatuses: string[];
 };
 
-// REF007のフィルタは検索条件をURLのsearchParamsに反映することで管理する
+// account-listのフィルタは検索条件をURLのsearchParamsに反映することで管理する
 // (Server Componentの`page.tsx`がそのままDBクエリのwhere条件に変換する)。
 // 送信は`router.push`によるクライアント側ナビゲーションで行う。
-// 項目順: 氏名カナ→所属組織→権限→状態→検索/クリア(docs/screens.md REF007)
+// 項目順: 氏名カナ→所属組織→権限→状態→検索/クリア(docs/screens.md account-list)
 export function AccountFilterForm({
   orgTree,
   initialName,

@@ -27,7 +27,7 @@ function pageNumbers(page: number, pageCount: number): (number | "...")[] {
   return result;
 }
 
-// REF002/REF007共通のページネーション+表示件数セレクト(一覧の右上に配置)。
+// resume-list/account-list共通のページネーション+表示件数セレクト(一覧の右上に配置)。
 // page/pageSizeのみをsearchParamsに反映し、検索条件はそのまま保持する。
 export function PaginationControls({
   page,

@@ -7,7 +7,7 @@ type VersionTagEditorProps = {
   initialValues?: string[];
 };
 
-// MST001「バージョン: タグ複数入力」用の追加/削除UI。タグはローカルstateで
+// master-skills「バージョン: タグ複数入力」用の追加/削除UI。タグはローカルstateで
 // 保持し、同名`name`の隠しinputを複数レンダーして`FormData.getAll(name)`で
 // 一括回収できるようにする(indexed row方式より単純)。
 export function VersionTagEditor({ name, initialValues = [] }: VersionTagEditorProps) {

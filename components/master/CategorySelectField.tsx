@@ -9,7 +9,7 @@ type CategorySelectFieldProps = {
   defaultCategoryId?: number;
 };
 
-// MST001/MST002共通の「カテゴリ: 選択(既存)/新規入力」フィールド。
+// master-skills/master-certifications共通の「カテゴリ: 選択(既存)/新規入力」フィールド。
 // categoryId="new"を選ぶとnewCategoryName入力欄が現れる。
 export function CategorySelectField({
   categories,

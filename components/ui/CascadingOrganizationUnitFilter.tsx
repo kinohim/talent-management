@@ -18,7 +18,7 @@ function collectSubtreeIds(node: OrganizationUnitNode): number[] {
   return [node.id, ...node.children.flatMap(collectSubtreeIds)];
 }
 
-// REF002/REF007の所属組織フィルタ(カスケード式)。初期表示はツリーの根
+// resume-list/account-listの所属組織フィルタ(カスケード式)。初期表示はツリーの根
 // (通常は事業部)のみで、上位をチェックすると配下が展開表示される。
 // 未選択の親には配下の件数を添えて、選択すれば下位を絞り込めることを示す。
 // チェックを外すと配下の選択もまとめて解除する。

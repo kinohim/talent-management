@@ -12,10 +12,10 @@ import {
 import { isUniqueConstraintViolation } from "@/lib/prisma-errors";
 import { prisma } from "@/lib/prisma";
 
-const PROGRAM = "MST002";
+const PROGRAM = "master-certifications";
 const PATH = "/master/certifications";
 
-// MST002の「カテゴリを追加」(カテゴリのみ新規作成)。資格の追加は
+// master-certificationsの「カテゴリを追加」(カテゴリのみ新規作成)。資格の追加は
 // カテゴリ見出しごとのフォームからsaveCertificationで行う。
 export async function createCertificationCategory(
   _prevState: CertificationMasterFormState,

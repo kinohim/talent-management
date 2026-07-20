@@ -25,7 +25,7 @@ type ProjectSkillEditorProps = {
   onUpdate: (key: string, patch: Partial<ProjectSkillRowValue>) => void;
 };
 
-// EDT005の使用スキルブロック(EDT003のスキル登録と同じタグ型UI)。
+// project-formの使用スキルブロック(mypageのスキルセクションと同じタグ型UI)。
 // 登録済み分はタグ表示(×で削除、押下でバージョンのみ変更可。スキル名の変更は
 // 削除→新規追加の運用)、新規追加は「+ スキルを追加」の1行フォーム。
 export function ProjectSkillEditor({

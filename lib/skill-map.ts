@@ -4,7 +4,7 @@ import {
   type OrganizationUnitNode,
 } from "@/lib/organization-unit-tree";
 
-// REF008(スキルマップ/組織ダッシュボード)の集計ロジック。
+// skill-map(スキルマップ/組織ダッシュボード)の集計ロジック。
 // クライアントコンポーネントから直接importされるため、このファイルは
 // prismaランタイムを巻き込まない純関数のみで構成する
 // (lib/organization-unit-tree.tsと同じ方針。importは型のみ)。
@@ -44,7 +44,7 @@ export type DashboardEmployee = {
   // 所属する部署バケット(事業部・部)のorganization_unit id。
   // 部署以下所属なら[事業部id, 部id]、事業部直下なら[事業部id]、未所属は[]
   bucketIds: number[];
-  // 経歴書詳細(REF003)へのリンク可否(閲覧範囲判定。サーバーで解決済み)
+  // 経歴書詳細(resume-detail)へのリンク可否(閲覧範囲判定。サーバーで解決済み)
   canView: boolean;
 };
 

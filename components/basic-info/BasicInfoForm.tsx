@@ -24,7 +24,7 @@ import type {
 } from "@/lib/organization-unit";
 
 type BasicInfoFormProps = {
-  // register=初回登録画面(保存後にREF004へ遷移)/section=私の経歴書のセクション編集
+  // register=初回登録画面(保存後にmypageへ遷移)/section=私の経歴書のセクション編集
   variant: BasicInfoFormVariant;
   employeeId: string;
   email: string;
@@ -116,6 +116,10 @@ export function BasicInfoForm({
             defaultValue={defaultValues.nameKana}
             required
           />
+          {/* PDF出力のイニシャル生成が姓・名の区切りを前提とするため注記を出す */}
+          <p className="text-xs text-zinc-500">
+            姓と名の間にスペースを入れてください（例: ヤマダ タロウ）
+          </p>
           {state.fieldErrors.nameKana ? (
             <p className="text-sm text-red-600">{state.fieldErrors.nameKana}</p>
           ) : null}

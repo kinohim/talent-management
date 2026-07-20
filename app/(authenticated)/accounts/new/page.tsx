@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { NewAccountForm } from "@/components/accounts/NewAccountForm";
 import { UserRole } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
+import { resolveDestination } from "@/lib/auth-routing";
 import { nextEmployeeId } from "@/lib/employee-id";
 import { getOrganizationUnitOptions } from "@/lib/organization-unit";
 import { prisma } from "@/lib/prisma";
@@ -12,8 +13,13 @@ export default async function NewAccountPage() {
   if (!session?.user) {
     redirect("/login");
   }
+  // 未登録の管理職はbasic-info(初回登録)へ誘導する(全認証必須ページ共通のガード)
+  const destination = await resolveDestination(session.user);
+  if (destination !== "/") {
+    redirect(destination);
+  }
   if (session.user.role !== UserRole.MANAGER) {
-    // アカウント管理は管理職専用(REF001参照)
+    // アカウント管理は管理職専用(home参照)
     redirect("/");
   }
 

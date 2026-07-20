@@ -33,15 +33,15 @@ const GENERAL_TILE_DEFS: TileDef[] = [
 // 管理者メニュー(アカウント・マスタ管理系)。管理職のみ
 const ADMIN_TILE_DEFS: TileDef[] = [
   {
-    key: "account-list",
-    label: "アカウント一覧",
-    href: "/accounts",
-    roles: [UserRole.MANAGER],
-  },
-  {
     key: "master",
     label: "マスタ管理",
     href: "/master",
+    roles: [UserRole.MANAGER],
+  },
+  {
+    key: "account-list",
+    label: "アカウント一覧",
+    href: "/accounts",
     roles: [UserRole.MANAGER],
   },
 ];

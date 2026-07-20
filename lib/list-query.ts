@@ -1,4 +1,4 @@
-// REF002(経歴書一覧)/REF007(アカウント一覧)共通の、一覧のページング・
+// resume-list(経歴書一覧)/account-list(アカウント一覧)共通の、一覧のページング・
 // ソート指定をURLのsearchParamsからパースする純粋関数群。
 // DBクエリ(skip/take/orderBy)はページ側のServer Componentで組み立てる。
 

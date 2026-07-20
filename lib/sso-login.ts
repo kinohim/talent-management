@@ -10,7 +10,7 @@ type GitHubEmailEntry = { email: string; primary: boolean; verified: boolean };
 // GitHubの/user/emailsレスポンスから「確認済み(verified)かつプライマリ」の
 // メールだけを採用する。未検証メールを事前登録照合に使うと他人のメールを
 // 登録したGitHubアカウントでなりすましログインできてしまうため、verifiedは
-// 必須(docs/screens.md AUTH001「確認済みメールアドレス」)。
+// 必須(docs/screens.md login「確認済みメールアドレス」)。
 export function pickVerifiedPrimaryEmail(emails: unknown): string | null {
   if (!Array.isArray(emails)) {
     return null;
@@ -19,8 +19,8 @@ export function pickVerifiedPrimaryEmail(emails: unknown): string | null {
   return entry?.email ?? null;
 }
 
-// SSOログインの事前登録照合(docs/screens.md AUTH001、docs/decisions.md「認証」)。
-// 管理職がEDT006で登録したusers.emailとSSOの確認済みメールを照合し、
+// SSOログインの事前登録照合(docs/screens.md login、docs/decisions.md「認証」)。
+// 管理職がaccount-newで登録したusers.emailとSSOの確認済みメールを照合し、
 // 未登録・退職済み・プロバイダ不一致(初回プロバイダ固定)を判定する。
 // lib/auth.tsのsignInコールバックから呼ばれ、ok: false時はPrismaAdapterの
 // createUser/linkAccountに到達させない。

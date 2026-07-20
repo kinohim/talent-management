@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { OrganizationUnitManager } from "@/components/master/OrganizationUnitManager";
 import { UserRole } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
+import { resolveDestination } from "@/lib/auth-routing";
 import { getOrganizationUnitOptions } from "@/lib/organization-unit";
 import { buildOrganizationUnitTree } from "@/lib/organization-unit-tree";
 
@@ -11,8 +12,13 @@ export default async function OrganizationUnitsPage() {
   if (!session?.user) {
     redirect("/login");
   }
+  // 未登録の管理職はbasic-info(初回登録)へ誘導する(全認証必須ページ共通のガード)
+  const destination = await resolveDestination(session.user);
+  if (destination !== "/") {
+    redirect(destination);
+  }
   if (session.user.role !== UserRole.MANAGER) {
-    // マスタ管理は管理職専用(REF001参照)
+    // マスタ管理は管理職専用(home参照)
     redirect("/");
   }
 

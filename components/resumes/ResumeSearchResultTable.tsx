@@ -9,11 +9,16 @@ export type ResumeSearchResultRow = {
   experienceYears: number | null;
   mainSkills: string;
   mainCertifications: string;
+  // 一般社員の閲覧範囲外の行はfalse(「詳細」リンクを出さない)。判定はページ側
+  canViewDetail: boolean;
+  // 「PDF」ボタン(pdf-previewへの導線)の表示可否。人事・営業/管理職は全行、
+  // 一般社員は自分自身の行のみtrue。判定はページ側
+  canDownloadPdf: boolean;
 };
 
 type ResumeSearchResultTableProps = {
   rows: ResumeSearchResultRow[];
-  // 列フィルタ「所属組織」の選択肢(一般社員は閲覧範囲内のみをページ側で渡す)
+  // 列フィルタ「所属組織」の選択肢
   orgFilterOptions: { value: string; label: string }[];
   // 列フィルタ「主なスキル」「主な資格」の選択肢(マスタ全件)
   skillFilterOptions: { value: string; label: string }[];
@@ -91,12 +96,24 @@ export function ResumeSearchResultTable({
                 <td className="p-2">{row.mainSkills || "-"}</td>
                 <td className="p-2">{row.mainCertifications || "-"}</td>
                 <td className="p-2">
-                  <Link
-                    href={`/resumes/${row.employeeId}`}
-                    className="rounded border px-3 py-1"
-                  >
-                    詳細
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    {row.canViewDetail && (
+                      <Link
+                        href={`/resumes/${row.employeeId}`}
+                        className="rounded border px-3 py-1"
+                      >
+                        詳細
+                      </Link>
+                    )}
+                    {row.canDownloadPdf && (
+                      <Link
+                        href={`/resumes/${row.employeeId}/pdf-preview?from=list`}
+                        className="rounded border px-3 py-1"
+                      >
+                        PDF
+                      </Link>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))

@@ -14,7 +14,7 @@ type PillMultiSelectProps = {
 // `formData.getAll(name)`でチェック済みの値をまとめて取得できる。
 // controlled(values/onChange)にしているのは、検証エラーで同一画面に留まった際
 // にReact DOMのフォームaction機能が非制御フィールドを自動リセットしてしまう
-// 問題を避けるため(EDT003 SkillRowsForm.tsxで見つかった不具合と同種)。
+// 問題を避けるため(mypageのスキルセクションのSkillRowsForm.tsxで見つかった不具合と同種)。
 export function PillMultiSelect({
   name,
   options,

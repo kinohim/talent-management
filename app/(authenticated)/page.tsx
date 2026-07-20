@@ -10,8 +10,8 @@ export default async function HomePage() {
     redirect("/login");
   }
 
-  // 未登録の一般社員/管理職が直接/を開いた場合もEDT001へ戻す恒常ガード
-  // (docs/screens.md AUTH001の遷移ルールをここでも保証する)。
+  // 未登録の一般社員/管理職が直接/を開いた場合もbasic-infoへ戻す恒常ガード
+  // (docs/screens.md loginの遷移ルールをここでも保証する)。
   const destination = await resolveDestination(session.user);
   if (destination !== "/") {
     redirect(destination);

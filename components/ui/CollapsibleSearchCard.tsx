@@ -30,7 +30,7 @@ export function notifySearchExecuted(storageKey: string) {
   }
 }
 
-// 検索条件カードの開閉ラッパー(REF002/REF007共通)。
+// 検索条件カードの開閉ラッパー(resume-list/account-list共通)。
 // 開閉はユーザーの明示的な操作と「検索後に閉じる」トグル(既定ON)のみで決まる。
 // どちらもsessionStorageに記憶し、記憶がなければ「開」/「ONあつかい」。
 // sessionStorageは外部システムのためuseSyncExternalStoreで購読する。

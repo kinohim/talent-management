@@ -15,8 +15,8 @@ import { resolveOrganizationUnitId } from "@/lib/organization-unit";
 import { isUniqueConstraintViolation } from "@/lib/prisma-errors";
 import { prisma } from "@/lib/prisma";
 
-const CREATE_PROGRAM = "EDT006";
-const EDIT_PROGRAM = "EDT007";
+const CREATE_PROGRAM = "account-new";
+const EDIT_PROGRAM = "account-edit";
 const LIST_PATH = "/accounts";
 
 function readOrganizationUnitSelection(formData: FormData) {
@@ -93,7 +93,7 @@ export async function createAccount(
     return { error: "保存に失敗しました。時間をおいて再度お試しください。" };
   }
 
-  // 保存後はREF007(アカウント一覧)へ戻る(docs/screens.md「保存後の遷移先」参照)。
+  // 保存後はaccount-list(アカウント一覧)へ戻る(docs/screens.md「保存後の遷移先」参照)。
   redirect(LIST_PATH);
 }
 
@@ -116,7 +116,7 @@ export async function updateAccount(
 
   // 氏名の変更は初回未登録(is_registered=false)のアカウントに限る。
   // 本人の登録が済んだ氏名を管理職が上書きしない(「(仮登録)」の解除は
-  // 本人のEDT001保存のみ、という運用の担保)。
+  // 本人の基本情報保存(basic-info/mypage)のみ、という運用の担保)。
   const target = await prisma.employee.findUnique({
     where: { employeeId },
     select: { isRegistered: true },

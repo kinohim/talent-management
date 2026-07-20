@@ -11,7 +11,7 @@ import { prisma } from "@/lib/prisma";
 import { pickVerifiedPrimaryEmail, resolveSsoLogin } from "@/lib/sso-login";
 
 // 実SSOはGitHubのみ実装済み。Azure AD(Microsoft Entra ID)/Googleプロバイダの
-// 追加が残TODO(docs/schema.md「ログイン判定ロジック」・docs/screens.md AUTH001参照)。
+// 追加が残TODO(docs/schema.md「ログイン判定ロジック」・docs/screens.md login参照)。
 // 追加時はGitHubと同様に、確認済みメールだけをsignInコールバックの照合に渡すこと。
 
 // 下記のCredentialsプロバイダは本番では無効化される開発専用のダミーログイン。
@@ -43,7 +43,7 @@ const devEmployeeIdLogin = Credentials({
 const useDevLogin = !isProduction || isDevLoginEnabled;
 
 const gitHubLogin = GitHub({
-  // 事前登録済みユーザー(EDT006でemail登録済み)の初回SSOログイン時に、
+  // 事前登録済みユーザー(account-newでemail登録済み)の初回SSOログイン時に、
   // accountsへのプロバイダ紐付けを自動で作成させる。"Dangerous"なのは未検証
   // メールでの紐付けを許す場合であり、ここでは (a)下記userinfoでverifiedメール
   // のみ採用 (b)signInコールバックのresolveSsoLoginで事前登録照合・プロバイダ
@@ -52,7 +52,7 @@ const gitHubLogin = GitHub({
   allowDangerousEmailAccountLinking: true,
   // 標準のGitHubプロバイダは/user/emailsのverifiedフラグを確認せずprimaryを
   // 無条件に採用するため、userinfoを差し替えて「確認済み(verified)かつ
-  // プライマリ」のメールだけを使う(docs/screens.md AUTH001「確認済みメール
+  // プライマリ」のメールだけを使う(docs/screens.md login「確認済みメール
   // アドレス」)。該当がなければemailはnullになり、signInコールバックで
   // 未登録エラーに落ちる。userinfoは部分マージではなく全体置換のためurlも併記。
   userinfo: {
@@ -86,12 +86,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     ...(isGitHubSsoEnabled ? [gitHubLogin] : []),
     ...(useDevLogin ? [devEmployeeIdLogin] : []),
   ],
-  // Auth.js標準の英語signin画面(/api/auth/signin)を自前の日本語画面(AUTH001)に
+  // Auth.js標準の英語signin画面(/api/auth/signin)を自前の日本語画面(login)に
   // 差し替える(docs/README.md「ライブラリのデフォルト画面は自前の日本語画面に
   // 差し替える」参照)。
   pages: { signIn: "/login" },
   callbacks: {
-    // SSOログインの事前登録照合(docs/screens.md AUTH001)。このコールバックは
+    // SSOログインの事前登録照合(docs/screens.md login)。このコールバックは
     // PrismaAdapterのcreateUser/linkAccountより前に実行されるため、ここで
     // ブロックすればemployeeId必須のUserが自動作成されることはない。
     // OAuthフローではthrowしたエラーを画面に返せないため、エラー時は
@@ -133,9 +133,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   events: {
-    // ログイン成功のたびにusers.last_login_atを更新する(REF007「最終ログイン」列)。
-    // 人事・営業(HR_SALES)は経歴書を作成しないため、EDT001を経ずisRegisteredを
-    // 自動でTRUEにする(docs/screens.md AUTH001参照)。
+    // ログイン成功のたびにusers.last_login_atを更新する(account-list「最終ログイン」列)。
+    // 人事・営業(HR_SALES)は経歴書を作成しないため、basic-infoを経ずisRegisteredを
+    // 自動でTRUEにする(docs/screens.md login参照)。
     async signIn({ user, account, profile }) {
       const employeeId = (user as { employeeId?: string }).employeeId;
       const role = (user as { role?: UserRole }).role;
@@ -146,7 +146,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         data: {
           lastLoginAt: new Date(),
           updatedBy: employeeId,
-          updatedProgram: "AUTH001",
+          updatedProgram: "login",
         },
       });
 
@@ -156,11 +156,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           data: {
             isRegistered: true,
             updatedBy: employeeId,
-            updatedProgram: "AUTH001",
+            updatedProgram: "login",
           },
         });
 
-        // 人事・営業はEDT001(基本情報登録)を通らないためemployee.nameが未設定の
+        // 人事・営業はbasic-info(基本情報登録)を通らないためemployee.nameが未設定の
         // まま残る。SSOログイン時のみプロバイダの表示名で補完する(設定済みの
         // 名前は上書きしない。開発用ログインには対応する情報源がないため対象外)。
         const ssoName =
@@ -173,7 +173,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             data: {
               name: ssoName,
               updatedBy: employeeId,
-              updatedProgram: "AUTH001",
+              updatedProgram: "login",
             },
           });
         }

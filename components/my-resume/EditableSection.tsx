@@ -9,8 +9,8 @@ import {
   type ReactNode,
 } from "react";
 
-// REF004「私の経歴書」のセクション単位編集で、フォーム側とセクション側を
-// つなぐContext。単独画面(/registerの初回登録等)ではProviderが無いため
+// mypage「私の経歴書」のセクション単位編集で、フォーム側とセクション側を
+// つなぐContext。単独画面(/basic-infoの初回登録等)ではProviderが無いため
 // nullになり、フォームは自前の保存ボタンを表示して従来どおり動く。
 // - onSaved: 保存成功をフォームから通知(編集モード解除)
 // - formId: ヘッダの保存ボタン(form属性)と<form>を関連付けるid
@@ -27,9 +27,9 @@ export function useSectionEdit() {
 
 type EditableSectionProps = {
   title: string;
-  // 閲覧表示(REF003と同じResume*コンポーネント。見出しは各コンポーネント側が持つ)
+  // 閲覧表示(resume-detailと同じResume*コンポーネント。見出しは各コンポーネント側が持つ)
   view: ReactNode;
-  // 編集フォーム(既存のEDT001〜004のフォームコンポーネント)
+  // 編集フォーム(基本情報〜資格の各セクションで使う既存フォームコンポーネント)
   form: ReactNode;
 };
 

@@ -97,7 +97,7 @@ export function ProjectForm({
   // 留まった際、React DOMのフォームaction機能が非制御フィールドを自動的に
   // フォーム定義時の初期値へリセットしてしまう(action完了ごとに一律発生する
   // 仕様)ため、素朴な defaultValue/defaultChecked では入力内容が失われる
-  // (EDT003で見つかった不具合と同種。実機確認で本画面でも再現を確認したため
+  // (mypageのスキルセクションで見つかった不具合と同種。実機確認で本画面でも再現を確認したため
   // 全項目に対応する)。
   const [values, setValues] = useState<ProjectFormDefaultValues>(defaultValues);
 
@@ -153,7 +153,7 @@ export function ProjectForm({
   // controlled(checked+onChange)で保持していても、React DOMのフォームaction
   // 機能による自動リセットでDOM側のchecked状態だけが desync することを実機確認
   // で確認した(valuesのReact state自体は正しいまま)。action完了ごとに全項目を
-  // 再マウントし、正しいvaluesの値でDOMを再構築させる(EDT003 SkillRowsForm.tsx
+  // 再マウントし、正しいvaluesの値でDOMを再構築させる(mypageのスキルセクションのSkillRowsForm.tsx
   // と同じ対応)。
   const [remountToken, setRemountToken] = useState(0);
   const prevStateRef = useRef(state);

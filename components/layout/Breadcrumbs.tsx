@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { useListQueryHref } from "@/components/layout/useListQueryHref";
 import { getBreadcrumbTrail } from "@/lib/breadcrumbs";
 
 export function Breadcrumbs() {
   const pathname = usePathname();
+  // 遷移元クエリ(?from=list等)でパンくずの上位を出し分ける(lib/breadcrumbs)
+  const from = useSearchParams().get("from");
   const withListQuery = useListQueryHref();
-  const trail = getBreadcrumbTrail(pathname);
+  const trail = getBreadcrumbTrail(pathname, { from });
 
   if (trail.length === 0) return null;
 

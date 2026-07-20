@@ -1,6 +1,6 @@
 import { githubLoginAction } from "@/app/login/actions";
 
-// AUTH001のSSOログインボタン群(docs/screens.md参照)。実装済みはGitHubのみで、
+// loginのSSOログインボタン群(docs/screens.md参照)。実装済みはGitHubのみで、
 // Azure AD(Microsoft)/Googleは未実装のため「準備中」として先頭に非活性で配置する。
 // GitHubもクレデンシャル未設定の環境(gitHubEnabled=false)では準備中扱いにする。
 // 各ボタンは活性・非活性を問わずプロバイダのイメージカラーで配色し、

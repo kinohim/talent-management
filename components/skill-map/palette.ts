@@ -1,4 +1,4 @@
-// REF008ダッシュボードの配色(docs/dashboard_mockup.htmlのCSS変数を移植)。
+// skill-mapダッシュボードの配色(docs/dashboard_mockup.htmlのCSS変数を移植)。
 // カテゴリはマスタ追加で増えるため、固定の割当てではなく並び順で循環させる。
 
 export const ACCENT = "#3357d6";

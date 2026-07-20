@@ -2,7 +2,7 @@ import { employeeDisplayName } from "@/lib/employee-labels";
 import { prisma } from "@/lib/prisma";
 
 // ヘッダ等に表示する氏名を取得する。セッションのname(token.name)はログイン
-// 時点のスナップショットで、EDT001での名前登録が反映されず、SSOログインでは
+// 時点のスナップショットで、basic-infoでの名前登録が反映されず、SSOログインでは
 // そもそも設定されない(users.nameが空のまま)ため、employee.nameを都度参照する。
 // 名前が未登録の間は社員IDを表示する。管理職が仮登録した氏名には
 // 「（仮登録）」が付く(lib/employee-labels.tsの表示ルール)。

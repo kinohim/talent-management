@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { getSiteDeleteBlockReason } from "@/lib/site-master";
 import { parseSiteMasterForm, type SiteMasterFormState } from "@/lib/site-master-schema";
 
-const PROGRAM = "MST005";
+const PROGRAM = "master-sites";
 const PATH = "/master/sites";
 
 export async function saveSite(
@@ -23,7 +23,7 @@ export async function saveSite(
     return { error: parsed.error };
   }
 
-  // 主管部署は部(DEPARTMENT)のみ選択可(docs/screens.md MST005)。
+  // 主管部署は部(DEPARTMENT)のみ選択可(docs/screens.md master-sites)。
   // クライアントのselectは改竄され得るためサーバー側で再検証する
   if (parsed.organizationUnitId != null) {
     const unit = await prisma.organizationUnit.findFirst({
