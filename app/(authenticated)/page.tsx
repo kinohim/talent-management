@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { HomeTiles } from "@/components/home/HomeTiles";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { auth } from "@/lib/auth";
 import { resolveDestination } from "@/lib/auth-routing";
 
@@ -19,7 +20,7 @@ export default async function HomePage() {
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
-      <h1 className="text-lg font-semibold">トップ</h1>
+      <SectionHeading as="h1" eyebrow="WELCOME" title="トップ" />
       <HomeTiles role={session.user.role} />
     </main>
   );

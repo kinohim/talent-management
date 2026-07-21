@@ -50,14 +50,17 @@ export function SkillMasterRow({ skill, categories }: SkillMasterRowProps) {
 
   if (mode === "edit") {
     return (
-      <form action={formAction} className="flex flex-col gap-2 rounded border p-3">
+      <form
+        action={formAction}
+        className="flex flex-col gap-2 rounded-2xl border border-surface-border p-3"
+      >
         <CategorySelectField categories={categories} defaultCategoryId={skill.categoryId} />
         <input
           type="text"
           name="skillName"
           defaultValue={skill.skillName}
           maxLength={100}
-          className="rounded border px-2 py-1 text-sm"
+          className="rounded-full border border-surface-border px-3 py-1 text-sm"
         />
         <VersionTagEditor name="versionNames" initialValues={skill.versionNames} />
         {state.error ? (
@@ -69,14 +72,14 @@ export function SkillMasterRow({ skill, categories }: SkillMasterRowProps) {
           <button
             type="submit"
             disabled={isPending}
-            className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary-dark"
           >
             {isPending ? "保存中..." : "保存"}
           </button>
           <button
             type="button"
             onClick={() => setMode("view")}
-            className="text-xs text-zinc-500"
+            className="text-xs text-foreground/60"
           >
             キャンセル
           </button>
@@ -86,12 +89,12 @@ export function SkillMasterRow({ skill, categories }: SkillMasterRowProps) {
   }
 
   return (
-    <div className="flex flex-col gap-1 rounded border p-3">
+    <div className="flex flex-col gap-1 rounded-2xl border border-surface-border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <span className="text-sm font-medium">{skill.skillName}</span>
           {skill.versionNames.length > 0 ? (
-            <span className="ml-2 text-xs text-zinc-500">
+            <span className="ml-2 text-xs text-foreground/60">
               {skill.versionNames.join(", ")}
             </span>
           ) : null}
@@ -100,14 +103,14 @@ export function SkillMasterRow({ skill, categories }: SkillMasterRowProps) {
           <button
             type="button"
             onClick={() => setMode("edit")}
-            className="rounded border px-2 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-primary px-2 py-1 text-brand hover:bg-primary/10"
           >
             編集
           </button>
           <button
             type="button"
             onClick={() => setShowConfirm(true)}
-            className="rounded border px-2 py-1 text-red-600 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-red-300 px-2 py-1 text-red-600 hover:bg-red-50"
           >
             削除
           </button>

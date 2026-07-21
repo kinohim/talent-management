@@ -43,10 +43,15 @@ export function CascadingOrganizationUnitFilter({
     return (
       <div key={node.id} className={depth > 0 ? "pl-5" : undefined}>
         <label className="flex items-center gap-2 py-0.5 text-sm">
-          <input type="checkbox" checked={checked} onChange={() => toggle(node)} />
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={() => toggle(node)}
+            className="accent-primary"
+          />
           <span>{node.unitName}</span>
           {node.children.length > 0 && !checked ? (
-            <span className="text-xs text-zinc-400">
+            <span className="text-xs text-foreground/40">
               ▸ {LEVEL_LABELS[childLevel ?? ""] ?? "配下"}
               {node.children.length}件
             </span>
@@ -61,14 +66,14 @@ export function CascadingOrganizationUnitFilter({
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-1">
-      <div className="flex max-h-48 flex-col overflow-y-auto rounded border p-2">
+      <div className="flex max-h-48 flex-col overflow-y-auto rounded-2xl border border-surface-border p-2">
         {tree.length === 0 ? (
-          <p className="text-sm text-zinc-500">組織単位が登録されていません。</p>
+          <p className="text-sm text-foreground/60">組織単位が登録されていません。</p>
         ) : (
           tree.map((node) => renderNode(node, 0))
         )}
       </div>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-foreground/60">
         上位の組織を選択すると配下の組織で絞り込めます。
       </p>
     </div>

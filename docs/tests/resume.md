@@ -18,6 +18,7 @@
 | `lib/experience-years.test.ts` | `lib/experience-years.ts` | 14 |
 | `lib/print-name.test.ts` | `lib/print-name.ts` | 13 |
 | `lib/pdf-preview-settings.test.ts` | `lib/pdf-preview-settings.ts` | 5 |
+| `lib/profile-completion.test.ts` | `lib/profile-completion.ts` | 12 |
 
 ## parseBasicInfoForm
 
@@ -328,3 +329,32 @@
 | 3 | MANAGER で他人の経歴書はイニシャル・経験年数以外の全項目マスクON | 正常系 |
 | 4 | MANAGER で自身の経歴書は実名・全項目マスクなし | 正常系 |
 | 5 | イニシャル初期値でも hasInitials=false なら実名にフォールバックする | 異常系 |
+
+## calculateProfileCompletion
+
+対象: `lib/profile-completion.ts` / テスト: `lib/profile-completion.test.ts`
+概要: mypage(私の経歴書)の入力率バナー用に、基本情報10項目(最寄駅は路線名・駅名のいずれかで1項目扱い)+経歴概要+自己PR+スキル(1件以上)+資格(1件以上)の計14項目から入力率(%)を算出する
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | 全項目未入力なら0% | 境界値 |
+| 2 | 全項目入力済みなら100% | 境界値 |
+| 3 | 空文字・空白のみの値は未入力扱い | 異常系 |
+| 4 | 最寄駅は路線名・駅名のどちらか一方だけでも1項目扱いになる | 正常系 |
+| 5 | スキル・資格は件数0を未入力、1件以上を入力済みとして扱う | 正常系 |
+| 6 | パーセントは四捨五入する | 正常系 |
+
+## firstIncompleteSectionId
+
+対象: `lib/profile-completion.ts` / テスト: `lib/profile-completion.test.ts`
+概要: 入力率バナーの「未入力項目を入力する」ボタンのスクロール先(表示順で最初に未入力項目があるセクションのDOM id)を判定する
+前提: モックなし（純粋関数）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | 全項目入力済みなら null | 境界値 |
+| 2 | 基本情報が未入力なら基本情報セクションを返す(表示順で最優先) | 正常系 |
+| 3 | 基本情報のみ完了なら経歴概要・自己PRセクションを返す | 正常系 |
+| 4 | 基本情報・経歴概要/自己PRが完了ならスキルセクションを返す | 正常系 |
+| 5 | スキルまで完了していれば資格セクションを返す | 正常系 |

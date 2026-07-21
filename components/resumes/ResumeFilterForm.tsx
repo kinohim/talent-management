@@ -58,7 +58,7 @@ function SingleSiteSelect({
           const id = Number(e.target.value);
           onChange(options.find((option) => option.id === id) ?? null);
         }}
-        className="max-w-64 rounded border px-2 py-1.5 text-sm"
+        className="max-w-64 rounded-full border border-surface-border px-3 py-1.5 text-sm"
       >
         <option value="">指定なし</option>
         {options.map((option) => (
@@ -67,7 +67,7 @@ function SingleSiteSelect({
           </option>
         ))}
       </select>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-foreground/60">
         過去〜現在に携わったプロジェクトの現場で検索します(1件のみ)。
       </p>
     </div>
@@ -191,7 +191,7 @@ export function ResumeFilterForm({
                   max={99}
                   value={experienceMin}
                   onChange={(e) => setExperienceMin(e.target.value)}
-                  className="w-20 rounded border px-2 py-1 text-sm"
+                  className="w-20 rounded-full border border-surface-border px-3 py-1 text-sm"
                 />
                 <span className="text-sm">〜</span>
                 <input
@@ -200,7 +200,7 @@ export function ResumeFilterForm({
                   max={99}
                   value={experienceMax}
                   onChange={(e) => setExperienceMax(e.target.value)}
-                  className="w-20 rounded border px-2 py-1 text-sm"
+                  className="w-20 rounded-full border border-surface-border px-3 py-1 text-sm"
                 />
                 <span className="text-sm">年</span>
               </div>
@@ -248,6 +248,7 @@ export function ResumeFilterForm({
                 type="checkbox"
                 checked={includeRetired}
                 onChange={(e) => setIncludeRetired(e.target.checked)}
+                className="accent-primary"
               />
               退職者を含める
             </label>
@@ -256,14 +257,14 @@ export function ResumeFilterForm({
           <div className="flex gap-2">
             <button
               type="submit"
-              className="rounded bg-zinc-900 hover:bg-zinc-700 px-4 py-2 text-sm text-white dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
+              className="rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary-dark"
             >
               検索
             </button>
             <button
               type="button"
               onClick={clearFilters}
-              className="rounded border px-4 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              className="rounded-full border border-primary px-4 py-2 text-sm text-brand hover:bg-primary/10"
             >
               クリア
             </button>

@@ -219,7 +219,7 @@ export function DataTableHeaderCell({
             title="クリックで昇順/降順を切り替え"
           >
             {label}
-            <span aria-hidden="true" className="text-xs text-zinc-400">
+            <span aria-hidden="true" className="text-xs text-foreground/40">
               {isSorted ? (currentOrder === "asc" ? "▲" : "▼") : "⇅"}
             </span>
           </button>
@@ -235,8 +235,8 @@ export function DataTableHeaderCell({
             title={`${label}で絞り込む`}
             className={
               filterActive
-                ? "rounded border border-zinc-900 bg-zinc-900 px-1 text-xs text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
-                : "rounded border px-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                ? "rounded-full border border-primary bg-primary px-1.5 text-xs text-primary-foreground"
+                : "rounded-full border border-surface-border px-1.5 text-xs text-foreground/50 hover:bg-primary/10"
             }
           >
             ▼
@@ -248,7 +248,7 @@ export function DataTableHeaderCell({
         <div
           ref={popoverRef}
           style={{ top: popoverPosition.top, left: popoverPosition.left }}
-          className="fixed z-30 flex w-72 flex-col gap-2 rounded border bg-[var(--background)] p-3 text-left font-normal shadow-lg"
+          className="fixed z-30 flex w-72 flex-col gap-2 rounded-2xl border border-surface-border bg-surface p-3 text-left font-normal shadow-lg"
         >
           {filter.type === "text" ? (
             <input
@@ -263,7 +263,7 @@ export function DataTableHeaderCell({
               }}
               placeholder={`${label}を含む`}
               autoFocus
-              className="rounded border px-2 py-1 text-sm"
+              className="rounded-full border border-surface-border px-3 py-1 text-sm"
             />
           ) : null}
 
@@ -281,6 +281,7 @@ export function DataTableHeaderCell({
                           : [...prev, option.value],
                       )
                     }
+                    className="accent-primary"
                   />
                   {option.label}
                 </label>
@@ -294,7 +295,7 @@ export function DataTableHeaderCell({
                 type="number"
                 value={minValue}
                 onChange={(e) => setMinValue(e.target.value)}
-                className="w-16 rounded border px-2 py-1"
+                className="w-16 rounded-full border border-surface-border px-3 py-1"
                 aria-label={`${label}の下限`}
               />
               <span>〜</span>
@@ -302,7 +303,7 @@ export function DataTableHeaderCell({
                 type="number"
                 value={maxValue}
                 onChange={(e) => setMaxValue(e.target.value)}
-                className="w-16 rounded border px-2 py-1"
+                className="w-16 rounded-full border border-surface-border px-3 py-1"
                 aria-label={`${label}の上限`}
               />
             </div>
@@ -317,6 +318,7 @@ export function DataTableHeaderCell({
                     name={`${label}-filter-mode`}
                     checked={tagMode === "OR"}
                     onChange={() => setTagMode("OR")}
+                    className="accent-primary"
                   />
                   いずれか含む(OR)
                 </label>
@@ -326,6 +328,7 @@ export function DataTableHeaderCell({
                     name={`${label}-filter-mode`}
                     checked={tagMode === "AND"}
                     onChange={() => setTagMode("AND")}
+                    className="accent-primary"
                   />
                   すべて含む(AND)
                 </label>
@@ -336,7 +339,7 @@ export function DataTableHeaderCell({
                   return (
                     <span
                       key={value}
-                      className="flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs"
+                      className="flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-xs text-brand"
                     >
                       {option?.label ?? value}
                       <button
@@ -344,7 +347,7 @@ export function DataTableHeaderCell({
                         onClick={() =>
                           setTagValues((prev) => prev.filter((v) => v !== value))
                         }
-                        className="text-zinc-500 hover:text-red-600"
+                        className="text-brand/60 hover:text-red-600"
                         aria-label={`${option?.label ?? value}を削除`}
                       >
                         ×
@@ -366,7 +369,7 @@ export function DataTableHeaderCell({
                   }}
                   placeholder={`${label}を選択`}
                   autoFocus
-                  className="px-2 py-1 text-sm"
+                  className="px-3 py-1 text-sm"
                 />
                 <datalist id={datalistId}>
                   {filter.options.map((option) => (
@@ -376,7 +379,7 @@ export function DataTableHeaderCell({
                 <button
                   type="button"
                   onClick={addTagFromInput}
-                  className="rounded border px-2 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                  className="rounded-full border border-primary px-3 py-1 text-xs text-brand hover:bg-primary/10"
                 >
                   追加
                 </button>
@@ -388,14 +391,14 @@ export function DataTableHeaderCell({
             <button
               type="button"
               onClick={clearFilter}
-              className="rounded border px-2 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              className="rounded-full border border-surface-border px-3 py-1 text-xs hover:bg-primary/10"
             >
               クリア
             </button>
             <button
               type="button"
               onClick={applyFilter}
-              className="rounded bg-zinc-900 hover:bg-zinc-700 px-2 py-1 text-xs text-white dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
+              className="rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary-dark"
             >
               適用
             </button>

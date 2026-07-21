@@ -1,28 +1,39 @@
 @import "tailwindcss";
 
+/* デザイン案A「やさしいグリーン」固定パレット(ダークモード切替なし)。
+   sas-com.com の「すべては笑顔のために」の雰囲気(淡緑背景・丸みの強いカード・
+   余白多めの優しいトーン)を反映する。 */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #eaf6ec;
+  --foreground: #234032;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: #6fbf73;
+  --color-primary-dark: #56a85c;
+  --color-primary-foreground: #ffffff;
+  --color-surface: #fdfdfb;
+  --color-surface-border: #d7ecd9;
+  --color-brand: #2e7d46;
+  --color-accent: #f7b84b;
+  --color-accent-soft: #fdf3e3;
+  --color-accent-text: #b5720b;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* mypageの入力率バナー「未入力項目を入力する」リンク(#section-*への
+   アンカージャンプ)を滑らかにスクロールさせる */
+html {
+  scroll-behavior: smooth;
 }
 
 /* 共通仕様: ボタンは押せることが分かるようカーソルをポインタにする

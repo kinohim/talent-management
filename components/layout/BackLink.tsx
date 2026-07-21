@@ -21,7 +21,7 @@ export function BackLink() {
   return (
     <Link
       href={withListQuery(parent.path)}
-      className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 hover:underline dark:hover:text-zinc-300"
+      className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm text-brand/80 hover:bg-primary/10 hover:text-brand hover:underline"
     >
       <span aria-hidden="true">←</span>
       {parent.label}に戻る

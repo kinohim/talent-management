@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { ProjectRoleMasterManager } from "@/components/master/ProjectRoleMasterManager";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { UserRole } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { resolveDestination } from "@/lib/auth-routing";
@@ -29,7 +30,7 @@ export default async function ProjectRoleMasterPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
-      <h1 className="text-lg font-semibold">現場ポジションマスタ管理</h1>
+      <SectionHeading as="h1" eyebrow="PROJECT ROLES" title="現場ポジションマスタ管理" />
       <ProjectRoleMasterManager roles={roles} />
     </main>
   );

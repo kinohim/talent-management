@@ -13,9 +13,9 @@ export function LoginForm() {
   );
 
   return (
-    <form action={formAction} className="flex w-full max-w-sm flex-col gap-4">
+    <form action={formAction} className="flex w-full flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="employeeId" className="text-sm font-medium">
+        <label htmlFor="employeeId" className="text-sm font-medium text-brand">
           社員ID
         </label>
         <input
@@ -24,7 +24,7 @@ export function LoginForm() {
           type="text"
           required
           autoComplete="off"
-          className="rounded border px-3 py-2"
+          className="rounded-full border border-surface-border px-4 py-2"
         />
       </div>
       {state.error ? (
@@ -35,7 +35,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="rounded bg-zinc-900 hover:bg-zinc-700 px-4 py-2 text-white disabled:opacity-50 dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
+        className="rounded-full bg-primary px-4 py-2 text-primary-foreground hover:bg-primary-dark disabled:opacity-50"
       >
         {isPending ? "ログイン中..." : "ログイン"}
       </button>

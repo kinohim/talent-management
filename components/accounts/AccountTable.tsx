@@ -39,10 +39,10 @@ type AccountTableProps = {
 // フィルタを解除できる必要があるため)。
 export function AccountTable({ accounts, orgFilterOptions }: AccountTableProps) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-2xl border border-surface-border">
       <table className="w-full min-w-max border-collapse text-sm">
         <thead>
-          <tr className="border-b text-left">
+          <tr className="border-b border-surface-border bg-background text-left">
             <DataTableHeaderCell
               label="氏名"
               sortKey="name"
@@ -75,13 +75,13 @@ export function AccountTable({ accounts, orgFilterOptions }: AccountTableProps) 
         <tbody>
           {accounts.length === 0 ? (
             <tr>
-              <td colSpan={7} className="p-4 text-center text-zinc-500">
+              <td colSpan={7} className="p-4 text-center text-foreground/60">
                 該当するアカウントはありません。
               </td>
             </tr>
           ) : (
             accounts.map((account) => (
-              <tr key={account.employeeId} className="border-b">
+              <tr key={account.employeeId} className="border-b border-surface-border">
                 <td className="p-2">
                   {/* (仮登録)の判定はis_registeredのみで行う。状態(退職が最優先)とは
                       独立のため、退職済み・未登録の社員にも付く(docs/screens.md account-new) */}
@@ -95,7 +95,7 @@ export function AccountTable({ accounts, orgFilterOptions }: AccountTableProps) 
                 <td className="p-2">
                   <Link
                     href={`/accounts/${account.employeeId}`}
-                    className="rounded border px-3 py-1"
+                    className="rounded-full border border-primary px-3 py-1 text-brand hover:bg-primary/10"
                   >
                     編集
                   </Link>

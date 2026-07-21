@@ -25,23 +25,30 @@ export default async function LoginPage({
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-6 p-6">
-      <h1 className="text-lg font-semibold">ログイン</h1>
-      {errorMessage ? (
-        <p role="alert" className="w-full max-w-sm text-sm text-red-600">
-          {errorMessage}
-        </p>
-      ) : null}
-      <SsoLoginButtons gitHubEnabled={isGitHubSsoEnabled} />
-      {useDevLogin ? (
-        <section className="flex w-full max-w-sm flex-col gap-3 border-t border-zinc-300 pt-6 dark:border-zinc-700">
-          <h2 className="text-sm font-semibold">開発用ログイン</h2>
-          <p className="text-xs text-zinc-600 dark:text-zinc-400">
-            <span className="block">開発・動作確認専用の仮ログインです。</span>
-            <span className="block">社員IDのみでログインできます。</span>
+      <div className="w-full max-w-sm rounded-2xl border border-surface-border bg-surface p-8 shadow-sm">
+        <div className="mb-6 flex flex-col items-center gap-1 text-center">
+          <span className="text-xs font-medium tracking-widest text-primary-dark">
+            LOGIN
+          </span>
+          <h1 className="text-xl font-semibold text-brand">ログイン</h1>
+        </div>
+        {errorMessage ? (
+          <p role="alert" className="mb-4 rounded-2xl bg-red-50 px-4 py-2 text-sm text-red-600">
+            {errorMessage}
           </p>
-          <LoginForm />
-        </section>
-      ) : null}
+        ) : null}
+        <SsoLoginButtons gitHubEnabled={isGitHubSsoEnabled} />
+        {useDevLogin ? (
+          <section className="mt-6 flex flex-col gap-3 border-t border-surface-border pt-6">
+            <h2 className="text-sm font-semibold text-brand">開発用ログイン</h2>
+            <p className="text-xs text-foreground/60">
+              <span className="block">開発・動作確認専用の仮ログインです。</span>
+              <span className="block">社員IDのみでログインできます。</span>
+            </p>
+            <LoginForm />
+          </section>
+        ) : null}
+      </div>
     </main>
   );
 }

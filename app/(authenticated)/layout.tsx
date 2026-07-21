@@ -36,15 +36,15 @@ export default async function AuthenticatedLayout({
       {/* ヘッダとパンくずはスクロールしても画面上部に固定する(全画面共通)。
           sticky要素は背景が透けると下の内容が重なって見えるため背景色を明示する */}
       <div className="sticky top-0 z-40 bg-[var(--background)] print:hidden">
-        <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b px-6 py-4 text-sm">
+        <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-surface-border bg-surface px-6 py-4 text-sm">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <Link href="/" className="font-semibold">
+            <Link href="/" className="font-semibold text-brand">
               経歴書
             </Link>
             <HeaderNav role={session.user.role} />
           </div>
           <div className="flex items-center gap-3">
-            <span>
+            <span className="rounded-full bg-background px-3 py-1 text-foreground/80">
               {displayName}（{session.user.employeeId} /{" "}
               {roleLabel(session.user.role)}）
             </span>
@@ -56,13 +56,17 @@ export default async function AuthenticatedLayout({
           <Breadcrumbs />
         </Suspense>
       </div>
-      <div className="flex flex-1 flex-col">
-        <div className="px-6 pt-4 print:hidden">
-          <Suspense fallback={null}>
-            <BackLink />
-          </Suspense>
+      {/* 淡緑はキャンバス(ヘッダー・パンくず・この余白部分)にとどめ、本文が乗る
+          コンテンツ領域は白(surface)にして読みやすさを確保する */}
+      <div className="flex flex-1 flex-col px-4 pb-4 sm:px-6 sm:pb-6">
+        <div className="flex flex-1 flex-col rounded-2xl border border-surface-border bg-surface">
+          <div className="px-6 pt-4 print:hidden">
+            <Suspense fallback={null}>
+              <BackLink />
+            </Suspense>
+          </div>
+          {children}
         </div>
-        {children}
       </div>
     </div>
   );
