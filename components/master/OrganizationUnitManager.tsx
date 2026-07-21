@@ -25,7 +25,7 @@ export function OrganizationUnitManager({
 
       <div className="flex flex-col gap-1">
         {tree.length === 0 ? (
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-foreground/60">
             登録済みの組織単位はありません。
           </p>
         ) : (

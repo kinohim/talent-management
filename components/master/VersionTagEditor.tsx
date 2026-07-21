@@ -34,14 +34,14 @@ export function VersionTagEditor({ name, initialValues = [] }: VersionTagEditorP
         {tags.map((tag) => (
           <span
             key={tag}
-            className="flex items-center gap-1 rounded-full border px-3 py-1 text-xs"
+            className="flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs text-brand"
           >
             <input type="hidden" name={name} value={tag} />
             {tag}
             <button
               type="button"
               onClick={() => removeTag(tag)}
-              className="text-zinc-500 hover:text-red-600"
+              className="text-brand/60 hover:text-red-600"
               aria-label={`${tag}を削除`}
             >
               ×
@@ -49,7 +49,7 @@ export function VersionTagEditor({ name, initialValues = [] }: VersionTagEditorP
           </span>
         ))}
         {tags.length === 0 ? (
-          <span className="text-xs text-zinc-500">バージョン管理なし</span>
+          <span className="text-xs text-foreground/60">バージョン管理なし</span>
         ) : null}
       </div>
       <div className="flex gap-2">
@@ -65,12 +65,12 @@ export function VersionTagEditor({ name, initialValues = [] }: VersionTagEditorP
           }}
           placeholder="バージョン名を入力してEnter"
           maxLength={50}
-          className="rounded border px-2 py-1 text-sm"
+          className="rounded-full border border-surface-border px-3 py-1 text-sm"
         />
         <button
           type="button"
           onClick={addTag}
-          className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+          className="rounded-full border border-primary px-3 py-1 text-xs text-brand hover:bg-primary/10"
         >
           追加
         </button>

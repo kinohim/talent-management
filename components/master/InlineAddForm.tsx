@@ -40,12 +40,12 @@ export function InlineAddForm({
           name={name}
           placeholder={placeholder}
           maxLength={maxLength}
-          className="w-64 rounded border px-2 py-1 text-sm"
+          className="w-64 rounded-full border border-surface-border px-3 py-1 text-sm"
         />
         <button
           type="submit"
           disabled={isPending}
-          className="rounded bg-zinc-900 hover:bg-zinc-700 px-3 py-1 text-xs text-white disabled:opacity-50 dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
+          className="rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary-dark disabled:opacity-50"
         >
           {isPending ? "追加中..." : submitLabel}
         </button>

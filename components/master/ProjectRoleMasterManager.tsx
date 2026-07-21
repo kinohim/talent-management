@@ -27,7 +27,7 @@ export function ProjectRoleMasterManager({ roles }: { roles: ProjectRoleMasterRo
 
       <div className="flex flex-col gap-2">
         {sortedRoles.length === 0 ? (
-          <p className="text-sm text-zinc-500">登録済みの役割はありません。</p>
+          <p className="text-sm text-foreground/60">登録済みの役割はありません。</p>
         ) : (
           sortedRoles.map((role) => <ProjectRoleMasterRow key={role.id} role={role} />)
         )}

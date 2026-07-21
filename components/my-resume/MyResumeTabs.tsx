@@ -38,7 +38,7 @@ export function MyResumeTabs({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-end justify-between gap-2 border-b">
+      <div className="flex items-end justify-between gap-2 border-b border-surface-border">
         <div role="tablist" className="flex gap-1">
           {TABS.map(({ key, label }) => (
             <button
@@ -49,8 +49,8 @@ export function MyResumeTabs({
               onClick={() => switchTab(key)}
               className={
                 tab === key
-                  ? "-mb-px rounded-t border border-b-transparent bg-[var(--background)] px-6 py-2 text-sm font-semibold"
-                  : "px-6 py-2 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                  ? "-mb-px rounded-t-2xl border border-b-transparent border-surface-border px-6 py-2 text-sm font-semibold text-brand"
+                  : "px-6 py-2 text-sm text-foreground/50 hover:text-brand"
               }
             >
               {label}

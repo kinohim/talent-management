@@ -44,25 +44,28 @@ export function ProjectRoleMasterRow({ role }: { role: ProjectRoleMasterRole }) 
 
   if (mode === "edit") {
     return (
-      <form action={formAction} className="flex items-center gap-2 rounded border p-3">
+      <form
+        action={formAction}
+        className="flex items-center gap-2 rounded-2xl border border-surface-border p-3"
+      >
         <input
           type="text"
           name="projectRoleName"
           defaultValue={role.projectRoleName}
           maxLength={20}
-          className="rounded border px-2 py-1 text-sm"
+          className="rounded-full border border-surface-border px-3 py-1 text-sm"
         />
         <button
           type="submit"
           disabled={isPending}
-          className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+          className="rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary-dark"
         >
           {isPending ? "保存中..." : "保存"}
         </button>
         <button
           type="button"
           onClick={() => setMode("view")}
-          className="text-xs text-zinc-500"
+          className="text-xs text-foreground/60"
         >
           キャンセル
         </button>
@@ -76,21 +79,21 @@ export function ProjectRoleMasterRow({ role }: { role: ProjectRoleMasterRole }) 
   }
 
   return (
-    <div className="flex flex-col gap-1 rounded border p-3">
+    <div className="flex flex-col gap-1 rounded-2xl border border-surface-border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-sm font-medium">{role.projectRoleName}</span>
         <div className="flex gap-2 text-xs">
           <button
             type="button"
             onClick={() => setMode("edit")}
-            className="rounded border px-2 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-primary px-2 py-1 text-brand hover:bg-primary/10"
           >
             編集
           </button>
           <button
             type="button"
             onClick={() => setShowConfirm(true)}
-            className="rounded border px-2 py-1 text-red-600 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-red-300 px-2 py-1 text-red-600 hover:bg-red-50"
           >
             削除
           </button>

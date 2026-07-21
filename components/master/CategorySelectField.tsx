@@ -25,7 +25,7 @@ export function CategorySelectField({
         name="categoryId"
         value={categoryId}
         onChange={(e) => setCategoryId(e.target.value)}
-        className="rounded border px-2 py-1 text-sm"
+        className="rounded-full border border-surface-border px-3 py-1 text-sm"
       >
         <option value="" disabled>
           カテゴリを選択
@@ -43,7 +43,7 @@ export function CategorySelectField({
           name="newCategoryName"
           placeholder="新規カテゴリ名"
           maxLength={100}
-          className="rounded border px-2 py-1 text-sm"
+          className="rounded-full border border-surface-border px-3 py-1 text-sm"
         />
       ) : null}
     </div>

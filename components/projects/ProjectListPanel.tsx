@@ -16,17 +16,17 @@ export function ProjectListPanel({ projects }: { projects: ProjectListItem[] }) 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold">プロジェクト経歴</h2>
+        <h2 className="text-base font-semibold text-brand">プロジェクト経歴</h2>
         <Link
           href="/projects/new"
-          className="rounded bg-zinc-900 hover:bg-zinc-700 px-4 py-2 text-sm text-white dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
+          className="rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary-dark"
         >
           + 新規追加
         </Link>
       </div>
 
       {projects.length === 0 ? (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-foreground/60">
           登録済みのプロジェクト経歴はありません。「新規追加」から登録してください。
         </p>
       ) : (
@@ -35,14 +35,14 @@ export function ProjectListPanel({ projects }: { projects: ProjectListItem[] }) 
             <li key={project.id}>
               <Link
                 href={`/projects/${project.id}`}
-                className="flex flex-col gap-1 rounded border p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                className="flex flex-col gap-1 rounded-2xl border border-surface-border p-4 hover:border-primary hover:bg-primary/10"
               >
-                <span className="text-sm text-zinc-500">
+                <span className="text-sm text-foreground/60">
                   {toMonthInputValue(project.startDate)} 〜{" "}
                   {project.endDate ? toMonthInputValue(project.endDate) : "現在"}
                 </span>
                 <span className="font-medium">{project.siteName}</span>
-                <span className="text-sm text-zinc-500">
+                <span className="text-sm text-foreground/60">
                   {project.roleNames.join("、")}
                 </span>
               </Link>

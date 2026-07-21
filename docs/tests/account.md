@@ -10,6 +10,7 @@
 | `lib/employee-labels.test.ts` | `lib/employee-labels.ts` | 10 |
 | `lib/employee-name.test.ts` | `lib/employee-name.ts` | 4 |
 | `lib/role-label.test.ts` | `lib/role-label.ts` | 3 |
+| `lib/applied-filter-chips.test.ts`(account分) | `lib/applied-filter-chips.ts` | 4 |
 
 ## deriveAccountStatus
 
@@ -185,3 +186,16 @@
 | 1 | EMPLOYEE は一般社員 | 正常系 |
 | 2 | HR_SALES は人事・営業 | 正常系 |
 | 3 | MANAGER は管理職 | 正常系 |
+
+## buildAccountAppliedFilterChips
+
+対象: `lib/applied-filter-chips.ts` / テスト: `lib/applied-filter-chips.test.ts`
+概要: account-listの検索フォーム条件(列フィルタを除く)から、一覧上部に表示する「適用中の条件」チップ(ラベル・個別解除用のURLパラメータ)を組み立てる純粋関数
+前提: モックなし（純粋関数。マスタ名・ラベルの解決は呼び出し側から渡すlookup関数で行う）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | 条件が何もなければ空配列を返す | 境界値 |
+| 2 | 権限・状態は選択値ごとに個別チップになる | 正常系 |
+| 3 | 列フィルタ(col*)はチップの対象にしない | 異常系 |
+| 4 | 「すべてクリア」対象キーは検索フォームの条件キー一式(列フィルタを含まない) | 正常系 |

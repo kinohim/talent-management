@@ -34,10 +34,10 @@ export function ResumeSearchResultTable({
   certificationFilterOptions,
 }: ResumeSearchResultTableProps) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-2xl border border-surface-border">
       <table className="w-full min-w-max border-collapse text-sm">
         <thead>
-          <tr className="border-b text-left">
+          <tr className="border-b border-surface-border bg-background text-left">
             <DataTableHeaderCell
               label="氏名"
               sortKey="name"
@@ -81,13 +81,13 @@ export function ResumeSearchResultTable({
         <tbody>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={6} className="p-4 text-center text-zinc-500">
+              <td colSpan={6} className="p-4 text-center text-foreground/60">
                 該当する経歴書はありません。
               </td>
             </tr>
           ) : (
             rows.map((row) => (
-              <tr key={row.employeeId} className="border-b">
+              <tr key={row.employeeId} className="border-b border-surface-border">
                 <td className="p-2">{row.name}</td>
                 <td className="p-2">{row.organizationUnitName ?? "未所属"}</td>
                 <td className="p-2">
@@ -100,7 +100,7 @@ export function ResumeSearchResultTable({
                     {row.canViewDetail && (
                       <Link
                         href={`/resumes/${row.employeeId}`}
-                        className="rounded border px-3 py-1"
+                        className="rounded-full border border-primary px-3 py-1 text-brand hover:bg-primary/10"
                       >
                         詳細
                       </Link>
@@ -108,7 +108,7 @@ export function ResumeSearchResultTable({
                     {row.canDownloadPdf && (
                       <Link
                         href={`/resumes/${row.employeeId}/pdf-preview?from=list`}
-                        className="rounded border px-3 py-1"
+                        className="rounded-full border border-primary px-3 py-1 text-brand hover:bg-primary/10"
                       >
                         PDF
                       </Link>

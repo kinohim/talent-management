@@ -55,7 +55,10 @@ export function CertificationMasterRow({
 
   if (mode === "edit") {
     return (
-      <form action={formAction} className="flex flex-col gap-2 rounded border p-3">
+      <form
+        action={formAction}
+        className="flex flex-col gap-2 rounded-2xl border border-surface-border p-3"
+      >
         <CategorySelectField categories={categories} defaultCategoryId={certification.categoryId} />
         <input
           type="text"
@@ -63,7 +66,7 @@ export function CertificationMasterRow({
           defaultValue={certification.certificationName}
           maxLength={100}
           placeholder="資格名"
-          className="rounded border px-2 py-1 text-sm"
+          className="rounded-full border border-surface-border px-3 py-1 text-sm"
         />
         <input
           type="text"
@@ -71,7 +74,7 @@ export function CertificationMasterRow({
           defaultValue={certification.certificationOrganization}
           maxLength={100}
           placeholder="認定団体"
-          className="rounded border px-2 py-1 text-sm"
+          className="rounded-full border border-surface-border px-3 py-1 text-sm"
         />
         {state.error ? (
           <p role="alert" className="text-sm text-red-600">
@@ -82,14 +85,14 @@ export function CertificationMasterRow({
           <button
             type="submit"
             disabled={isPending}
-            className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary-dark"
           >
             {isPending ? "保存中..." : "保存"}
           </button>
           <button
             type="button"
             onClick={() => setMode("view")}
-            className="text-xs text-zinc-500"
+            className="text-xs text-foreground/60"
           >
             キャンセル
           </button>
@@ -99,11 +102,11 @@ export function CertificationMasterRow({
   }
 
   return (
-    <div className="flex flex-col gap-1 rounded border p-3">
+    <div className="flex flex-col gap-1 rounded-2xl border border-surface-border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <span className="text-sm font-medium">{certification.certificationName}</span>
-          <span className="ml-2 text-xs text-zinc-500">
+          <span className="ml-2 text-xs text-foreground/60">
             {certification.certificationOrganization}
           </span>
         </div>
@@ -111,14 +114,14 @@ export function CertificationMasterRow({
           <button
             type="button"
             onClick={() => setMode("edit")}
-            className="rounded border px-2 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-primary px-2 py-1 text-brand hover:bg-primary/10"
           >
             編集
           </button>
           <button
             type="button"
             onClick={() => setShowConfirm(true)}
-            className="rounded border px-2 py-1 text-red-600 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-red-300 px-2 py-1 text-red-600 hover:bg-red-50"
           >
             削除
           </button>

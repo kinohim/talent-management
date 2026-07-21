@@ -55,6 +55,7 @@ export function ConditionTagFilter({
               name={`${label}-mode`}
               checked={mode === "OR"}
               onChange={() => onModeChange("OR")}
+              className="accent-primary"
             />
             いずれか含む(OR)
           </label>
@@ -64,6 +65,7 @@ export function ConditionTagFilter({
               name={`${label}-mode`}
               checked={mode === "AND"}
               onChange={() => onModeChange("AND")}
+              className="accent-primary"
             />
             すべて含む(AND)
           </label>
@@ -74,13 +76,13 @@ export function ConditionTagFilter({
         {selected.map((item) => (
           <span
             key={item.id}
-            className="flex items-center gap-1 rounded-full border px-3 py-1 text-xs"
+            className="flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs text-brand"
           >
             {item.name}
             <button
               type="button"
               onClick={() => remove(item.id)}
-              className="text-zinc-500 hover:text-red-600"
+              className="text-brand/60 hover:text-red-600"
               aria-label={`${item.name}を削除`}
             >
               ×
@@ -102,7 +104,7 @@ export function ConditionTagFilter({
               }
             }}
             placeholder={`${label}を選択`}
-            className="px-2 py-1 text-sm"
+            className="px-3 py-1 text-sm"
           />
         </span>
         <datalist id={datalistId}>
@@ -113,7 +115,7 @@ export function ConditionTagFilter({
         <button
           type="button"
           onClick={addFromInput}
-          className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+          className="rounded-full border border-primary px-3 py-1 text-xs text-brand hover:bg-primary/10"
         >
           追加
         </button>

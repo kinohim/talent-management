@@ -131,14 +131,14 @@ export function AccountFilterForm({
           <div className="flex gap-2">
             <button
               type="submit"
-              className="rounded bg-zinc-900 hover:bg-zinc-700 px-4 py-2 text-sm text-white dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
+              className="rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary-dark"
             >
               検索
             </button>
             <button
               type="button"
               onClick={clearFilters}
-              className="rounded border px-4 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              className="rounded-full border border-primary px-4 py-2 text-sm text-brand hover:bg-primary/10"
             >
               クリア
             </button>

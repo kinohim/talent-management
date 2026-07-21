@@ -54,7 +54,7 @@ export function ClearableInput({
           setHasValue(e.currentTarget.value !== "");
           onChange?.(e);
         }}
-        className={`w-full rounded border ${defaultPx} ${defaultPy} pr-8 ${className}`}
+        className={`w-full rounded-full border border-surface-border ${defaultPx} ${defaultPy} pr-8 ${className}`}
         {...rest}
       />
       {showClear && !rest.disabled && !rest.readOnly ? (
@@ -63,7 +63,7 @@ export function ClearableInput({
           tabIndex={-1}
           aria-label="入力をクリア"
           onClick={clear}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full px-1 text-zinc-400 hover:text-zinc-600"
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full px-1 text-foreground/40 hover:text-foreground/70"
         >
           ×
         </button>

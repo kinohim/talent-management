@@ -59,19 +59,22 @@ export function HeaderNav({ role }: { role: UserRole }) {
   const links = getHeaderNavLinks(role);
 
   return (
-    <nav className="flex flex-wrap items-center gap-4 text-sm">
+    <nav className="flex flex-wrap items-center gap-1 text-sm">
       {links.map((link) =>
         link.children ? (
           <div key={link.key} className="group relative">
-            <Link href={link.href} className="hover:underline">
+            <Link
+              href={link.href}
+              className="rounded-full px-3 py-1.5 text-brand transition hover:bg-primary/10"
+            >
               {link.label}
             </Link>
-            <div className="absolute left-0 top-full z-50 hidden min-w-max flex-col gap-1 rounded-md border bg-[var(--background)] p-2 shadow-md group-focus-within:flex group-hover:flex">
+            <div className="absolute left-0 top-full z-50 hidden min-w-max flex-col gap-1 rounded-2xl border border-surface-border bg-surface p-2 shadow-md group-focus-within:flex group-hover:flex">
               {link.children.map((child) => (
                 <Link
                   key={child.key}
                   href={child.href}
-                  className="rounded px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  className="rounded-full px-3 py-1.5 text-foreground hover:bg-primary/10"
                 >
                   {child.label}
                 </Link>
@@ -79,7 +82,11 @@ export function HeaderNav({ role }: { role: UserRole }) {
             </div>
           </div>
         ) : (
-          <Link key={link.key} href={link.href} className="hover:underline">
+          <Link
+            key={link.key}
+            href={link.href}
+            className="rounded-full px-3 py-1.5 text-brand transition hover:bg-primary/10"
+          >
             {link.label}
           </Link>
         ),

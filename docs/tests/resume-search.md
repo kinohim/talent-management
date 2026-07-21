@@ -7,6 +7,7 @@
 | `lib/resume-search.test.ts` | `lib/resume-search.ts` | 16 |
 | `lib/resume-view.test.ts` | `lib/resume-view.ts` | 8 |
 | `lib/organization-unit.test.ts` | `lib/organization-unit.ts` | 34 |
+| `lib/applied-filter-chips.test.ts`(resume分) | `lib/applied-filter-chips.ts` | 12 |
 
 ## parseResumeSearchFilters
 
@@ -28,6 +29,27 @@
 | 10 | 列フィルタのスキル・資格は id 複数 + AND/OR をパースする(検索フォームと同仕様) | 正常系 |
 | 11 | 列フィルタの所属組織は数値 id と "none"(未所属)を受け付ける | 正常系 |
 | 12 | 列フィルタの経験年数もクランプ・下限 > 上限の入れ替えを行う | 境界値 |
+
+## buildResumeAppliedFilterChips
+
+対象: `lib/applied-filter-chips.ts` / テスト: `lib/applied-filter-chips.test.ts`
+概要: 経歴書一覧の検索フォーム条件(列フィルタを除く)から、一覧上部に表示する「適用中の条件」チップ(ラベル・個別解除用のURLパラメータ)を組み立てる純粋関数
+前提: モックなし（純粋関数。マスタ名の解決は呼び出し側から渡すlookup関数で行う）
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | 条件が何もなければ空配列を返す | 境界値 |
+| 2 | 氏名カナ条件は1チップ(解除でnameキーを削除) | 正常系 |
+| 3 | 経験年数は下限・上限とも指定なら範囲表示になる | 正常系 |
+| 4 | 経験年数は下限のみなら「以上」表示になる | 正常系 |
+| 5 | 経験年数は上限のみなら「以下」表示になる | 正常系 |
+| 6 | 所属組織は選択件数分のチップになり、解除は該当idのみをorgUnitIdから外す | 正常系 |
+| 7 | マスタに存在しないidはid自体を表示にフォールバックする | 異常系 |
+| 8 | スキル・資格はそれぞれ個別チップになる | 正常系 |
+| 9 | 現場条件は単一チップになる | 正常系 |
+| 10 | 退職者を含めるはチップになり、解除でincludeRetiredを削除する | 正常系 |
+| 11 | 列フィルタ(col*)はチップの対象にしない | 異常系 |
+| 12 | 「すべてクリア」対象キーは検索フォームの条件キー一式(列フィルタを含まない) | 正常系 |
 
 ## buildResumeOrderBy
 

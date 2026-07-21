@@ -9,6 +9,8 @@ type PaginationControlsProps = {
   pageCount: number;
   totalCount: number;
   pageSize: number;
+  // 検索条件を適用しない場合の母数(例:「検索結果 8件 / 全24件」の「全24件」)
+  baselineTotalCount: number;
 };
 
 // 表示するページ番号のリスト(現在±1と先頭・末尾。飛びは"…"で表す)。
@@ -34,6 +36,7 @@ export function PaginationControls({
   pageCount,
   totalCount,
   pageSize,
+  baselineTotalCount,
 }: PaginationControlsProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -65,7 +68,10 @@ export function PaginationControls({
 
   return (
     <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-sm">
-      <span className="text-zinc-500">全{totalCount}件</span>
+      <span className="font-medium text-brand">
+        検索結果 <span className="text-base font-semibold">{totalCount}</span>
+        件 / 全{baselineTotalCount}件
+      </span>
 
       {pageCount > 1 ? (
         <nav aria-label="ページ送り" className="flex items-center gap-1">
@@ -73,13 +79,13 @@ export function PaginationControls({
             type="button"
             onClick={() => goToPage(page - 1)}
             disabled={page <= 1}
-            className="rounded border px-2 py-1 disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-surface-border px-3 py-1 disabled:opacity-40 hover:bg-primary/10"
           >
             前へ
           </button>
           {pageNumbers(page, pageCount).map((n, i) =>
             n === "..." ? (
-              <span key={`ellipsis-${i}`} className="px-1 text-zinc-400">
+              <span key={`ellipsis-${i}`} className="px-1 text-foreground/40">
                 …
               </span>
             ) : (
@@ -90,8 +96,8 @@ export function PaginationControls({
                 aria-current={n === page ? "page" : undefined}
                 className={
                   n === page
-                    ? "rounded border border-zinc-900 bg-zinc-900 px-2.5 py-1 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
-                    : "rounded border px-2.5 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    ? "rounded-full border border-primary bg-primary px-3 py-1 text-primary-foreground"
+                    : "rounded-full border border-surface-border px-3 py-1 hover:bg-primary/10"
                 }
               >
                 {n}
@@ -102,7 +108,7 @@ export function PaginationControls({
             type="button"
             onClick={() => goToPage(page + 1)}
             disabled={page >= pageCount}
-            className="rounded border px-2 py-1 disabled:opacity-40 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-surface-border px-3 py-1 disabled:opacity-40 hover:bg-primary/10"
           >
             次へ
           </button>
@@ -110,11 +116,11 @@ export function PaginationControls({
       ) : null}
 
       <label className="flex items-center gap-1">
-        <span className="text-zinc-500">表示件数</span>
+        <span className="text-foreground/60">表示件数</span>
         <select
           value={String(pageSize)}
           onChange={(e) => changePageSize(e.target.value)}
-          className="rounded border px-2 py-1"
+          className="rounded-full border border-surface-border px-3 py-1"
         >
           {PAGE_SIZES.map((size) => (
             <option key={size} value={size}>

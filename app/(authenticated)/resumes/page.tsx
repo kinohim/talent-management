@@ -5,8 +5,14 @@ import {
   ResumeSearchResultTable,
   type ResumeSearchResultRow,
 } from "@/components/resumes/ResumeSearchResultTable";
+import { AppliedFilterChips } from "@/components/ui/AppliedFilterChips";
 import { PaginationControls } from "@/components/ui/PaginationControls";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { EmploymentStatus, Prisma, UserRole } from "@/generated/prisma/client";
+import {
+  RESUME_APPLIED_FILTER_CLEAR_KEYS,
+  buildResumeAppliedFilterChips,
+} from "@/lib/applied-filter-chips";
 import { auth } from "@/lib/auth";
 import { resolveDestination } from "@/lib/auth-routing";
 import { clampPage, parsePagination, parseSort } from "@/lib/list-query";
@@ -193,7 +199,12 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
 
   const where: Prisma.EmployeeWhereInput = { AND: conditions };
 
-  const totalCount = await prisma.employee.count({ where });
+  // 「検索結果◯件/全◯件」の母数(全◯件)は検索条件を適用しない全体件数
+  // (登録済み・未削除の全社員。退職者を含む)
+  const [totalCount, baselineTotalCount] = await Promise.all([
+    prisma.employee.count({ where }),
+    prisma.employee.count({ where: { deletedAt: null, isRegistered: true } }),
+  ]);
   const { page, skip, pageCount } = clampPage(
     pagination.page,
     totalCount,
@@ -264,9 +275,24 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
     { value: "none", label: "未所属" },
   ];
 
+  // 適用中の検索条件チップ(一覧の上に表示。個別✕解除/一括クリア用)。
+  // 検索フォーム本体の条件のみを対象とし、列フィルタ(col*)は含めない。
+  const skillNameById = new Map(skillOptions.skills.map((s) => [s.id, s.skillName]));
+  const certificationNameById = new Map(
+    certificationOptions.certifications.map((c) => [c.id, c.certificationName]),
+  );
+  const siteNameById = new Map(siteOptions.map((s) => [s.id, s.siteName]));
+
+  const appliedChips = buildResumeAppliedFilterChips(filters, {
+    orgUnitName: (id) => orgUnitById.get(id)?.unitName,
+    skillName: (id) => skillNameById.get(id),
+    certificationName: (id) => certificationNameById.get(id),
+    siteName: (id) => siteNameById.get(id),
+  });
+
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
-      <h1 className="text-lg font-semibold">経歴書一覧</h1>
+      <SectionHeading as="h1" eyebrow="RESUMES" title="経歴書一覧" />
 
       <ResumeFilterForm
         orgTree={orgTree}
@@ -288,11 +314,14 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
         initialIncludeRetired={filters.includeRetired}
       />
 
+      <AppliedFilterChips chips={appliedChips} clearKeys={RESUME_APPLIED_FILTER_CLEAR_KEYS} />
+
       <div className="flex flex-col gap-2">
         <PaginationControls
           page={page}
           pageCount={pageCount}
           totalCount={totalCount}
+          baselineTotalCount={baselineTotalCount}
           pageSize={pagination.pageSize}
         />
         <ResumeSearchResultTable

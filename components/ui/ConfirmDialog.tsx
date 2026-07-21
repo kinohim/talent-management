@@ -25,13 +25,13 @@ export function ConfirmDialog({
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
     >
-      <div className="w-full max-w-sm rounded bg-white p-6 shadow-lg dark:bg-zinc-900">
+      <div className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-lg">
         <p className="text-sm">{message}</p>
         <div className="mt-6 flex justify-end gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="rounded border px-4 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-surface-border px-4 py-2 text-sm hover:bg-primary/10"
           >
             {cancelLabel}
           </button>
@@ -39,7 +39,7 @@ export function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={isPending}
-            className="rounded bg-red-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+            className="rounded-full bg-red-600 px-4 py-2 text-sm text-white disabled:opacity-50"
           >
             {isPending ? "処理中..." : confirmLabel}
           </button>

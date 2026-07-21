@@ -29,7 +29,7 @@ function SiteAddForm({ departments }: { departments: SiteDepartmentOption[] }) {
     <form
       key={resetKey}
       action={formAction}
-      className="flex flex-col gap-2 rounded border p-3"
+      className="flex flex-col gap-2 rounded-2xl border border-surface-border p-3"
     >
       <div className="flex flex-wrap items-center gap-2">
         <span className="inline-flex w-64">
@@ -37,14 +37,14 @@ function SiteAddForm({ departments }: { departments: SiteDepartmentOption[] }) {
             name="siteName"
             placeholder="現場名"
             maxLength={100}
-            className="h-8 px-2 py-1 text-sm"
+            className="h-8 px-3 py-1 text-sm"
           />
         </span>
         <select
           name="organizationUnitId"
           aria-label="主管部署"
           defaultValue=""
-          className="h-8 rounded border px-2 py-1 text-sm"
+          className="h-8 rounded-full border border-surface-border px-3 py-1 text-sm"
         >
           <option value="">主管部署なし</option>
           {departments.map((d) => (
@@ -56,7 +56,7 @@ function SiteAddForm({ departments }: { departments: SiteDepartmentOption[] }) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+          className="rounded-full border border-primary px-3 py-1 text-xs text-brand hover:bg-primary/10"
         >
           {isPending ? "追加中..." : "現場を追加"}
         </button>
@@ -114,7 +114,7 @@ export function SiteMasterManager({
           <select
             value={departmentFilter}
             onChange={(e) => setDepartmentFilter(e.target.value)}
-            className="rounded border px-2 py-2 text-sm"
+            className="rounded-full border border-surface-border px-3 py-2 text-sm"
           >
             <option value="">すべて</option>
             <option value="none">主管部署なし</option>
@@ -129,7 +129,7 @@ export function SiteMasterManager({
 
       <div className="flex flex-col gap-2">
         {sortedSites.length === 0 ? (
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-foreground/60">
             {normalizedFilter || departmentFilter
               ? "絞り込みに一致する現場はありません。"
               : "登録済みの現場はありません。"}

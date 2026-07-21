@@ -34,7 +34,7 @@ export function PillMultiSelect({
       {options.map((option) => (
         <label
           key={option.value}
-          className="cursor-pointer rounded-full border px-4 py-1 text-sm has-[:checked]:border-zinc-900 has-[:checked]:bg-zinc-900 has-[:checked]:text-white dark:has-[:checked]:border-zinc-100 dark:has-[:checked]:bg-zinc-100 dark:has-[:checked]:text-zinc-900"
+          className="cursor-pointer rounded-full border border-surface-border px-4 py-1 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground"
         >
           <input
             type="checkbox"
