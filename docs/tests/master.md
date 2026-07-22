@@ -9,7 +9,7 @@
 | `lib/certification-master.test.ts` | `lib/certification-master.ts` | 2 |
 | `lib/certification-master-schema.test.ts` | `lib/certification-master-schema.ts` | 11 |
 | `lib/site-master.test.ts` | `lib/site-master.ts` | 3 |
-| `lib/site-master-schema.test.ts` | `lib/site-master-schema.ts` | 8 |
+| `lib/site-master-schema.test.ts` | `lib/site-master-schema.ts` | 16 |
 | `lib/project-role-master.test.ts` | `lib/project-role-master.ts` | 3 |
 | `lib/project-role-master-schema.test.ts` | `lib/project-role-master-schema.ts` | 6 |
 | `lib/organization-unit-schema.test.ts` | `lib/organization-unit-schema.ts` | 6 |
@@ -138,7 +138,7 @@
 ## parseSiteMasterForm
 
 対象: `lib/site-master-schema.ts` / テスト: `lib/site-master-schema.test.ts`
-概要: 現場マスタ登録・編集フォームの現場名と主管部署（任意）を検証する
+概要: 現場マスタ登録・編集フォームの現場名・主管部署（任意）・最寄駅（都道府県・路線名・駅名、任意）を検証する
 前提: モックなし（純粋関数）
 
 | No | 確認観点 | 分類 |
@@ -151,6 +151,14 @@
 | 6 | 未入力（フィールド自体が無い）はエラー | 境界値 |
 | 7 | 100文字ちょうどは許可 | 境界値 |
 | 8 | 101文字はエラー | 境界値 |
+| 9 | 最寄駅（路線名・駅名）が未入力でも成功する（それぞれ undefined） | 正常系 |
+| 10 | 最寄駅（路線名・駅名）の前後の空白は trim される | 正常系 |
+| 11 | 最寄駅（路線名・駅名）は100文字ちょうどまで許可 | 境界値 |
+| 12 | 最寄駅（路線名・駅名）の101文字はエラー | 境界値 |
+| 13 | 最寄駅（路線名・駅名）が空文字で送信された場合(未選択のselect)もundefinedとして扱う | 境界値 |
+| 14 | 都道府県が未入力でも成功する(undefined) | 正常系 |
+| 15 | 都道府県はPREFECTURES(47都道府県)に含まれる値のみ許可し、それ以外はエラー | 異常系 |
+| 16 | 都道府県が空文字で送信された場合(未選択のselect)もundefinedとして扱う | 境界値 |
 
 ## getProjectRoleDeleteBlockReason
 

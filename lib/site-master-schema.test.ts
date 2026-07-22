@@ -5,11 +5,21 @@ import { parseSiteMasterForm } from "./site-master-schema";
 function formDataWith(
   siteName: string | null,
   organizationUnitId?: string,
+  nearestStation?: { prefecture?: string; line?: string; name?: string },
 ): FormData {
   const formData = new FormData();
   if (siteName !== null) formData.set("siteName", siteName);
   if (organizationUnitId !== undefined) {
     formData.set("organizationUnitId", organizationUnitId);
+  }
+  if (nearestStation?.prefecture !== undefined) {
+    formData.set("nearestStationPrefecture", nearestStation.prefecture);
+  }
+  if (nearestStation?.line !== undefined) {
+    formData.set("nearestStationLine", nearestStation.line);
+  }
+  if (nearestStation?.name !== undefined) {
+    formData.set("nearestStationName", nearestStation.name);
   }
   return formData;
 }
@@ -64,5 +74,97 @@ describe("parseSiteMasterForm", () => {
 
   it("101文字はエラー", () => {
     expect(parseSiteMasterForm(formDataWith("あ".repeat(101))).success).toBe(false);
+  });
+
+  it("最寄駅(路線名・駅名)が未入力でも成功する", () => {
+    const result = parseSiteMasterForm(formDataWith("D社"));
+    expect(result).toEqual({
+      success: true,
+      siteName: "D社",
+      organizationUnitId: null,
+      nearestStationLine: undefined,
+      nearestStationName: undefined,
+    });
+  });
+
+  it("最寄駅(路線名・駅名)の前後の空白はtrimされる", () => {
+    const result = parseSiteMasterForm(
+      formDataWith("D社", undefined, { line: "  JR山手線  ", name: "  渋谷駅  " }),
+    );
+    expect(result).toEqual({
+      success: true,
+      siteName: "D社",
+      organizationUnitId: null,
+      nearestStationLine: "JR山手線",
+      nearestStationName: "渋谷駅",
+    });
+  });
+
+  it("最寄駅(路線名・駅名)は100文字ちょうどまで許可", () => {
+    const result = parseSiteMasterForm(
+      formDataWith("D社", undefined, { line: "あ".repeat(100), name: "あ".repeat(100) }),
+    );
+    expect(result.success).toBe(true);
+  });
+
+  it("最寄駅(路線名・駅名)の101文字はエラー", () => {
+    expect(
+      parseSiteMasterForm(formDataWith("D社", undefined, { line: "あ".repeat(101) })).success,
+    ).toBe(false);
+    expect(
+      parseSiteMasterForm(formDataWith("D社", undefined, { name: "あ".repeat(101) })).success,
+    ).toBe(false);
+  });
+
+  it("最寄駅(路線名・駅名)が空文字で送信された場合(未選択のselect)もundefinedとして扱う", () => {
+    // NearestStationSelectは未選択でもname属性付きのselect/hidden inputを常に送信するため、
+    // フィールド自体が無い場合とは別に「値が空文字」のケースも検証する
+    const result = parseSiteMasterForm(
+      formDataWith("D社", undefined, { line: "", name: "" }),
+    );
+    expect(result).toEqual({
+      success: true,
+      siteName: "D社",
+      organizationUnitId: null,
+      nearestStationLine: undefined,
+      nearestStationName: undefined,
+    });
+  });
+
+  it("都道府県が未入力でも成功する(undefined)", () => {
+    const result = parseSiteMasterForm(formDataWith("D社"));
+    expect(result).toEqual({
+      success: true,
+      siteName: "D社",
+      organizationUnitId: null,
+      nearestStationPrefecture: undefined,
+      nearestStationLine: undefined,
+      nearestStationName: undefined,
+    });
+  });
+
+  it("都道府県はPREFECTURES(47都道府県)に含まれる値のみ許可し、それ以外はエラー", () => {
+    expect(
+      parseSiteMasterForm(formDataWith("D社", undefined, { prefecture: "東京都" }))
+        .success,
+    ).toBe(true);
+    expect(
+      parseSiteMasterForm(formDataWith("D社", undefined, { prefecture: "東京府" }))
+        .success,
+    ).toBe(false);
+  });
+
+  it("都道府県が空文字で送信された場合(未選択のselect)もundefinedとして扱う", () => {
+    const result = parseSiteMasterForm(
+      formDataWith("D社", undefined, { prefecture: "" }),
+    );
+    expect(result).toEqual({
+      success: true,
+      siteName: "D社",
+      organizationUnitId: null,
+      nearestStationPrefecture: undefined,
+      nearestStationLine: undefined,
+      nearestStationName: undefined,
+    });
   });
 });

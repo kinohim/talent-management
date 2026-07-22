@@ -79,6 +79,7 @@ export async function saveBasicInfo(
         birthDate: parseDateOnly(parsed.data.birthDate),
         gender: parsed.data.gender ?? null,
         organizationUnitId,
+        nearestStationPrefecture: parsed.data.nearestStationPrefecture ?? null,
         nearestStationLine: parsed.data.nearestStationLine ?? null,
         nearestStationName: parsed.data.nearestStationName ?? null,
         finalSchoolType: parsed.data.finalSchoolType ?? null,

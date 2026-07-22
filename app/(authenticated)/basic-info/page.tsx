@@ -43,6 +43,7 @@ export default async function BasicInfoRegisterPage() {
           nameKana: employee.nameKana ?? "",
           birthDate: toDateInputValue(employee.birthDate),
           gender: employee.gender,
+          nearestStationPrefecture: employee.nearestStationPrefecture ?? "",
           nearestStationLine: employee.nearestStationLine ?? "",
           nearestStationName: employee.nearestStationName ?? "",
           finalSchoolType: employee.finalSchoolType,

@@ -24,6 +24,7 @@ describe("getHeaderNavLinks", () => {
       "skill-map",
       "master",
       "account-list",
+      "site-search",
     ]);
   });
 

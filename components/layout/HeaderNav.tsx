@@ -49,6 +49,12 @@ const NAV_LINK_DEFS: NavLinkDef[] = [
     href: "/accounts",
     roles: [UserRole.MANAGER],
   },
+  {
+    key: "site-search",
+    label: "現場/参画者一覧",
+    href: "/site-search",
+    roles: [UserRole.MANAGER],
+  },
 ];
 
 export function getHeaderNavLinks(role: UserRole) {
