@@ -66,7 +66,9 @@ export function CascadingOrganizationUnitFilter({
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-1">
-      <div className="flex max-h-48 flex-col overflow-y-auto rounded-2xl border border-surface-border p-2">
+      {/* 高さを固定し(展開前後で伸縮させない)、配下展開時は内部だけスクロール
+          させる。検索条件エリア全体の外枠サイズを一定に保つため */}
+      <div className="flex h-40 flex-col overflow-y-auto rounded-2xl border border-surface-border p-2">
         {tree.length === 0 ? (
           <p className="text-sm text-foreground/60">組織単位が登録されていません。</p>
         ) : (

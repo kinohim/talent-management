@@ -24,7 +24,7 @@ export function LoginForm() {
           type="text"
           required
           autoComplete="off"
-          className="rounded-full border border-surface-border px-4 py-2"
+          className="rounded-full border border-surface-border px-4 py-3 text-base"
         />
       </div>
       {state.error ? (
@@ -35,7 +35,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-full bg-primary px-4 py-2 text-primary-foreground hover:bg-primary-dark disabled:opacity-50"
+        className="rounded-full bg-primary px-6 py-3 text-base text-primary-foreground hover:bg-primary-dark disabled:opacity-50"
       >
         {isPending ? "ログイン中..." : "ログイン"}
       </button>

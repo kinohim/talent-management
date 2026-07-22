@@ -105,7 +105,7 @@ export function SiteMasterManager({
     );
 
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div className="flex max-w-5xl flex-col gap-6">
       <SiteAddForm departments={departments} />
 
       <div className="flex flex-wrap items-end gap-4">

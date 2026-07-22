@@ -192,7 +192,7 @@ export function CertificationMasterManager({
     );
 
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div className="flex max-w-5xl flex-col gap-6">
       {/* カテゴリの追加フィールドは最上部に常時表示。資格自体の追加は
           各カテゴリ見出しの[+ 追加]から行う */}
       <InlineAddForm

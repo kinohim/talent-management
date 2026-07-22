@@ -106,7 +106,7 @@ export function NearestStationSelect({
             name={namePrefecture}
             value={prefecture}
             onChange={(e) => handlePrefectureChange(e.target.value)}
-            className="h-[42px] w-40 rounded border px-3 py-2"
+            className="h-[42px] w-full rounded border px-3 py-2"
           >
             <option value="">都道府県を選択</option>
             {PREFECTURES.map((p) => (
@@ -127,7 +127,7 @@ export function NearestStationSelect({
             aria-labelledby={`${nameName}-line-label`}
             disabled={lines.length === 0}
             onClick={() => setIsLineOpen((open) => !open)}
-            className="flex h-[42px] w-40 items-center justify-between rounded border px-3 py-2 text-left text-sm disabled:opacity-50"
+            className="flex h-[42px] w-full items-center justify-between rounded border px-3 py-2 text-left text-sm disabled:opacity-50"
           >
             <span className={`truncate ${line ? "" : "text-foreground/40"}`}>
               {line || "路線を選択"}
@@ -220,7 +220,7 @@ export function NearestStationSelect({
             value={station}
             onChange={(e) => setStation(e.target.value)}
             disabled={stations.length === 0}
-            className="h-[42px] w-40 rounded border px-3 py-2 disabled:opacity-50"
+            className="h-[42px] w-full rounded border px-3 py-2 disabled:opacity-50"
           >
             <option value="">駅を選択</option>
             {stations.map((s) => (

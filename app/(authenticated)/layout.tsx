@@ -8,6 +8,7 @@ import { BackLink } from "@/components/layout/BackLink";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { HeaderNav } from "@/components/layout/HeaderNav";
 import { ListQueryRecorder } from "@/components/layout/ListQueryRecorder";
+import { PageShell } from "@/components/layout/PageShell";
 import { auth } from "@/lib/auth";
 import { displayNameForEmployee } from "@/lib/employee-name";
 import { roleLabel } from "@/lib/role-label";
@@ -44,7 +45,7 @@ export default async function AuthenticatedLayout({
             <HeaderNav role={session.user.role} />
           </div>
           <div className="flex items-center gap-3">
-            <span className="rounded-full bg-background px-3 py-1 text-foreground/80">
+            <span className="rounded-full bg-background px-3.5 py-1.5 text-foreground/80">
               {displayName}（{session.user.employeeId} /{" "}
               {roleLabel(session.user.role)}）
             </span>
@@ -59,14 +60,14 @@ export default async function AuthenticatedLayout({
       {/* 淡緑はキャンバス(ヘッダー・パンくず・この余白部分)にとどめ、本文が乗る
           コンテンツ領域は白(surface)にして読みやすさを確保する */}
       <div className="flex flex-1 flex-col px-4 pb-4 sm:px-6 sm:pb-6">
-        <div className="flex flex-1 flex-col rounded-2xl border border-surface-border bg-surface">
+        <PageShell>
           <div className="px-6 pt-4 print:hidden">
             <Suspense fallback={null}>
               <BackLink />
             </Suspense>
           </div>
           {children}
-        </div>
+        </PageShell>
       </div>
     </div>
   );

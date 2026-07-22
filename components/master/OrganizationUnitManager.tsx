@@ -13,7 +13,7 @@ export function OrganizationUnitManager({
   tree: OrganizationUnitNode[];
 }) {
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div className="flex max-w-5xl flex-col gap-6">
       {/* 事業部の追加フィールドは最上部に常時表示(「配下に追加」と同じ
           コンパクトな1行形) */}
       <InlineAddForm

@@ -35,17 +35,20 @@ function PendingButton({
     <button
       type="button"
       disabled
-      className={`flex cursor-not-allowed items-center justify-center gap-2 rounded-full border px-4 py-2 opacity-70 ${className}`}
+      className={`flex cursor-not-allowed items-center justify-center gap-2 whitespace-nowrap rounded-full border px-6 py-3 text-base opacity-70 ${className}`}
     >
       <PendingIcon />
-      <span>{label}(準備中)</span>
+      <span className="whitespace-nowrap">{label}</span>
+      <span className="whitespace-nowrap text-xs font-normal text-foreground/50">
+        (準備中)
+      </span>
     </button>
   );
 }
 
 export function SsoLoginButtons({ gitHubEnabled }: { gitHubEnabled: boolean }) {
   return (
-    <div className="flex w-full flex-col gap-3">
+    <div className="flex w-full flex-col gap-4">
       {/* Microsoft: ブランドブルー #0078D4 */}
       <PendingButton
         label="Microsoftアカウントでログイン"
@@ -61,7 +64,7 @@ export function SsoLoginButtons({ gitHubEnabled }: { gitHubEnabled: boolean }) {
         <form action={githubLoginAction} className="flex flex-col">
           <button
             type="submit"
-            className="rounded-full bg-[#24292F] px-4 py-2 text-white hover:bg-[#32383f]"
+            className="whitespace-nowrap rounded-full bg-[#24292F] px-6 py-3 text-base text-white hover:bg-[#32383f]"
           >
             GitHubアカウントでログイン
           </button>
