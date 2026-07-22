@@ -61,7 +61,7 @@ export default async function SiteSearchPage({
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
-      <SectionHeading as="h1" eyebrow="SITE SEARCH" title="現場/参画者一覧" />
+      <SectionHeading as="h1" eyebrow="STATION MAP" title="現場/社員最寄駅マップ" />
       <p className="text-sm text-foreground/60">
         現場を選択すると、最寄駅の近隣に住む社員・同じ路線に住む社員を地図で確認できます。
       </p>

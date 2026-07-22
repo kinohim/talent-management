@@ -1,6 +1,6 @@
-# 現場/参画者一覧（近隣検索） テスト仕様
+# 現場/社員最寄駅マップ（近隣検索） テスト仕様
 
-現場/参画者一覧（site-search）画面を支える近隣検索ロジック（`lib/site-nearby-search.ts`）を対象としたユニットテスト。HeartRails Express APIによる駅座標の取得は`lib/heartrails.ts`側でテスト済みのため、本ファイルでは`vi.mock`で差し替える。
+現場/社員最寄駅マップ（site-search）画面を支える近隣検索ロジック（`lib/site-nearby-search.ts`）を対象としたユニットテスト。HeartRails Express APIによる駅座標の取得は`lib/heartrails.ts`側でテスト済みのため、本ファイルでは`vi.mock`で差し替える。
 
 | テストファイル | 対象ソース | ケース数 |
 |---|---|---|

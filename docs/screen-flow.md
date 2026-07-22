@@ -49,7 +49,7 @@ flowchart TD
         masterprojectroles[master-project-roles 現場ポジションマスタ]
         masterorgunits[master-org-units 部署マスタ]
         mastersites[master-sites 現場マスタ]
-        sitesearch[site-search 現場/参画者一覧]
+        sitesearch[site-search 現場/社員最寄駅マップ]
     end
 
     %% ---- 認証・初回ログイン（ロール別分岐） ----
@@ -65,7 +65,7 @@ flowchart TD
     home -->|"スキルマップ（全ロール共通）"| skillmap
     home -->|"アカウント管理（管理職）"| accountlist
     home -->|"マスタ管理（管理職）"| masterhome
-    home -->|"現場/参画者一覧（管理職）"| sitesearch
+    home -->|"現場/社員最寄駅マップ（管理職）"| sitesearch
     masterhome --> masterskills
     masterhome --> mastercertifications
     masterhome --> masterprojectroles

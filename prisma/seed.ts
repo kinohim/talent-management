@@ -264,7 +264,7 @@ type NearestStation = {
   name: string;
 };
 
-// site-search(現場/参画者一覧)の動作確認用に、実在しHeartRails Express APIで
+// site-search(現場/社員最寄駅マップ)の動作確認用に、実在しHeartRails Express APIで
 // 座標解決できる駅を設定する。A社基幹システム更改(上野)をメインの確認対象とし、
 // employeeSeedsのnearestStation設定と合わせて近隣・同一路線・非該当のパターンを作る
 const siteDefs: {
@@ -392,7 +392,7 @@ type EmployeeSeed = {
   orgKey: string | null;
   email: string;
   bucket: ResumeBucket;
-  // basic-info/mypageの最寄駅表示・site-search(現場/参画者一覧)の近隣検索確認用。
+  // basic-info/mypageの最寄駅表示・site-search(現場/社員最寄駅マップ)の近隣検索確認用。
   // A社基幹システム更改(上野・JR山手線)を基準に、以下のパターンを作る:
   // - 000010: 近隣のみ・別路線(西新宿駅・東京メトロ丸ノ内線)
   // - 000011: 同一路線のみ・遠方(田端駅)
@@ -1210,7 +1210,7 @@ async function assignExternalProjectSample(
   await recalculateExperienceMonths(prisma, employeeId);
 }
 
-// site-search(現場/参画者一覧)の「現在参画中」枠(currentParticipants)確認用に、
+// site-search(現場/社員最寄駅マップ)の「現在参画中」枠(currentParticipants)確認用に、
 // A社基幹システム更改(siteIds[0]・上野)への現在進行中プロジェクト(endDate=null)を
 // 明示的に付与する。
 // - 000023: 最寄駅が近隣・同一路線いずれにも一致しない社員(候補社員一覧には出ない)。
