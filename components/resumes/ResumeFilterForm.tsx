@@ -15,6 +15,10 @@ import {
   notifySearchExecuted,
 } from "@/components/ui/CollapsibleSearchCard";
 import { LoadingOverlay } from "@/components/ui/LoadingOverlay";
+import {
+  SearchFilterField,
+  SearchFilterGrid,
+} from "@/components/ui/SearchFilterGrid";
 import type { OrganizationUnitNode } from "@/lib/organization-unit-tree";
 import type { MatchMode } from "@/lib/resume-search";
 
@@ -58,7 +62,7 @@ function SingleSiteSelect({
           const id = Number(e.target.value);
           onChange(options.find((option) => option.id === id) ?? null);
         }}
-        className="max-w-64 rounded-full border border-surface-border px-3 py-1.5 text-sm"
+        className="w-full rounded-full border border-surface-border px-3 py-1.5 text-sm"
       >
         <option value="">指定なし</option>
         {options.map((option) => (
@@ -162,88 +166,82 @@ export function ResumeFilterForm({
   }
 
   // 項目順: 氏名カナ→経験年数→所属組織→スキル→資格→携わったプロジェクト→
-  // 退職者を含める→検索/クリア(docs/screens.md resume-list)
+  // 退職者を含める→検索/クリア(docs/screens.md resume-list)。全項目を
+  // SearchFilterGridの4列グリッドに並べる(account-listと共通のレイアウト)。
   // ローディングはカードの外に置く(検索後に閉じる=ONだと検索直後にカードの
   // 中身がhiddenになり、内側に置くとオーバーレイごと消えてしまうため)
   return (
     <>
       <LoadingOverlay show={isSearching} />
       <CollapsibleSearchCard storageKey="/resumes">
-        <form onSubmit={applyFilters} className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2 xl:grid-cols-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium">氏名カナ</label>
-              <ClearableInput
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={50}
-                placeholder="氏名・カナで検索"
-                className="max-w-64 text-sm"
+        <SearchFilterGrid onSubmit={applyFilters} onClear={clearFilters}>
+          <SearchFilterField label="氏名カナ">
+            <ClearableInput
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={50}
+              placeholder="氏名・カナで検索"
+              className="w-full text-sm"
+            />
+          </SearchFilterField>
+
+          <SearchFilterField label="経験年数">
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min={0}
+                max={99}
+                value={experienceMin}
+                onChange={(e) => setExperienceMin(e.target.value)}
+                className="w-20 rounded-full border border-surface-border px-3 py-1 text-sm"
               />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-medium">経験年数</span>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min={0}
-                  max={99}
-                  value={experienceMin}
-                  onChange={(e) => setExperienceMin(e.target.value)}
-                  className="w-20 rounded-full border border-surface-border px-3 py-1 text-sm"
-                />
-                <span className="text-sm">〜</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={99}
-                  value={experienceMax}
-                  onChange={(e) => setExperienceMax(e.target.value)}
-                  className="w-20 rounded-full border border-surface-border px-3 py-1 text-sm"
-                />
-                <span className="text-sm">年</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-medium">所属組織</span>
-              <CascadingOrganizationUnitFilter
-                tree={orgTree}
-                values={orgUnitIds}
-                onChange={setOrgUnitIds}
+              <span className="text-sm">〜</span>
+              <input
+                type="number"
+                min={0}
+                max={99}
+                value={experienceMax}
+                onChange={(e) => setExperienceMax(e.target.value)}
+                className="w-20 rounded-full border border-surface-border px-3 py-1 text-sm"
               />
+              <span className="text-sm">年</span>
             </div>
-          </div>
+          </SearchFilterField>
 
-          <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
-            <ConditionTagFilter
-              label="スキル条件"
-              options={skillOptions}
-              selected={skills}
-              onSelectedChange={setSkills}
-              mode={skillMode}
-              onModeChange={setSkillMode}
+          <SearchFilterField label="所属組織">
+            <CascadingOrganizationUnitFilter
+              tree={orgTree}
+              values={orgUnitIds}
+              onChange={setOrgUnitIds}
             />
+          </SearchFilterField>
 
-            <ConditionTagFilter
-              label="取得資格条件"
-              options={certificationOptions}
-              selected={certifications}
-              onSelectedChange={setCertifications}
-              mode={certificationMode}
-              onModeChange={setCertificationMode}
-            />
-          </div>
+          <ConditionTagFilter
+            label="スキル条件"
+            options={skillOptions}
+            selected={skills}
+            onSelectedChange={setSkills}
+            mode={skillMode}
+            onModeChange={setSkillMode}
+          />
 
-          <div className="grid grid-cols-1 items-start gap-x-8 gap-y-4 md:grid-cols-2 xl:grid-cols-3">
-            <SingleSiteSelect
-              options={siteOptions}
-              selected={site}
-              onChange={setSite}
-            />
+          <ConditionTagFilter
+            label="取得資格条件"
+            options={certificationOptions}
+            selected={certifications}
+            onSelectedChange={setCertifications}
+            mode={certificationMode}
+            onModeChange={setCertificationMode}
+          />
 
-            <label className="flex items-center gap-2 self-center text-sm">
+          <SingleSiteSelect
+            options={siteOptions}
+            selected={site}
+            onChange={setSite}
+          />
+
+          <SearchFilterField>
+            <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
                 checked={includeRetired}
@@ -252,24 +250,8 @@ export function ResumeFilterForm({
               />
               退職者を含める
             </label>
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              className="rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary-dark"
-            >
-              検索
-            </button>
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="rounded-full border border-primary px-4 py-2 text-sm text-brand hover:bg-primary/10"
-            >
-              クリア
-            </button>
-          </div>
-        </form>
+          </SearchFilterField>
+        </SearchFilterGrid>
       </CollapsibleSearchCard>
     </>
   );
