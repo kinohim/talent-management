@@ -126,6 +126,8 @@ erDiagram
         int id PK
         string site_name "UK"
         int organization_unit_id FK "主管部署 (NULL可)"
+        string nearest_station_line "NULL可"
+        string nearest_station_name "NULL可"
     }
     project {
         int id PK

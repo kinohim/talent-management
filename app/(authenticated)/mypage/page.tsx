@@ -189,6 +189,7 @@ export default async function MyPage({ searchParams }: MyPageProps) {
               nameKana: employee.nameKana ?? "",
               birthDate: toDateInputValue(employee.birthDate),
               gender: employee.gender,
+              nearestStationPrefecture: employee.nearestStationPrefecture ?? "",
               nearestStationLine: employee.nearestStationLine ?? "",
               nearestStationName: employee.nearestStationName ?? "",
               finalSchoolType: employee.finalSchoolType,

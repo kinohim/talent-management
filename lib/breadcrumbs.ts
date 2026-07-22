@@ -28,6 +28,7 @@ export const BREADCRUMB_MAP: Record<string, BreadcrumbNode> = {
   "/accounts": { label: "アカウント一覧", parentPath: "/" },
   "/accounts/new": { label: "新規アカウント登録", parentPath: "/accounts" },
   "/accounts/[id]": { label: "アカウント編集", parentPath: "/accounts" },
+  "/site-search": { label: "現場/参画者一覧", parentPath: "/" },
 };
 
 export type BreadcrumbItem = { label: string; path: string };

@@ -10,3 +10,6 @@ export const isDevLoginEnabled = process.env.ENABLE_DEV_LOGIN === "true";
 export const isGitHubSsoEnabled = Boolean(
   process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET,
 );
+
+// Google Maps APIキー未設定でもsite-search画面が壊れないようにするためのフラグ。
+export const isGoogleMapsEnabled = Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);

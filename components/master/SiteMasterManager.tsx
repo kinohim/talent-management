@@ -9,6 +9,7 @@ import {
   type SiteMasterSite,
 } from "@/components/master/SiteMasterRow";
 import { ClearableInput } from "@/components/ui/ClearableInput";
+import { NearestStationSelect } from "@/components/ui/NearestStationSelect";
 import type { SiteMasterFormState } from "@/lib/site-master-schema";
 
 const createSiteAction = saveSite.bind(null, null);
@@ -53,6 +54,14 @@ function SiteAddForm({ departments }: { departments: SiteDepartmentOption[] }) {
             </option>
           ))}
         </select>
+        <NearestStationSelect
+          namePrefecture="nearestStationPrefecture"
+          nameLine="nearestStationLine"
+          nameName="nearestStationName"
+          defaultPrefecture={null}
+          defaultLine={null}
+          defaultName={null}
+        />
         <button
           type="submit"
           disabled={isPending}

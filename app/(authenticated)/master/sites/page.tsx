@@ -25,7 +25,14 @@ export default async function SiteMasterPage() {
   const [sites, departmentUnits] = await Promise.all([
     prisma.site.findMany({
       where: { deletedAt: null },
-      select: { id: true, siteName: true, organizationUnitId: true },
+      select: {
+        id: true,
+        siteName: true,
+        organizationUnitId: true,
+        nearestStationPrefecture: true,
+        nearestStationLine: true,
+        nearestStationName: true,
+      },
       orderBy: { siteName: "asc" },
     }),
     // 主管部署の選択肢は部(DEPARTMENT)のみ。同名部が別事業部にあり得るため
