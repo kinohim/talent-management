@@ -22,6 +22,18 @@
   --color-accent-text: #b5720b;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* 全体的に文字が小さいという指摘への対応。Tailwindデフォルト(text-sm=14px等)を
+     基準に、既存の大小関係(xs<sm<base<...)を保ったまま底上げする
+     (text-smが最も使用頻度の高い「本文」相当のため、これを14px→16pxに引き上げる) */
+  --text-xs: 0.8125rem;
+  --text-sm: 1rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.625rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.5rem;
 }
 
 body {

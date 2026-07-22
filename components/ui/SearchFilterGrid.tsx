@@ -4,37 +4,54 @@ type SearchFilterGridProps = {
   onSubmit: (e: FormEvent) => void;
   onClear: () => void;
   children: ReactNode;
+  // 列数(既定4)。resume-listはactionsExtraで検索/クリア行に退職者を含める
+  // チェックボックスを添えるため3列で運用する(account-listは既定の4列)
+  columns?: 3 | 4;
+  // 検索/クリアボタンと同じ行に添える追加コンテンツ(例: 退職者を含めるチェック)
+  actionsExtra?: ReactNode;
 };
 
-// resume-list/account-list共通の検索条件エリア。項目は常に4列グリッドに
+const COLUMN_CLASS: Record<3 | 4, string> = {
+  3: "lg:grid-cols-3",
+  4: "lg:grid-cols-4",
+};
+
+// resume-list/account-list共通の検索条件エリア。項目は常に同じ列数のグリッドに
 // 並べ(狭幅では2列/1列に縮退)、各項目を同じ幅のセルに配置する。項目数が
-// 4の倍数でなくてもCSS Gridの自動配置が次の項目をそのまま前詰めするため、
+// 列数の倍数でなくてもCSS Gridの自動配置が次の項目をそのまま前詰めするため、
 // 列がずれたり余白だけの列ができたりしない。検索/クリアボタンはグリッドの
 // 直下・左寄せで固定し、画面によって位置がずれないようにする。
 export function SearchFilterGrid({
   onSubmit,
   onClear,
   children,
+  columns = 4,
+  actionsExtra,
 }: SearchFilterGridProps) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 items-start gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div
+        className={`grid grid-cols-1 items-start gap-x-6 gap-y-5 sm:grid-cols-2 ${COLUMN_CLASS[columns]}`}
+      >
         {children}
       </div>
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          className="rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary-dark"
-        >
-          検索
-        </button>
-        <button
-          type="button"
-          onClick={onClear}
-          className="rounded-full border border-primary px-4 py-2 text-sm text-brand hover:bg-primary/10"
-        >
-          クリア
-        </button>
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            className="rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary-dark"
+          >
+            検索
+          </button>
+          <button
+            type="button"
+            onClick={onClear}
+            className="rounded-full border border-primary px-4 py-2 text-sm text-brand hover:bg-primary/10"
+          >
+            クリア
+          </button>
+        </div>
+        {actionsExtra}
       </div>
     </form>
   );

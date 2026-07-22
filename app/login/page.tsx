@@ -25,12 +25,12 @@ export default async function LoginPage({
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-6 p-6">
-      <div className="w-full max-w-sm rounded-2xl border border-surface-border bg-surface p-8 shadow-sm">
-        <div className="mb-6 flex flex-col items-center gap-1 text-center">
+      <div className="w-full max-w-[480px] rounded-2xl border border-surface-border bg-surface p-10 shadow-sm">
+        <div className="mb-8 flex flex-col items-center gap-1.5 text-center">
           <span className="text-xs font-medium tracking-widest text-primary-dark">
             LOGIN
           </span>
-          <h1 className="text-xl font-semibold text-brand">ログイン</h1>
+          <h1 className="text-2xl font-semibold text-brand">ログイン</h1>
         </div>
         {errorMessage ? (
           <p role="alert" className="mb-4 rounded-2xl bg-red-50 px-4 py-2 text-sm text-red-600">

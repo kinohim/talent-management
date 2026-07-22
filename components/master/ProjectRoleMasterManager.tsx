@@ -15,7 +15,7 @@ export function ProjectRoleMasterManager({ roles }: { roles: ProjectRoleMasterRo
     .sort((a, b) => a.projectRoleName.localeCompare(b.projectRoleName, "ja"));
 
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div className="flex max-w-5xl flex-col gap-6">
       {/* 役割の追加フィールドは最上部に常時表示(コンパクトな1行形) */}
       <InlineAddForm
         action={createProjectRoleAction}

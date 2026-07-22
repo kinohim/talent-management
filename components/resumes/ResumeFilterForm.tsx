@@ -165,16 +165,31 @@ export function ResumeFilterForm({
     setIncludeRetired(false);
   }
 
-  // 項目順: 氏名カナ→経験年数→所属組織→スキル→資格→携わったプロジェクト→
-  // 退職者を含める→検索/クリア(docs/screens.md resume-list)。全項目を
-  // SearchFilterGridの4列グリッドに並べる(account-listと共通のレイアウト)。
+  // 項目順: 氏名カナ→経験年数→所属組織→スキル→資格→携わったプロジェクト
+  // (docs/screens.md resume-list)。3列×2行のグリッドに並べ、退職者を含める
+  // チェックボックスはグリッドの外・検索/クリアボタンと同じ行に配置する。
   // ローディングはカードの外に置く(検索後に閉じる=ONだと検索直後にカードの
   // 中身がhiddenになり、内側に置くとオーバーレイごと消えてしまうため)
   return (
     <>
       <LoadingOverlay show={isSearching} />
       <CollapsibleSearchCard storageKey="/resumes">
-        <SearchFilterGrid onSubmit={applyFilters} onClear={clearFilters}>
+        <SearchFilterGrid
+          onSubmit={applyFilters}
+          onClear={clearFilters}
+          columns={3}
+          actionsExtra={
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={includeRetired}
+                onChange={(e) => setIncludeRetired(e.target.checked)}
+                className="accent-primary"
+              />
+              退職者を含める
+            </label>
+          }
+        >
           <SearchFilterField label="氏名カナ">
             <ClearableInput
               value={name}
@@ -218,6 +233,7 @@ export function ResumeFilterForm({
 
           <ConditionTagFilter
             label="スキル条件"
+            placeholder="スキルを選択"
             options={skillOptions}
             selected={skills}
             onSelectedChange={setSkills}
@@ -227,6 +243,7 @@ export function ResumeFilterForm({
 
           <ConditionTagFilter
             label="取得資格条件"
+            placeholder="資格を選択"
             options={certificationOptions}
             selected={certifications}
             onSelectedChange={setCertifications}
@@ -239,18 +256,6 @@ export function ResumeFilterForm({
             selected={site}
             onChange={setSite}
           />
-
-          <SearchFilterField>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={includeRetired}
-                onChange={(e) => setIncludeRetired(e.target.checked)}
-                className="accent-primary"
-              />
-              退職者を含める
-            </label>
-          </SearchFilterField>
         </SearchFilterGrid>
       </CollapsibleSearchCard>
     </>

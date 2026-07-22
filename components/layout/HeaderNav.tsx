@@ -71,7 +71,7 @@ export function HeaderNav({ role }: { role: UserRole }) {
           <div key={link.key} className="group relative">
             <Link
               href={link.href}
-              className="rounded-full px-3 py-1.5 text-brand transition hover:bg-primary/10"
+              className="rounded-full px-3.5 py-2 text-brand transition hover:bg-primary/10"
             >
               {link.label}
             </Link>
@@ -80,7 +80,7 @@ export function HeaderNav({ role }: { role: UserRole }) {
                 <Link
                   key={child.key}
                   href={child.href}
-                  className="rounded-full px-3 py-1.5 text-foreground hover:bg-primary/10"
+                  className="rounded-full px-3.5 py-2 text-foreground hover:bg-primary/10"
                 >
                   {child.label}
                 </Link>
@@ -91,7 +91,7 @@ export function HeaderNav({ role }: { role: UserRole }) {
           <Link
             key={link.key}
             href={link.href}
-            className="rounded-full px-3 py-1.5 text-brand transition hover:bg-primary/10"
+            className="rounded-full px-3.5 py-2 text-brand transition hover:bg-primary/10"
           >
             {link.label}
           </Link>
