@@ -76,18 +76,22 @@ function badgeClassName(e: SiteNearbyEmployeeView): string {
   return e.matchedNearby ? "bg-blue-500" : "bg-green-500";
 }
 
-// 地図凡例のバッジ色と揃えた人のイラストピン(近隣=青、同一路線=緑)
+// 地図凡例のバッジ色と揃えたピン型マーカー(近隣=青、同一路線=緑)。
+// ピンの頭(先端の真上)に顔アイコンを乗せて、地図上で社員のピンだと
+// 一目で分かるようにする
 function personMarkerIcon(color: string): google.maps.Icon {
   const svg =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">' +
-    `<circle cx="12" cy="12" r="11" fill="${color}" stroke="white" stroke-width="1.5"/>` +
-    '<circle cx="12" cy="9.5" r="3.4" fill="white"/>' +
-    '<path d="M5.5 19c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" fill="white"/>' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">' +
+    `<path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24C32 7.163 24.837 0 16 0z" fill="${color}" stroke="white" stroke-width="1.5"/>` +
+    '<circle cx="16" cy="15" r="9" fill="white"/>' +
+    `<circle cx="12.5" cy="13" r="1.6" fill="${color}"/>` +
+    `<circle cx="19.5" cy="13" r="1.6" fill="${color}"/>` +
+    `<path d="M11 17.5c1.2 2 2.9 3 5 3s3.8-1 5-3" stroke="${color}" stroke-width="1.8" fill="none" stroke-linecap="round"/>` +
     "</svg>";
   return {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new window.google!.maps.Size(30, 30),
-    anchor: new window.google!.maps.Point(15, 15),
+    scaledSize: new window.google!.maps.Size(32, 40),
+    anchor: new window.google!.maps.Point(16, 40),
   };
 }
 
