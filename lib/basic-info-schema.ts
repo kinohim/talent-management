@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { PREFECTURES } from "@/lib/prefectures";
+
 // 全角カタカナ＋長音符・全角/半角スペースのみ許可。
 // (「ヤマダ タロウ」のような区切りスペースを許容する。この範囲は仕様に明記が
 //  ないための実装判断。厳格化が必要なら要件確認のうえ調整する)
@@ -30,6 +32,15 @@ export const basicInfoSchema = z.object({
   divisionId: z.string().regex(/^\d+$/).optional(),
   departmentId: z.string().regex(/^\d+$/).optional(),
   groupId: z.string().regex(/^\d+$/).optional(),
+  nearestStationPrefecture: z
+    .string()
+    .trim()
+    .max(100, "都道府県は100文字以内で入力してください。")
+    .optional()
+    .refine(
+      (value) => value === undefined || PREFECTURES.includes(value),
+      "都道府県の指定が正しくありません。",
+    ),
   nearestStationLine: z
     .string()
     .trim()
@@ -85,6 +96,7 @@ export function parseBasicInfoForm(formData: FormData) {
     divisionId: readField(formData, "divisionId"),
     departmentId: readField(formData, "departmentId"),
     groupId: readField(formData, "groupId"),
+    nearestStationPrefecture: readField(formData, "nearestStationPrefecture"),
     nearestStationLine: readField(formData, "nearestStationLine"),
     nearestStationName: readField(formData, "nearestStationName"),
     finalSchoolType: readField(formData, "finalSchoolType"),

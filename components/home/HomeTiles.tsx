@@ -1,6 +1,13 @@
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Tile } from "@/components/ui/Tile";
-import { ChartIcon, DocumentIcon, GearIcon, ListIcon, UsersIcon } from "@/components/ui/icons";
+import {
+  ChartIcon,
+  DocumentIcon,
+  GearIcon,
+  ListIcon,
+  MapPinIcon,
+  UsersIcon,
+} from "@/components/ui/icons";
 import { UserRole } from "@/generated/prisma/client";
 
 type TileDef = {
@@ -51,6 +58,13 @@ const ADMIN_TILE_DEFS: TileDef[] = [
     href: "/accounts",
     roles: [UserRole.MANAGER],
     icon: <UsersIcon />,
+  },
+  {
+    key: "site-search",
+    label: "現場/参画者一覧",
+    href: "/site-search",
+    roles: [UserRole.MANAGER],
+    icon: <MapPinIcon />,
   },
 ];
 

@@ -4,7 +4,7 @@
 
 | テストファイル | 対象ソース | ケース数 |
 |---|---|---|
-| `lib/basic-info-schema.test.ts` | `lib/basic-info-schema.ts` | 9 |
+| `lib/basic-info-schema.test.ts` | `lib/basic-info-schema.ts` | 10 |
 | `lib/career-summary-schema.test.ts` | `lib/career-summary-schema.ts` | 4 |
 | `lib/career-text-prompt.test.ts` | `lib/career-text-prompt.ts` | 11 |
 | `lib/project-schema.test.ts` | `lib/project-schema.ts` | 13 |
@@ -37,6 +37,7 @@
 | 7 | 任意項目(性別・最寄駅・最終学歴・卒業年月等)を正しく入力すると値が反映される | 正常系 |
 | 8 | カナにスペースがない(1語)なら失敗し、姓名区切りエラーを返す | 異常系 |
 | 9 | カナが3語以上なら失敗し、姓名区切りエラーを返す | 異常系 |
+| 10 | 最寄駅の都道府県はPREFECTURES(47都道府県)に含まれる値のみ許可し、それ以外はエラー | 異常系 |
 
 ## parseCareerSummaryForm
 

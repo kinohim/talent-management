@@ -56,6 +56,9 @@ export async function saveSite(
         data: {
           siteName: parsed.siteName,
           organizationUnitId: parsed.organizationUnitId,
+          nearestStationPrefecture: parsed.nearestStationPrefecture ?? null,
+          nearestStationLine: parsed.nearestStationLine ?? null,
+          nearestStationName: parsed.nearestStationName ?? null,
           updatedBy: user.employeeId,
           updatedProgram: PROGRAM,
         },
@@ -66,6 +69,9 @@ export async function saveSite(
         data: {
           siteName: parsed.siteName,
           organizationUnitId: parsed.organizationUnitId,
+          nearestStationPrefecture: parsed.nearestStationPrefecture ?? null,
+          nearestStationLine: parsed.nearestStationLine ?? null,
+          nearestStationName: parsed.nearestStationName ?? null,
           deletedAt: null,
           deletedBy: null,
           deletedProgram: null,
@@ -78,6 +84,9 @@ export async function saveSite(
         data: {
           siteName: parsed.siteName,
           organizationUnitId: parsed.organizationUnitId,
+          nearestStationPrefecture: parsed.nearestStationPrefecture ?? null,
+          nearestStationLine: parsed.nearestStationLine ?? null,
+          nearestStationName: parsed.nearestStationName ?? null,
           createdBy: user.employeeId,
           createdProgram: PROGRAM,
           updatedBy: user.employeeId,

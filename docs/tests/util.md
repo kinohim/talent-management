@@ -1,6 +1,6 @@
 # 共通ユーティリティ テスト仕様
 
-日付整形・パンくずリスト・一覧クエリ（ページング／ソート）・Prisma エラー判定の共通ユーティリティを対象とする。
+日付整形・パンくずリスト・一覧クエリ（ページング／ソート）・Prisma エラー判定・HeartRails Express API連携（最寄り駅の路線・駅・座標取得）の共通ユーティリティを対象とする。
 
 | テストファイル | 対象ソース | ケース数 |
 |---|---|---|
@@ -8,6 +8,7 @@
 | `lib/breadcrumbs.test.ts` | `lib/breadcrumbs.ts` | 12 |
 | `lib/list-query.test.ts` | `lib/list-query.ts` | 12 |
 | `lib/prisma-errors.test.ts` | `lib/prisma-errors.ts` | 4 |
+| `lib/heartrails.test.ts` | `lib/heartrails.ts` | 15 |
 
 ## toDateInputValue / parseDateOnly
 
@@ -162,3 +163,36 @@
 | 2 | P2002 以外の Prisma エラーコードなら false | 正常系 |
 | 3 | Prisma のエラーでなければ false | 異常系 |
 | 4 | エラーでない値（null/undefined/文字列）なら false | 境界値 |
+
+## fetchLines / fetchStations
+
+対象: `lib/heartrails.ts` / テスト: `lib/heartrails.test.ts`
+概要: HeartRails Express API（`getLines`/`getStations`）から都道府県の路線一覧・路線の駅一覧を取得する。basic-info（社員の最寄り駅）・master-sites（現場の最寄り駅）の両方が利用する共通クライアント
+前提: `vi.stubGlobal("fetch", vi.fn())` でグローバル `fetch` をモック
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | fetchLines: 複数路線を重複除去・五十音順で返す | 正常系 |
+| 2 | fetchLines: レスポンスが単一要素（配列でない）でも配列として扱う | 境界値 |
+| 3 | fetchLines: HeartRailsが`error`を返した場合は空配列 | 異常系 |
+| 4 | fetchLines: fetch自体が失敗（ネットワークエラー）した場合は`HeartRailsApiError`をthrowする | 異常系 |
+| 5 | fetchLines: HTTPエラーステータスの場合は`HeartRailsApiError`をthrowする | 異常系 |
+| 6 | fetchLines: レスポンスのJSON解析に失敗した場合は`HeartRailsApiError`をthrowする | 異常系 |
+| 7 | fetchStations: 複数駅を重複除去・五十音順で返す | 正常系 |
+| 8 | fetchStations: レスポンスが単一要素でも配列として扱う | 境界値 |
+| 9 | fetchStations: HeartRailsが`error`を返した場合は空配列 | 異常系 |
+| 10 | fetchStations: fetch自体が失敗した場合は`HeartRailsApiError`をthrowする | 異常系 |
+
+## fetchStationGeo
+
+対象: `lib/heartrails.ts` / テスト: `lib/heartrails.test.ts`
+概要: 駅名から緯度経度を取得する（site-search・現場/参画者一覧の地図ピン用）。同名駅が複数路線に存在する場合、`lineHint`と一致する候補を優先する
+前提: `vi.stubGlobal("fetch", vi.fn())` でグローバル `fetch` をモック
+
+| No | 確認観点 | 分類 |
+|---|---|---|
+| 1 | 候補が1件のとき、その緯度経度を返す | 正常系 |
+| 2 | 複数候補がある場合、`lineHint`と一致する候補を優先する | 正常系 |
+| 3 | `lineHint`未指定・不一致の場合は先頭候補を使う | 境界値 |
+| 4 | 該当駅が0件の場合はnullを返す | 異常系 |
+| 5 | 緯度経度が数値に変換できない場合はnullを返す | 境界値 |

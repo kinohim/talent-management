@@ -5,12 +5,16 @@ import { useActionState, useState, useTransition } from "react";
 import { deleteSite, saveSite } from "@/app/(authenticated)/master/sites/actions";
 import { ClearableInput } from "@/components/ui/ClearableInput";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { NearestStationSelect } from "@/components/ui/NearestStationSelect";
 import type { SiteMasterFormState } from "@/lib/site-master-schema";
 
 export type SiteMasterSite = {
   id: number;
   siteName: string;
   organizationUnitId: number | null;
+  nearestStationPrefecture: string | null;
+  nearestStationLine: string | null;
+  nearestStationName: string | null;
 };
 
 // 主管部署の選択肢(部のみ。表示名は「事業部 / 部」)
@@ -43,6 +47,9 @@ export function SiteMasterRow({
 
   const departmentName =
     departments.find((d) => d.id === site.organizationUnitId)?.name ?? null;
+  const stationLabel = site.nearestStationName
+    ? `${site.nearestStationLine ?? ""} ${site.nearestStationName}`.trim()
+    : null;
 
   function handleDelete() {
     startDeleteTransition(async () => {
@@ -83,6 +90,14 @@ export function SiteMasterRow({
             </option>
           ))}
         </select>
+        <NearestStationSelect
+          namePrefecture="nearestStationPrefecture"
+          nameLine="nearestStationLine"
+          nameName="nearestStationName"
+          defaultPrefecture={site.nearestStationPrefecture}
+          defaultLine={site.nearestStationLine}
+          defaultName={site.nearestStationName}
+        />
         <button
           type="submit"
           disabled={isPending}
@@ -114,6 +129,11 @@ export function SiteMasterRow({
           {departmentName ? (
             <span className="ml-2 text-xs font-normal text-foreground/60">
               主管部署: {departmentName}
+            </span>
+          ) : null}
+          {stationLabel ? (
+            <span className="ml-2 text-xs font-normal text-foreground/60">
+              最寄駅: {stationLabel}
             </span>
           ) : null}
         </span>

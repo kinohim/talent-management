@@ -94,6 +94,18 @@ describe("parseBasicInfoForm", () => {
     }
   });
 
+  it("最寄駅の都道府県はPREFECTURES(47都道府県)に含まれる値のみ許可し、それ以外はエラー", () => {
+    const okResult = parseBasicInfoForm(
+      formData({ ...validEntries, nearestStationPrefecture: "東京都" }),
+    );
+    expect(okResult.success).toBe(true);
+
+    const ngResult = parseBasicInfoForm(
+      formData({ ...validEntries, nearestStationPrefecture: "東京府" }),
+    );
+    expect(ngResult.success).toBe(false);
+  });
+
   it("任意項目を正しく入力すると値が反映される", () => {
     const result = parseBasicInfoForm(
       formData({
