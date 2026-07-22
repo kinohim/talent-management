@@ -265,7 +265,7 @@ type NearestStation = {
 };
 
 // site-search(現場/参画者一覧)の動作確認用に、実在しHeartRails Express APIで
-// 座標解決できる駅を設定する。A社基幹システム更改(新宿駅)をメインの確認対象とし、
+// 座標解決できる駅を設定する。A社基幹システム更改(上野)をメインの確認対象とし、
 // employeeSeedsのnearestStation設定と合わせて近隣・同一路線・非該当のパターンを作る
 const siteDefs: {
   siteName: string;
@@ -275,7 +275,7 @@ const siteDefs: {
   {
     siteName: "A社基幹システム更改",
     departmentKey: "finance",
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "新宿駅" },
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "上野" },
   },
   {
     siteName: "B社ECサイト構築",
@@ -393,8 +393,7 @@ type EmployeeSeed = {
   email: string;
   bucket: ResumeBucket;
   // basic-info/mypageの最寄駅表示・site-search(現場/参画者一覧)の近隣検索確認用。
-  // A社基幹システム更改(新宿駅・JR山手線)を基準に、以下のパターンを作る:
-  // - 000002: 近隣かつ同一路線(代々木駅)
+  // A社基幹システム更改(上野・JR山手線)を基準に、以下のパターンを作る:
   // - 000010: 近隣のみ・別路線(西新宿駅・東京メトロ丸ノ内線)
   // - 000011: 同一路線のみ・遠方(田端駅)
   // - 000012/000013: 同じ架空駅(HeartRailsで解決不可)→ unresolvedStationCountの
@@ -402,8 +401,9 @@ type EmployeeSeed = {
   // - 000014: 近隣・同一路線いずれも非該当(候補から除外される社員)
   // - 000023: 近隣・同一路線いずれも非該当だが現在参画中(currentParticipants用。
   //   実際のプロジェクト付与はassignSiteSearchSampleで行う)
-  // - 000031: 000002と同じ最寄り駅(代々木駅・JR山手線)→ 同じ駅に複数人いる場合に
+  // - 000031: 000021と同じ最寄り駅(渋谷駅・JR山手線)→ 同じ駅に複数人いる場合に
   //   地図上のピンをずらして表示する挙動の確認用
+  // (000002は実DBでは最寄駅未設定のため、このパターンには含めない)
   nearestStation?: NearestStation;
 };
 
@@ -494,7 +494,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "fin",
     email: "suzuki@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "代々木駅" },
+    // 実DBでは最寄駅が未設定のためnearestStationは持たせない
   },
   {
     employeeId: "000010",
@@ -715,8 +715,8 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "fin",
     email: "emp000031@example.com",
     bucket: "rich",
-    // 000002と同じ駅(ピンが重なる場合のずらし表示の確認用)
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "代々木駅" },
+    // 000021と同じ駅(ピンが重なる場合のずらし表示の確認用)
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "渋谷駅" },
   },
 
   // 一般社員(退職、3名)
@@ -1211,19 +1211,13 @@ async function assignExternalProjectSample(
 }
 
 // site-search(現場/参画者一覧)の「現在参画中」枠(currentParticipants)確認用に、
-// A社基幹システム更改(siteIds[0]・新宿駅)への現在進行中プロジェクト(endDate=null)を
+// A社基幹システム更改(siteIds[0]・上野)への現在進行中プロジェクト(endDate=null)を
 // 明示的に付与する。
-// - 000002: 最寄駅が近隣かつ同一路線に一致する社員(候補社員一覧に表示)。かつ現在
-//   参画中でもあるケース→候補社員一覧とcurrentParticipants(検索結果より上の別枠)の
-//   両方に重ねて表示されることの確認用
 // - 000023: 最寄駅が近隣・同一路線いずれにも一致しない社員(候補社員一覧には出ない)。
 //   現在参画中のみでcurrentParticipantsに出ることの確認用(自動生成の経歴を
 //   持たないskillsOnlyバケットのため、このプロジェクトのみが唯一の経歴になる)
 async function assignSiteSearchSample(mainSiteId: number): Promise<void> {
-  const participants = [
-    { employeeId: "000002", startDate: new Date(Date.UTC(2025, 3, 1)) },
-    { employeeId: "000023", startDate: new Date(Date.UTC(2025, 9, 1)) },
-  ];
+  const participants = [{ employeeId: "000023", startDate: new Date(Date.UTC(2025, 9, 1)) }];
 
   for (const p of participants) {
     await prisma.project.create({
