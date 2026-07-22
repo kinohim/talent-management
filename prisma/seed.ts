@@ -9,7 +9,7 @@ import { prisma } from "../lib/prisma";
 // 開発用ログイン(lib/auth.tsのdev-employee-idプロバイダ)で使うサンプルデータ。
 // 本番投入は行わない。
 //
-// 中規模データセット(社員30名相当)。組織単位・スキル/資格/現場マスタを拡充し、
+// 中規模データセット(社員31名相当)。組織単位・スキル/資格/現場マスタを拡充し、
 // 社員ごとに経歴・スキル・資格の充実度をわざと変えることで、検索・絞り込み・
 // 集計・AI生成(未登録項目の動的メッセージ)など、データ量が前提の機能を
 // 一通り確認できるようにする。
@@ -402,6 +402,8 @@ type EmployeeSeed = {
   // - 000014: 近隣・同一路線いずれも非該当(候補から除外される社員)
   // - 000023: 近隣・同一路線いずれも非該当だが現在参画中(currentParticipants用。
   //   実際のプロジェクト付与はassignSiteSearchSampleで行う)
+  // - 000031: 000002と同じ最寄り駅(代々木駅・JR山手線)→ 同じ駅に複数人いる場合に
+  //   地図上のピンをずらして表示する挙動の確認用
   nearestStation?: NearestStation;
 };
 
@@ -481,7 +483,7 @@ const employeeSeeds: EmployeeSeed[] = [
     bucket: "none",
   },
 
-  // 一般社員(在職・登録済み、18名)
+  // 一般社員(在職・登録済み、19名)
   {
     employeeId: "000002",
     name: "一般 桜",
@@ -702,6 +704,19 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: null,
     email: "emp000026@example.com",
     bucket: "empty",
+  },
+  {
+    employeeId: "000031",
+    name: "一般 楓",
+    nameKana: "イッパン カエデ",
+    role: "EMPLOYEE",
+    employmentStatus: "ACTIVE",
+    isRegistered: true,
+    orgKey: "fin",
+    email: "emp000031@example.com",
+    bucket: "rich",
+    // 000002と同じ駅(ピンが重なる場合のずらし表示の確認用)
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "代々木駅" },
   },
 
   // 一般社員(退職、3名)
@@ -1199,9 +1214,10 @@ async function assignExternalProjectSample(
 // A社基幹システム更改(siteIds[0]・新宿駅)への現在進行中プロジェクト(endDate=null)を
 // 明示的に付与する。
 // - 000002: 最寄駅が近隣かつ同一路線に一致する社員(候補社員一覧に表示)。かつ現在
-//   参画中でもあるケース→currentParticipantsに重複して出ないことの確認用
+//   参画中でもあるケース→候補社員一覧とcurrentParticipants(検索結果より上の別枠)の
+//   両方に重ねて表示されることの確認用
 // - 000023: 最寄駅が近隣・同一路線いずれにも一致しない社員(候補社員一覧には出ない)。
-//   現在参画中のみでcurrentParticipantsに単独で出ることの確認用(自動生成の経歴を
+//   現在参画中のみでcurrentParticipantsに出ることの確認用(自動生成の経歴を
 //   持たないskillsOnlyバケットのため、このプロジェクトのみが唯一の経歴になる)
 async function assignSiteSearchSample(mainSiteId: number): Promise<void> {
   const participants = [
