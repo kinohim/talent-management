@@ -50,7 +50,7 @@ export async function fetchStations(line: string): Promise<string[]> {
 
 export type StationGeo = { lat: number; lng: number; line: string };
 
-// 駅名から緯度経度を取得する(現場/参画者一覧の地図ピン用)。
+// 駅名から緯度経度を取得する(現場/社員最寄駅マップの地図ピン用)。
 // 同名駅が複数路線に存在する場合、lineHintと一致する候補を優先する。
 export async function fetchStationGeo(
   stationName: string,

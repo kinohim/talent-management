@@ -51,7 +51,7 @@ const NAV_LINK_DEFS: NavLinkDef[] = [
   },
   {
     key: "site-search",
-    label: "現場/参画者一覧",
+    label: "現場/社員最寄駅マップ",
     href: "/site-search",
     roles: [UserRole.MANAGER],
   },

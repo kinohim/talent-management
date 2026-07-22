@@ -17,7 +17,7 @@ export type SiteNearbyEmployee = {
   matchedSameLine: boolean;
 };
 
-// 近隣・同一路線のいずれにも一致しないが、選択した現場に現在参画中の社員(邪魔にならない別枠表示用)
+// 選択した現場に現在参画中の社員(近隣・同一路線の一致条件に関わらず検索結果より上に別枠表示用)
 export type SiteCurrentParticipant = {
   employeeId: string;
   name: string | null;
@@ -124,7 +124,6 @@ export async function searchSiteNearbyEmployees(
   );
 
   const results: SiteNearbyEmployee[] = [];
-  const matchedEmployeeIds = new Set<string>();
   let unresolvedStationCount = 0;
 
   for (const e of employees) {
@@ -140,7 +139,6 @@ export async function searchSiteNearbyEmployees(
     const matchedSameLine = !!e.nearestStationLine && e.nearestStationLine === site.nearestStationLine;
     if (!matchedNearby && !matchedSameLine) continue;
 
-    matchedEmployeeIds.add(e.employeeId);
     results.push({
       employeeId: e.employeeId,
       name: e.name,
@@ -159,11 +157,10 @@ export async function searchSiteNearbyEmployees(
 
   results.sort((a, b) => a.distanceKm - b.distanceKm);
 
-  // 近隣・同一路線に一致しなくても、選択した現場に現在参画中の社員は別枠で返す
-  // (既に候補社員一覧に表示済みの社員は重複させない)
+  // 選択した現場に現在参画中の社員は、近隣・同一路線の一致条件に関わらず別枠でも返す
+  // (候補社員一覧に表示中でも、この別枠には重ねて含める)
   const currentParticipants: SiteCurrentParticipant[] = [];
   for (const e of employees) {
-    if (matchedEmployeeIds.has(e.employeeId)) continue;
     if (!e.projects.some((p) => p.siteId === site.id)) continue;
     currentParticipants.push({
       employeeId: e.employeeId,
