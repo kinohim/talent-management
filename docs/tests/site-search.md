@@ -29,7 +29,7 @@
 | 13 | 社員の最寄駅の座標が解決できない場合、`unresolvedStationCount`に計上し候補から除外する | 境界値 |
 | 14 | 同じ未解決駅に複数人住んでいる場合、`unresolvedStationCount`は駅数ではなく人数分カウントする | 境界値 |
 | 15 | 現在参画中（このsiteId・`project.endDate=null`）だが近隣にも同一路線にも一致しない社員を、候補社員一覧とは別に`currentParticipants`として返す | 正常系 |
-| 16 | 近隣または同一路線に一致し、かつ現在参画中の社員は、`currentParticipants`には重複して含めない | 正常系 |
+| 16 | 近隣または同一路線に一致し、かつ現在参画中の社員は、候補社員一覧(`employees`)と`currentParticipants`の両方に重ねて含める(重複除外しない) | 正常系 |
 | 17 | 現在参画中でない社員は`currentParticipants`に含めない | 正常系 |
 | 18 | 現場の最寄駅の座標取得でHeartRails Express APIがエラー（`HeartRailsApiError`）を返した場合、座標未解決と同様に`site: null`を返す（例外を再送出しない） | 異常系 |
 | 19 | 社員の最寄駅の座標取得でHeartRails Express APIがエラーを返した場合、その社員は座標未解決として扱い候補から除外する（処理全体は中断しない） | 異常系 |
