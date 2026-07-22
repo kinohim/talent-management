@@ -12,9 +12,9 @@
 | `resume-search.md` | 経歴書の検索・閲覧範囲（横断検索・表示整形・閲覧範囲判定） | 4 | 70 |
 | `account.md` | アカウント管理（一覧・登録検証・社員番号・ラベル） | 7 | 53 |
 | `skill-map.md` | スキルマップ（年度集計・ヒートマップ・KPI） | 1 | 25 |
-| `util.md` | 共通ユーティリティ（日付整形・パンくず・一覧クエリ・Prisma エラー判定・HeartRails Express API連携） | 5 | 61 |
-| `site-search.md` | 現場/参画者一覧（現場近隣・同一路線の社員検索ロジック） | 1 | 20 |
-| 合計 | | 47※ | 464 |
+| `util.md` | 共通ユーティリティ（日付整形・パンくず・一覧クエリ・Prisma エラー判定・HeartRails Express API連携・路線カテゴリ分類） | 6 | 71 |
+| `site-search.md` | 現場/社員最寄駅マップ（現場近隣・同一路線の社員検索ロジック） | 1 | 20 |
+| 合計 | | 48※ | 474 |
 
 ※ `lib/applied-filter-chips.test.ts` は resume-search.md・account.md の両方に観点を分けて記載しているため、ファイル数の単純合計(45)より実ファイル数は1少ない。
 

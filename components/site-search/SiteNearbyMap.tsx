@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 declare global {
   interface Window {
@@ -76,10 +76,61 @@ function badgeClassName(e: SiteNearbyEmployeeView): string {
   return e.matchedNearby ? "bg-blue-500" : "bg-green-500";
 }
 
+// 地図凡例のバッジ色と揃えたピン型マーカー(近隣=青、同一路線=緑)。
+// ピンの頭(先端の真上)に顔アイコンを乗せて、地図上で社員のピンだと
+// 一目で分かるようにする
+function personMarkerIcon(color: string): google.maps.Icon {
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">' +
+    `<path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24s16-12 16-24C32 7.163 24.837 0 16 0z" fill="${color}" stroke="white" stroke-width="1.5"/>` +
+    '<circle cx="16" cy="15" r="9" fill="white"/>' +
+    `<circle cx="12.5" cy="13" r="1.6" fill="${color}"/>` +
+    `<circle cx="19.5" cy="13" r="1.6" fill="${color}"/>` +
+    `<path d="M11 17.5c1.2 2 2.9 3 5 3s3.8-1 5-3" stroke="${color}" stroke-width="1.8" fill="none" stroke-linecap="round"/>` +
+    "</svg>";
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    scaledSize: new window.google!.maps.Size(32, 40),
+    anchor: new window.google!.maps.Point(16, 40),
+  };
+}
+
+const PIN_OFFSET_DEG = 0.0015; // 緯度1度は約111kmのため、約170m相当のずらし幅
+
+// 同じ最寄り駅の社員は座標が完全に一致しピンが重なって見えなくなるため、
+// 同一座標のグループごとに円状へ少しずつずらした表示用座標を求める
+function spreadOverlappingPins(
+  employees: SiteNearbyEmployeeView[],
+): Map<string, { lat: number; lng: number }> {
+  const positions = new Map<string, { lat: number; lng: number }>();
+  const groups = new Map<string, SiteNearbyEmployeeView[]>();
+  for (const emp of employees) {
+    const key = `${emp.lat.toFixed(5)},${emp.lng.toFixed(5)}`;
+    const group = groups.get(key);
+    if (group) group.push(emp);
+    else groups.set(key, [emp]);
+  }
+
+  for (const group of groups.values()) {
+    group.forEach((emp, index) => {
+      if (group.length === 1) {
+        positions.set(emp.employeeId, { lat: emp.lat, lng: emp.lng });
+        return;
+      }
+      const angle = (2 * Math.PI * index) / group.length;
+      const latOffset = PIN_OFFSET_DEG * Math.sin(angle);
+      const lngOffset = (PIN_OFFSET_DEG * Math.cos(angle)) / Math.cos((emp.lat * Math.PI) / 180);
+      positions.set(emp.employeeId, { lat: emp.lat + latOffset, lng: emp.lng + lngOffset });
+    });
+  }
+  return positions;
+}
+
 export function SiteNearbyMap({ site, employees, currentParticipants, radiusKm }: Props) {
   const mapDivRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const pinPositions = useMemo(() => spreadOverlappingPins(employees), [employees]);
 
   useEffect(() => {
     // 呼び出し元(site-search/page.tsx)がisGoogleMapsEnabledで未設定時は
@@ -106,11 +157,12 @@ export function SiteNearbyMap({ site, employees, currentParticipants, radiusKm }
         });
 
         for (const emp of employees) {
+          const position = pinPositions.get(emp.employeeId) ?? { lat: emp.lat, lng: emp.lng };
           new window.google.maps.Marker({
-            position: { lat: emp.lat, lng: emp.lng },
+            position,
             map,
             title: `${emp.name ?? ""}(${badgeLabel(emp)})`,
-            icon: `https://maps.google.com/mapfiles/ms/icons/${emp.matchedNearby ? "blue" : "green"}-dot.png`,
+            icon: personMarkerIcon(emp.matchedNearby ? "#3b82f6" : "#22c55e"),
           });
         }
       })
@@ -125,7 +177,7 @@ export function SiteNearbyMap({ site, employees, currentParticipants, radiusKm }
   const focusEmployee = (emp: SiteNearbyEmployeeView) => {
     const map = mapRef.current;
     if (!map) return;
-    map.panTo({ lat: emp.lat, lng: emp.lng });
+    map.panTo(pinPositions.get(emp.employeeId) ?? { lat: emp.lat, lng: emp.lng });
     map.setZoom(15);
   };
 
@@ -158,6 +210,32 @@ export function SiteNearbyMap({ site, employees, currentParticipants, radiusKm }
       </div>
 
       <div className="max-h-[600px] space-y-3 overflow-auto rounded-2xl border border-surface-border bg-surface px-6 py-5">
+        {currentParticipants.length > 0 && (
+          <div className="mb-4 border-b border-surface-border pb-3">
+            <h3 className="text-xs font-semibold text-foreground/50">現在参画中の社員</h3>
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {currentParticipants.map((p) => (
+                <li
+                  key={p.employeeId}
+                  className="flex items-center gap-1.5 rounded-full bg-background px-3 py-1 text-xs text-foreground/60"
+                  title={p.skills.join(" / ")}
+                >
+                  <span>
+                    {p.name}
+                    {p.organizationUnitName ? `(${p.organizationUnitName})` : ""}
+                  </span>
+                  <Link
+                    href={`/resumes/${p.employeeId}`}
+                    className="rounded-full border border-surface-border px-2 py-0.5 hover:bg-primary/10"
+                  >
+                    経歴書
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <h2 className="font-semibold text-brand">
           検索結果({employees.length}件・{radiusKm}km圏内 または 同一路線)
         </h2>
@@ -222,34 +300,6 @@ export function SiteNearbyMap({ site, employees, currentParticipants, radiusKm }
             </button>
           </div>
         ))}
-
-        {currentParticipants.length > 0 && (
-          <div className="mt-4 border-t border-surface-border pt-3">
-            <h3 className="text-xs font-semibold text-foreground/50">
-              現在参画中の社員(近隣・同一路線に該当しない社員)
-            </h3>
-            <ul className="mt-2 flex flex-wrap gap-2">
-              {currentParticipants.map((p) => (
-                <li
-                  key={p.employeeId}
-                  className="flex items-center gap-1.5 rounded-full bg-background px-3 py-1 text-xs text-foreground/60"
-                  title={p.skills.join(" / ")}
-                >
-                  <span>
-                    {p.name}
-                    {p.organizationUnitName ? `(${p.organizationUnitName})` : ""}
-                  </span>
-                  <Link
-                    href={`/resumes/${p.employeeId}`}
-                    className="rounded-full border border-surface-border px-2 py-0.5 hover:bg-primary/10"
-                  >
-                    経歴書
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
     </div>
   );

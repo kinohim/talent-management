@@ -282,7 +282,7 @@ describe("searchSiteNearbyEmployees", () => {
     ]);
   });
 
-  it("近隣または同一路線に一致し、かつ現在参画中の社員は、currentParticipantsには重複して含めない", async () => {
+  it("近隣または同一路線に一致し、かつ現在参画中の社員は、候補社員一覧とcurrentParticipantsの両方に重ねて含める", async () => {
     findManyMock.mockResolvedValue([
       employee({ projects: [{ siteId: 1, site: { siteName: SITE.siteName } }] }),
     ] as never);
@@ -291,7 +291,14 @@ describe("searchSiteNearbyEmployees", () => {
     const result = await searchSiteNearbyEmployees(1, 5);
 
     expect(result.employees).toHaveLength(1);
-    expect(result.currentParticipants).toEqual([]);
+    expect(result.currentParticipants).toEqual([
+      {
+        employeeId: "000001",
+        name: "山田太郎",
+        organizationUnitName: "開発部",
+        skills: [],
+      },
+    ]);
   });
 
   it("現在参画中でない社員はcurrentParticipantsに含めない", async () => {
