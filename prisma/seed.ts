@@ -280,37 +280,37 @@ const siteDefs: {
   {
     siteName: "B社ECサイト構築",
     departmentKey: "dist",
-    nearestStation: { prefecture: "大阪府", line: "JR東海道本線", name: "大阪駅" },
+    nearestStation: { prefecture: "大阪府", line: "JR東海道本線", name: "大阪" },
   },
   {
     siteName: "C社在庫管理システム刷新",
     departmentKey: "dist",
-    nearestStation: { prefecture: "神奈川県", line: "JR東海道本線", name: "横浜駅" },
+    nearestStation: { prefecture: "神奈川県", line: "JR東海道本線", name: "横浜" },
   },
   {
     siteName: "D社人事給与システム構築",
     departmentKey: "hr-svc",
-    nearestStation: { prefecture: "愛知県", line: "JR東海道本線", name: "名古屋駅" },
+    nearestStation: { prefecture: "愛知県", line: "JR東海道本線", name: "名古屋" },
   },
   {
     siteName: "E社モバイルアプリ開発",
     departmentKey: "sol",
-    nearestStation: { prefecture: "北海道", line: "JR函館本線", name: "札幌駅" },
+    nearestStation: { prefecture: "北海道", line: "JR函館本線", name: "札幌" },
   },
   {
     siteName: "F社データ基盤構築",
     departmentKey: "dx",
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "渋谷駅" },
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "渋谷" },
   },
   {
     siteName: "G社顧客管理システム刷新",
     departmentKey: null,
-    nearestStation: { prefecture: "福岡県", line: "JR鹿児島本線", name: "博多駅" },
+    nearestStation: { prefecture: "福岡県", line: "JR鹿児島本線", name: "博多" },
   },
   {
     siteName: "H社決済システム開発",
     departmentKey: "finance",
-    nearestStation: { prefecture: "宮城県", line: "JR東北本線", name: "仙台駅" },
+    nearestStation: { prefecture: "宮城県", line: "JR東北本線", name: "仙台" },
   },
 ];
 
@@ -421,7 +421,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "fin",
     email: "yamada@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "恵比寿駅" },
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "上野" },
   },
   {
     employeeId: "000007",
@@ -433,7 +433,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "dxgr",
     email: "emp000007@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "東京駅" },
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "東京" },
   },
   {
     employeeId: "000008",
@@ -445,7 +445,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "svc-sales",
     email: "emp000008@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "品川駅" },
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "東京" },
   },
 
   // 人事・営業(3名)
@@ -506,7 +506,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "fin",
     email: "emp000010@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "東京都", line: "東京メトロ丸ノ内線", name: "西新宿駅" },
+    nearestStation: { prefecture: "東京都", line: "東京メトロ丸ノ内線", name: "西新宿" },
   },
   {
     employeeId: "000011",
@@ -518,7 +518,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "sec",
     email: "emp000011@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "田端駅" },
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "東京" },
   },
   {
     employeeId: "000012",
@@ -531,7 +531,7 @@ const employeeSeeds: EmployeeSeed[] = [
     email: "emp000012@example.com",
     bucket: "rich",
     // HeartRails Express APIに存在しない架空駅(unresolvedStationCountの確認用)
-    nearestStation: { prefecture: "東京都", line: "テスト私鉄線", name: "テスト架空前駅" },
+    nearestStation: { prefecture: "東京都", line: "テスト私鉄線", name: "テスト架空前" },
   },
   {
     employeeId: "000013",
@@ -544,7 +544,7 @@ const employeeSeeds: EmployeeSeed[] = [
     email: "emp000013@example.com",
     bucket: "rich",
     // 000012と同じ架空駅(同じ未解決駅に複数人住んでいる場合の人数カウント確認用)
-    nearestStation: { prefecture: "東京都", line: "テスト私鉄線", name: "テスト架空前駅" },
+    nearestStation: { prefecture: "東京都", line: "テスト私鉄線", name: "テスト架空前" },
   },
   {
     employeeId: "000014",
@@ -556,7 +556,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "ryutsu",
     email: "emp000014@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "福岡県", line: "福岡市地下鉄空港線", name: "博多駅" },
+    nearestStation: { prefecture: "福岡県", line: "福岡市地下鉄空港線", name: "博多" },
   },
   {
     employeeId: "000015",
@@ -568,7 +568,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "ryutsu",
     email: "emp000015@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "神奈川県", line: "JR東海道本線", name: "横浜駅" },
+    nearestStation: { prefecture: "神奈川県", line: "JR東海道本線", name: "横浜" },
   },
   {
     employeeId: "000016",
@@ -580,7 +580,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "tsuhan",
     email: "emp000016@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "大阪府", line: "JR東海道本線", name: "大阪駅" },
+    nearestStation: { prefecture: "大阪府", line: "JR東海道本線", name: "大阪" },
   },
   {
     employeeId: "000017",
@@ -592,7 +592,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "dxgr",
     email: "emp000017@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "愛知県", line: "JR東海道本線", name: "名古屋駅" },
+    nearestStation: { prefecture: "愛知県", line: "JR東海道本線", name: "名古屋" },
   },
   {
     employeeId: "000018",
@@ -604,7 +604,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "product-dev",
     email: "emp000018@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "北海道", line: "JR函館本線", name: "札幌駅" },
+    nearestStation: { prefecture: "北海道", line: "JR函館本線", name: "札幌" },
   },
   {
     employeeId: "000019",
@@ -616,7 +616,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "erpgr",
     email: "emp000019@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "広島県", line: "JR山陽本線", name: "広島駅" },
+    nearestStation: { prefecture: "広島県", line: "JR山陽本線", name: "広島" },
   },
   {
     employeeId: "000020",
@@ -628,7 +628,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "sales-gr",
     email: "emp000020@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "京都府", line: "JR東海道本線", name: "京都駅" },
+    nearestStation: { prefecture: "京都府", line: "JR東海道本線", name: "京都" },
   },
   {
     employeeId: "000021",
@@ -640,7 +640,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "svc-sales",
     email: "emp000021@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "渋谷駅" },
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "渋谷" },
   },
   {
     employeeId: "000022",
@@ -652,7 +652,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "svc-sales",
     email: "emp000022@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "池袋駅" },
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "池袋" },
   },
   {
     employeeId: "000023",
@@ -665,7 +665,7 @@ const employeeSeeds: EmployeeSeed[] = [
     email: "emp000023@example.com",
     bucket: "skillsOnly",
     // 近隣・同一路線いずれも非該当(現在参画中プロジェクトはassignSiteSearchSampleで付与)
-    nearestStation: { prefecture: "宮城県", line: "JR東北本線", name: "仙台駅" },
+    nearestStation: { prefecture: "宮城県", line: "JR東北本線", name: "仙台" },
   },
   {
     // 事業部直下所属(閲覧範囲判定ルールbの確認用)
@@ -678,7 +678,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "si",
     email: "emp000024@example.com",
     bucket: "certsOnly",
-    nearestStation: { prefecture: "神奈川県", line: "JR東海道本線", name: "川崎駅" },
+    nearestStation: { prefecture: "神奈川県", line: "JR東海道本線", name: "川崎" },
   },
   {
     // 事業部直下所属(閲覧範囲判定ルールbの確認用)
@@ -691,7 +691,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "cloud",
     email: "emp000025@example.com",
     bucket: "projectsOnly",
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "目黒駅" },
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "目黒" },
   },
   {
     // 未所属(閲覧範囲判定ルールcの確認用)
@@ -716,7 +716,7 @@ const employeeSeeds: EmployeeSeed[] = [
     email: "emp000031@example.com",
     bucket: "rich",
     // 000021と同じ駅(ピンが重なる場合のずらし表示の確認用)
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "渋谷駅" },
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "渋谷" },
   },
 
   // 一般社員(退職、3名)
@@ -730,7 +730,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "fin",
     email: "taishoku@example.com",
     bucket: "rich",
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "秋葉原駅" },
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "秋葉原" },
   },
   {
     employeeId: "000027",
@@ -742,7 +742,7 @@ const employeeSeeds: EmployeeSeed[] = [
     orgKey: "sec",
     email: "emp000027@example.com",
     bucket: "skillsAndCerts",
-    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "有楽町駅" },
+    nearestStation: { prefecture: "東京都", line: "JR山手線", name: "有楽町" },
   },
   {
     employeeId: "000028",
