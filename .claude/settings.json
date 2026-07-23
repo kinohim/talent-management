@@ -36,6 +36,15 @@
             "command": "bash .claude/hooks/pre-bash-env-guard.sh"
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"リマインダー: このEdit/Write操作の対象ファイルと作業内容を、日本語でチャットに一言宣言しましたか？していなければ、これから宣言してから進めてください。\"}}'"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -68,12 +77,36 @@
         ]
       }
     ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/notify.sh"
+          }
+        ]
+      }
+    ],
     "Notification": [
       {
         "hooks": [
           {
             "type": "command",
             "command": "bash .claude/hooks/notify.sh"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "あなたはBashコマンド実行前の説明を審査するレビュアーです。以下のフック入力JSON(tool_input.command が実行予定のコマンド、tool_input.description がClaudeによる説明文)を見て、description が次の3点をすべて満たしているか判定してください。\n1. 目的: なぜこのコマンドが必要か\n2. 内容: 具体的に何をするか\n3. 言語: 日本語で書かれている(英語のみの説明は不合格)\n\ndescription が空、コマンドの単なる言い換え、「実行します」等の説明になっていない一般的な文言のみ、または英語のみで書かれている場合は不合格です。目的と内容の両方が日本語で一言でも読み取れれば合格とします。\n\nフック入力:\n$ARGUMENTS\n\n判定結果だけを、他の文章を一切付けずに以下のいずれか1行のJSONで出力してください。\n合格の場合: {\"continue\": true}\n不合格の場合: {\"hookSpecificOutput\": {\"hookEventName\": \"PermissionRequest\", \"permissionDecision\": \"deny\", \"permissionDecisionReason\": \"descriptionを日本語で、目的(なぜ)と内容(何を)を一言ずつ追加して再実行してください\"}, \"reason\": \"descriptionが目的・内容の説明不足、または日本語で書かれていません\"}",
+            "model": "claude-haiku-4-5-20251001",
+            "timeout": 20,
+            "statusMessage": "説明内容を確認中..."
           }
         ]
       }

@@ -32,7 +32,12 @@ scripts/
 │   ├── post-edit.sh          編集のたびに自動lint+型チェック。失敗をClaudeに直接返す心臓部
 │   ├── pre-bash-env-guard.sh Bash経由の .env 読み取りを実行前にブロック(.env.example は許可)
 │   ├── post-exit-plan-mode.sh Plan承認直後に「docs/plans/への保存確認」のリマインダーを注入
-│   └── notify.sh             完了・確認待ちを Windows トースト通知(WSL2 環境用)
+│   ├── notify.sh             完了・エラー終了・確認待ちを Windows トースト通知(WSL2 環境用)
+│   └── toast-notify.ps1      notify.sh が呼び出す通知表示の実体(Windows側のps1。リポジトリに同梱し
+│                              グローバル設定が無い環境でも通知機能が単体で動くようにしている)
+※ PreToolUse のリマインダー(Edit/Write/MultiEdit)と PermissionRequest の審査(Bash)は
+  スクリプトファイルを持たず、settings.json に直接コマンド/プロンプトとして定義している
+  (下記「作業可視化の機械的な後押し」参照)
 ├── skills/
 │   ├── db-migration/         スキーマ変更の手順書(Claudeが必要時に自動で読む)
 │   └── new-screen/           画面実装の手順書
@@ -87,6 +92,10 @@ scripts/
 - **危険な操作はコマンド単位で塞ぐ** — prisma migrate reset、db push、git push、
   .env の読み取りは deny 済み。deny は Read ツールしか塞げないため、
   Bash 経由(`cat .env` 等)の読み取りは pre-bash-env-guard.sh で実行前にブロックする
+- **作業の可視化は仕組みでも後押しする** — 【目的】【操作】宣言は CLAUDE.md の
+  「お願い」だが、Edit/Write/MultiEdit実行前の PreToolUse リマインダーと、
+  Bash実行許可時の PermissionRequest 審査(haikuモデルが説明文の目的・内容・
+  日本語かを判定し、不十分なら差し戻す)で機械的にも後押ししている
 
 ## 導入手順(新しい環境で最初にやること)
 
@@ -120,15 +129,31 @@ scripts/
    - 「応答不可(集中モード)」がオンになっていないか
    - WSL から `powershell.exe` が実行できるか(`powershell.exe -c echo ok`)
 
-### 通知(Stop / Notification フック)の運用メモ
+### 通知(Stop / StopFailure / Notification フック)の運用メモ
 
-- `Stop` は **Claude が応答を終えるたびに毎回**発火する。短いやり取りを
-  続けているときは通知がうるさく感じるかもしれない。その場合は
-  settings.json の `Stop` ブロックを削除し、`Notification`(確認待ち)だけ残す、
-  という調整が手軽
+- `Stop` は **Claude が応答を終えるたびに毎回**発火する。`StopFailure` は
+  APIエラーでターンが終了したときに発火する。短いやり取りを続けているときは
+  通知がうるさく感じるかもしれない。その場合は settings.json の `Stop` ブロックを
+  削除し、`Notification`(確認待ち)だけ残す、という調整が手軽
 - 通知が不要な人は、チーム共有の settings.json からは通知フックを外し、
   各自の `settings.local.json` に入れる運用に切り替えてもよい
   (hooks は settings.local.json でも定義できる)
+- 通知の実体(`toast-notify.ps1`)はこのリポジトリに同梱している。個人の
+  `~/.claude/settings.json` に同じ通知フックを入れている場合は二重通知になるが、
+  このリポジトリを審査・実行する側の環境にはグローバル設定が無い前提のため、
+  プロジェクト側は常にこの hooks が単体で機能するようにしてある
+
+### 作業可視化の機械的な後押し(PreToolUse / PermissionRequest)
+
+- `PreToolUse`(matcher: `Edit|Write|MultiEdit`)は、編集系ツールの実行前に
+  「【目的】【操作】を宣言したか」というリマインダー文を additionalContext として
+  毎回注入する。スクリプトファイルを持たず、settings.json に直接 `echo` コマンドを
+  定義している
+- `PermissionRequest`(matcher: `Bash`)は、Bashコマンドの実行許可を確認する
+  タイミングで発火し、Claude が添えた description を haiku モデルに「目的・内容・
+  日本語で書かれているか」で審査させる。基準を満たさなければ実行を拒否し、
+  日本語で目的・内容を書き直すよう差し戻す。これも settings.json 内に
+  プロンプトを直接定義しており、専用スクリプトは持たない
 
 ## メンテナンス方針
 

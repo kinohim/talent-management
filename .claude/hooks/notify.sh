@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 # =============================================================
-# notify.sh — 完了・確認待ちの Windows 通知フック
+# notify.sh — 完了・エラー終了・確認待ちの Windows 通知フック
 # 対象環境: Windows + VSCode + WSL2 (Ubuntu) で Claude Code を実行している構成。
 #
 # 紐付けているイベント (settings.json 参照):
 #   Stop         … Claude が応答を完了したとき(=作業完了)
+#   StopFailure  … APIエラーでターンが終わったとき
 #   Notification … Claude が許可や入力を待っているとき(=確認待ち)
 #
 # 仕組み: WSL2 内の notify-send は Windows に届かないため、
-# WSL の相互運用機能で Windows 側の powershell.exe を呼び出し、
+# WSL の相互運用機能で Windows 側の powershell.exe (toast-notify.ps1) を呼び出し、
 # 追加インストールなしでトースト通知を表示する。
+# toast-notify.ps1 はこのリポジトリの .claude/hooks/ に同梱しており、
+# グローバル設定が無い環境でもこのリポジトリ単体で通知機能が動く。
 #
 # このフックは「通知するだけ」なので、失敗しても Claude の動作を
 # 妨げないよう、どの経路でも必ず exit 0 で終わる。
@@ -24,6 +27,23 @@ fi
 
 input=$(cat)
 event=$(jq -r '.hook_event_name // empty' <<<"$input")
+transcript_path=$(jq -r '.transcript_path // empty' <<<"$input")
+
+# --- 疑似チャットタイトルの抽出 ----------------------------------
+# Stop/Notification の入力JSONにはチャット(セッション)の表示タイトルに
+# 相当するフィールドが無いため、transcript の最初のユーザー発言の冒頭を
+# 代用タイトルとして使う。取得できなければタイトルなしで続行する。
+chat_title=""
+if [[ -n "$transcript_path" && -f "$transcript_path" ]]; then
+  chat_title=$(jq -r '
+    select(.type=="user" and ((.isSidechain // false)==false))
+    | .message.content
+    | if type=="string" then .
+      else ([.[]? | select(.type=="text") | .text] | join(" "))
+      end
+    | .[0:40]
+  ' "$transcript_path" 2>/dev/null | head -n 1)
+fi
 
 # イベントごとに通知文を組み立てる。
 # Notification イベントには message フィールド(例: 「◯◯の実行許可が必要です」)
@@ -32,6 +52,11 @@ case "$event" in
   Stop)
     title="Claude Code - 完了"
     msg="作業が完了しました"
+    ;;
+  StopFailure)
+    title="Claude Code - エラー終了"
+    error_type=$(jq -r '.error_type // "unknown"' <<<"$input")
+    msg="APIエラーで終了しました (${error_type})"
     ;;
   Notification)
     title="Claude Code - 確認待ち"
@@ -42,6 +67,10 @@ case "$event" in
     msg="通知"
     ;;
 esac
+
+if [[ -n "$chat_title" ]]; then
+  title="${title} [${chat_title}]"
+fi
 
 # PowerShell のシングルクォート文字列に安全に埋め込むため、
 # タイトルとメッセージから引用符・改行を除去する(コマンド注入対策)。
@@ -69,17 +98,9 @@ else
 fi
 
 # --- Windows トースト通知 ----------------------------------------
-# WinRT の ToastNotification API を直接使う(モジュール追加インストール不要)。
-# AppId には PowerShell 標準の ID を使う。未登録の適当な文字列だと
-# 環境によって通知が表示されないことがあるため。
-"$ps_exe" -NoProfile -Command "
-[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType=WindowsRuntime] | Out-Null
-\$xml = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02)
-\$xml.GetElementsByTagName('text').Item(0).AppendChild(\$xml.CreateTextNode('$title')) | Out-Null
-\$xml.GetElementsByTagName('text').Item(1).AppendChild(\$xml.CreateTextNode('$msg')) | Out-Null
-\$appId = '{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe'
-[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier(\$appId).Show([Windows.UI.Notifications.ToastNotification]::new(\$xml))
-" >/dev/null 2>&1
+# リポジトリ同梱の toast-notify.ps1 を呼ぶ(プロジェクトルート相対パス。
+# hooks はプロジェクトルートを cwd として実行される)。
+"$ps_exe" -NoProfile -ExecutionPolicy Bypass -File "$(wslpath -w "$PWD/.claude/hooks/toast-notify.ps1")" -Title "$title" -Message "$msg" >/dev/null 2>&1
 
 # 通知の成否に関わらず Claude の動作は止めない
 exit 0

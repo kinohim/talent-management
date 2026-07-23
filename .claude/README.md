@@ -45,14 +45,19 @@ Bash 経由(`cat .env.example`)で行える(pre-bash-env-guard.sh は .env.examp
 | 設定 | 必要性 |
 |---|---|
 | `PreToolUse` matcher `Bash` → pre-bash-env-guard.sh | Bash コマンドの**実行前**に発火し、コマンド文字列に .env 系ファイルへの参照があればブロックする(.env.example のみ許可)。permissions の deny(Read ツールのみ対象)を補完する強制レイヤー |
+| `PreToolUse` matcher `Edit\|Write\|MultiEdit` → 直接echo | Edit/Write/MultiEditの**実行前**に発火し、「【目的】【操作】を宣言したか」というリマインダー文を additionalContext として注入する。スクリプト分離せず settings.json に直接 `echo` コマンドを書いている(1行で完結するため) |
 | `PostToolUse` matcher `Edit\|Write` | ファイルの編集・新規作成の直後にだけ発火させる(Read 等では発火させない) |
 | `command: bash .claude/hooks/post-edit.sh` | ロジックを settings.json に直書きせずスクリプトに分離。変更時に JSON を触らずに済み、シェル単体でテストもできる |
 | `PostToolUse` matcher `ExitPlanMode` → post-exit-plan-mode.sh | Plan モードの計画が承認された直後に発火し、「実装完了時に docs/plans/ へ保存するかユーザーに確認する」リマインダーを additionalContext で注入する |
 | `Stop` → notify.sh | Claude が**応答を完了した**ときに Windows トースト通知を出す(WSL2 環境用)。matcher は不要なイベントなので指定しない |
-| `Notification` → notify.sh | Claude が**許可や入力を待っている**ときに通知を出す。放置に気づけるようにする。※個人の `~/.claude/settings.json` に同じ通知フックを入れると二重通知になるので入れないこと |
+| `StopFailure` → notify.sh | APIエラーでターンが終了したときに通知を出す。matcherは不要 |
+| `Notification` → notify.sh | Claude が**許可や入力を待っている**ときに通知を出す。放置に気づけるようにする。※個人の `~/.claude/settings.json` に同じ通知フックを入れている場合は二重通知になる(このリポジトリではハッカソン提出物としての自己完結を優先し、二重通知は許容している) |
+| `PermissionRequest` matcher `Bash` → prompt(haikuモデル) | Bashコマンドの実行許可を確認するタイミングで発火し、Claudeが添えた説明文(description)が「目的・内容・日本語で書かれているか」をhaikuモデルに審査させる。基準を満たさなければ実行を拒否し、書き直しを促す。スクリプトファイルは持たずsettings.json内にプロンプトを直接定義している |
 
 通知の仕組み・注意点(WSL2 前提、うるさい場合の外し方など)は
 `hooks/notify.sh` 内のコメントと `HARNESS.md` の導入手順を参照。
+通知の実体(`toast-notify.ps1`)はこのリポジトリに同梱しており、
+グローバル設定が無い環境でも単体で通知機能が動く。
 
 hook の中身と終了コードの意味は `hooks/post-edit.sh` 内のコメントを参照。
 
