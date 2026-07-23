@@ -87,7 +87,7 @@ export function OrganizationUnitNodeItem({
 
   return (
     <div className={`flex flex-col gap-1 py-0.5 ${DEPTH_PADDING[depth] ?? "pl-12"}`}>
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded border px-3 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-surface-border px-3 py-2">
         <div className="flex items-center gap-2">
           {/* 子ありは開閉ボタン、子なしは同幅スペーサーで名称の縦位置を揃える */}
           {hasChildren ? (
@@ -96,7 +96,7 @@ export function OrganizationUnitNodeItem({
               onClick={() => setExpanded((v) => !v)}
               aria-expanded={expanded}
               aria-label={expanded ? "配下を閉じる" : "配下を開く"}
-              className="w-5 text-center text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+              className="w-5 text-center text-xs text-brand/70 hover:text-brand"
             >
               {expanded ? "▼" : "▶"}
             </button>
@@ -112,19 +112,19 @@ export function OrganizationUnitNodeItem({
                 defaultValue={node.unitName}
                 maxLength={100}
                 autoFocus
-                className="rounded border px-2 py-1 text-sm"
+                className="rounded-full border border-surface-border px-3 py-1 text-sm"
               />
               <button
                 type="submit"
                 disabled={isRenamePending}
-                className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                className="rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary-dark"
               >
                 {isRenamePending ? "保存中..." : "保存"}
               </button>
               <button
                 type="button"
                 onClick={() => setMode("view")}
-                className="text-xs text-zinc-500"
+                className="text-xs text-foreground/60"
               >
                 キャンセル
               </button>
@@ -138,7 +138,7 @@ export function OrganizationUnitNodeItem({
             <span className="text-sm">
               {node.unitName}
               {hasChildren && !expanded ? (
-                <span className="ml-2 text-xs text-zinc-400">
+                <span className="ml-2 text-xs text-foreground/50">
                   {CHILD_LEVEL_LABELS[node.children[0]!.unitLevel] ?? "配下"}
                   {node.children.length}件
                 </span>
@@ -152,7 +152,7 @@ export function OrganizationUnitNodeItem({
             <button
               type="button"
               onClick={() => setMode("rename")}
-              className="rounded border px-2 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              className="rounded-full border border-primary px-2 py-1 text-brand hover:bg-primary/10"
             >
               編集
             </button>
@@ -160,7 +160,7 @@ export function OrganizationUnitNodeItem({
               <button
                 type="button"
                 onClick={() => setMode("add-child")}
-                className="rounded border px-2 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                className="rounded-full border border-primary px-2 py-1 text-brand hover:bg-primary/10"
               >
                 配下に追加
               </button>
@@ -168,7 +168,7 @@ export function OrganizationUnitNodeItem({
             <button
               type="button"
               onClick={() => setShowConfirm(true)}
-              className="rounded border px-2 py-1 text-red-600 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              className="rounded-full border border-red-300 px-2 py-1 text-red-600 hover:bg-red-50"
             >
               削除
             </button>
@@ -194,19 +194,19 @@ export function OrganizationUnitNodeItem({
             placeholder="名称"
             maxLength={100}
             autoFocus
-            className="rounded border px-2 py-1 text-sm"
+            className="rounded-full border border-surface-border px-3 py-1 text-sm"
           />
           <button
             type="submit"
             disabled={isAddChildPending}
-            className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-primary px-3 py-1 text-xs text-brand hover:bg-primary/10"
           >
             {isAddChildPending ? "追加中..." : "追加"}
           </button>
           <button
             type="button"
             onClick={() => setMode("view")}
-            className="text-xs text-zinc-500"
+            className="text-xs text-foreground/60"
           >
             キャンセル
           </button>

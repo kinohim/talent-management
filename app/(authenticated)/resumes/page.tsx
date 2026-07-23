@@ -5,8 +5,14 @@ import {
   ResumeSearchResultTable,
   type ResumeSearchResultRow,
 } from "@/components/resumes/ResumeSearchResultTable";
+import { AppliedFilterChips } from "@/components/ui/AppliedFilterChips";
 import { PaginationControls } from "@/components/ui/PaginationControls";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { EmploymentStatus, Prisma, UserRole } from "@/generated/prisma/client";
+import {
+  RESUME_APPLIED_FILTER_CLEAR_KEYS,
+  buildResumeAppliedFilterChips,
+} from "@/lib/applied-filter-chips";
 import { auth } from "@/lib/auth";
 import { resolveDestination } from "@/lib/auth-routing";
 import { clampPage, parsePagination, parseSort } from "@/lib/list-query";
@@ -58,6 +64,9 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
 
   const isEmployeeRole = session.user.role === UserRole.EMPLOYEE;
 
+  // 検索対象はロールによらず全社員(docs/screens.md resume-list)。閲覧範囲は
+  // 検索の限定には使わず、行ごとの「詳細」導線(resume-detailへのリンク)の
+  // 出し分けにのみ使う。
   let scopeUnitIds: Set<number> | null = null;
   if (isEmployeeRole) {
     const viewer = await prisma.employee.findUnique({
@@ -67,16 +76,7 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
     scopeUnitIds = resolveResumeViewScopeUnitIds(units, viewer?.organizationUnitId ?? null);
   }
 
-  // 所属組織フィルタのUI選択肢自体を、一般社員は自身の閲覧範囲内に限定する。
-  const orgTreeUnits = scopeUnitIds ? units.filter((u) => scopeUnitIds!.has(u.id)) : units;
-  // 閲覧範囲で絞り込むと根(部署)の親(事業部)がorgTreeUnitsに含まれずparentId
-  // もnullではないため、根を明示的に指定する(親がスコープ外/nullな要素が根)。
-  const orgTreeRootIds = scopeUnitIds
-    ? orgTreeUnits
-        .filter((u) => u.parentId == null || !scopeUnitIds!.has(u.parentId))
-        .map((u) => u.id)
-    : null;
-  const orgTree = buildOrganizationUnitTree(orgTreeUnits, orgTreeRootIds);
+  const orgTree = buildOrganizationUnitTree(units);
 
   // カスケード選択(上位+下位が両方選択されている場合は最深の選択配下のみ)
   const selectedOrgIds =
@@ -109,20 +109,7 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
     conditions.push({ experienceMonths: { lte: filters.experienceMax * 12 + 11 } });
   }
 
-  if (isEmployeeRole) {
-    // URLのsearchParamsはユーザー操作可能なため、選択された組織idは常に
-    // 自身の閲覧範囲(scopeUnitIds)と積集合をとってからクエリに使う
-    // (閲覧範囲外を直接指定されてもサーバー側でクランプする)。
-    const effectiveOrgIds = selectedOrgIds
-      ? [...selectedOrgIds].filter((id) => scopeUnitIds!.has(id))
-      : [...scopeUnitIds!];
-    conditions.push({
-      OR: [
-        { employeeId: session.user.employeeId },
-        { organizationUnitId: { in: effectiveOrgIds } },
-      ],
-    });
-  } else if (selectedOrgIds) {
+  if (selectedOrgIds) {
     conditions.push({ organizationUnitId: { in: [...selectedOrgIds] } });
   }
 
@@ -161,10 +148,12 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
     conditions.push({ name: { contains: filters.colName, mode: "insensitive" } });
   }
   if (filters.colOrganizationUnitIds.length > 0) {
-    // 一般社員は閲覧範囲内のidのみ許可(スコープ外の直接指定をクランプ)
-    const numericIds = filters.colOrganizationUnitIds
-      .filter((v): v is number => v !== "none")
-      .filter((id) => (scopeUnitIds ? scopeUnitIds.has(id) : true));
+    // 選択した組織単位の配下も含めて判定する(検索カードのカスケード選択と
+    // 同じ配下展開。docs/screens.md resume-list)
+    const selectedIds = filters.colOrganizationUnitIds.filter(
+      (v): v is number => v !== "none",
+    );
+    const numericIds = [...resolveEffectiveOrgUnitIds(units, selectedIds)];
     const orConditions: Prisma.EmployeeWhereInput[] = [];
     if (numericIds.length > 0) {
       orConditions.push({ organizationUnitId: { in: numericIds } });
@@ -210,7 +199,12 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
 
   const where: Prisma.EmployeeWhereInput = { AND: conditions };
 
-  const totalCount = await prisma.employee.count({ where });
+  // 「検索結果◯件/全◯件」の母数(全◯件)は検索条件を適用しない全体件数
+  // (登録済み・未削除の全社員。退職者を含む)
+  const [totalCount, baselineTotalCount] = await Promise.all([
+    prisma.employee.count({ where }),
+    prisma.employee.count({ where: { deletedAt: null, isRegistered: true } }),
+  ]);
   const { page, skip, pageCount } = clampPage(
     pagination.page,
     totalCount,
@@ -249,6 +243,18 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
   const rows: ResumeSearchResultRow[] = employees.map((employee) => ({
     employeeId: employee.employeeId,
     name: employee.name ?? "",
+    // 一般社員は閲覧範囲内(+本人)の行にのみ「詳細」導線を出す。範囲外でも
+    // 一覧表示はする(検索は全社員が対象)。resume-detail側でも同じ判定で
+    // ガードしているため、これはUI上の出し分けであって権限境界ではない。
+    canViewDetail:
+      !isEmployeeRole ||
+      employee.employeeId === session.user.employeeId ||
+      (employee.organizationUnitId != null &&
+        scopeUnitIds!.has(employee.organizationUnitId)),
+    // PDF出力の権限(本人・人事・営業/管理職)に合わせ、一般社員は自分自身の
+    // 行にのみ「PDF」を表示する(docs/screens.md resume-list)
+    canDownloadPdf:
+      !isEmployeeRole || employee.employeeId === session.user.employeeId,
     organizationUnitName: employee.organizationUnitId
       ? (orgUnitById.get(employee.organizationUnitId)?.unitName ?? null)
       : null,
@@ -263,15 +269,30 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
     ),
   }));
 
-  // 列フィルタ「所属組織」の選択肢(一般社員は閲覧範囲内のみ)。"none"=未所属
+  // 列フィルタ「所属組織」の選択肢(全組織)。"none"=未所属
   const orgFilterOptions = [
-    ...orgTreeUnits.map((u) => ({ value: String(u.id), label: u.unitName })),
+    ...units.map((u) => ({ value: String(u.id), label: u.unitName })),
     { value: "none", label: "未所属" },
   ];
 
+  // 適用中の検索条件チップ(一覧の上に表示。個別✕解除/一括クリア用)。
+  // 検索フォーム本体の条件のみを対象とし、列フィルタ(col*)は含めない。
+  const skillNameById = new Map(skillOptions.skills.map((s) => [s.id, s.skillName]));
+  const certificationNameById = new Map(
+    certificationOptions.certifications.map((c) => [c.id, c.certificationName]),
+  );
+  const siteNameById = new Map(siteOptions.map((s) => [s.id, s.siteName]));
+
+  const appliedChips = buildResumeAppliedFilterChips(filters, {
+    orgUnitName: (id) => orgUnitById.get(id)?.unitName,
+    skillName: (id) => skillNameById.get(id),
+    certificationName: (id) => certificationNameById.get(id),
+    siteName: (id) => siteNameById.get(id),
+  });
+
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
-      <h1 className="text-lg font-semibold">経歴書一覧</h1>
+      <SectionHeading as="h1" eyebrow="RESUMES" title="経歴書一覧" />
 
       <ResumeFilterForm
         orgTree={orgTree}
@@ -293,11 +314,14 @@ export default async function ResumesPage({ searchParams }: ResumesPageProps) {
         initialIncludeRetired={filters.includeRetired}
       />
 
+      <AppliedFilterChips chips={appliedChips} clearKeys={RESUME_APPLIED_FILTER_CLEAR_KEYS} />
+
       <div className="flex flex-col gap-2">
         <PaginationControls
           page={page}
           pageCount={pageCount}
           totalCount={totalCount}
+          baselineTotalCount={baselineTotalCount}
           pageSize={pagination.pageSize}
         />
         <ResumeSearchResultTable

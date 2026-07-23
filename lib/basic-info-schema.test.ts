@@ -53,6 +53,30 @@ describe("parseBasicInfoForm", () => {
     }
   });
 
+  it("カナにスペースがない(1語)なら失敗し、姓名区切りエラーを返す", () => {
+    const result = parseBasicInfoForm(
+      formData({ ...validEntries, nameKana: "ヤマダタロウ" }),
+    );
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(flattenFieldErrors(result.error).nameKana).toBe(
+        "カナは姓と名の間にスペースを入れて入力してください。",
+      );
+    }
+  });
+
+  it("カナが3語以上なら失敗し、姓名区切りエラーを返す", () => {
+    const result = parseBasicInfoForm(
+      formData({ ...validEntries, nameKana: "ヤマダ タロウ ジロウ" }),
+    );
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(flattenFieldErrors(result.error).nameKana).toBe(
+        "カナは姓と名の間にスペースを入れて入力してください。",
+      );
+    }
+  });
+
   it("生年月日の形式が不正なら失敗する", () => {
     const result = parseBasicInfoForm(
       formData({ ...validEntries, birthDate: "1990/01/01" }),
@@ -68,6 +92,18 @@ describe("parseBasicInfoForm", () => {
     if (result.success) {
       expect(result.data.nearestStationLine).toBeUndefined();
     }
+  });
+
+  it("最寄駅の都道府県はPREFECTURES(47都道府県)に含まれる値のみ許可し、それ以外はエラー", () => {
+    const okResult = parseBasicInfoForm(
+      formData({ ...validEntries, nearestStationPrefecture: "東京都" }),
+    );
+    expect(okResult.success).toBe(true);
+
+    const ngResult = parseBasicInfoForm(
+      formData({ ...validEntries, nearestStationPrefecture: "東京府" }),
+    );
+    expect(ngResult.success).toBe(false);
   });
 
   it("任意項目を正しく入力すると値が反映される", () => {

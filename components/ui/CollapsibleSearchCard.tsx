@@ -30,7 +30,7 @@ export function notifySearchExecuted(storageKey: string) {
   }
 }
 
-// 検索条件カードの開閉ラッパー(REF002/REF007共通)。
+// 検索条件カードの開閉ラッパー(resume-list/account-list共通)。
 // 開閉はユーザーの明示的な操作と「検索後に閉じる」トグル(既定ON)のみで決まる。
 // どちらもsessionStorageに記憶し、記憶がなければ「開」/「ONあつかい」。
 // sessionStorageは外部システムのためuseSyncExternalStoreで購読する。
@@ -58,34 +58,35 @@ export function CollapsibleSearchCard({
   );
 
   return (
-    <div className="rounded border">
+    <div className="rounded-2xl border border-surface-border">
       {/* トグルは「検索条件」のすぐ右隣に置く */}
       <div className="flex items-center gap-4 px-4 py-2">
         <button
           type="button"
           onClick={() => writeFlag(openKey, !open)}
           aria-expanded={open}
-          className="flex items-center gap-2 rounded px-1 py-1 text-left text-sm font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-800"
+          className="flex items-center gap-2 rounded-full px-2 py-1 text-left text-sm font-semibold text-brand hover:bg-primary/10"
         >
           <span
             aria-hidden
-            className={`text-xs text-zinc-500 transition-transform ${open ? "rotate-90" : ""}`}
+            className={`text-xs text-primary-dark transition-transform ${open ? "rotate-90" : ""}`}
           >
             ▶
           </span>
           検索条件
         </button>
-        <label className="flex shrink-0 cursor-pointer items-center gap-1.5 text-xs text-zinc-600">
+        <label className="flex shrink-0 cursor-pointer items-center gap-1.5 text-xs text-foreground/60">
           <input
             type="checkbox"
             checked={autoClose}
             onChange={(e) => writeFlag(autoCloseKey, e.target.checked)}
+            className="accent-primary"
           />
           検索後に閉じる
         </label>
       </div>
       {/* 閉じてもフォームの入力状態を保持するためアンマウントせずhiddenにする */}
-      <div hidden={!open} className="border-t p-4">
+      <div hidden={!open} className="border-t border-surface-border p-4">
         {children}
       </div>
     </div>

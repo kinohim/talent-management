@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   if (!session?.user) {
     return errorResponse(401, "ログインしてください。");
   }
-  // 人事・営業は自分の経歴書を持たないためEDT002(AI生成含む)の対象外
+  // 人事・営業は自分の経歴書を持たないためmypageの経歴概要・自己PRセクション(AI生成含む)の対象外
   if (session.user.role === UserRole.HR_SALES) {
     return errorResponse(403, "この機能を利用する権限がありません。");
   }
@@ -238,11 +238,11 @@ type ProjectDetailPhases = {
 function projectPhases(detail: ProjectDetailPhases): string[] {
   if (!detail) return [];
   const phases: [boolean | null, string][] = [
-    [detail.researchAnalysis, "調査・分析"],
+    [detail.researchAnalysis, "調査分析"],
     [detail.requirementsDefinition, "要件定義"],
     [detail.basicDesign, "基本設計"],
     [detail.detailedDesign, "詳細設計"],
-    [detail.development, "開発"],
+    [detail.development, "製造"],
     [detail.testing, "テスト"],
     [detail.operation, "運用"],
   ];

@@ -11,6 +11,7 @@ import { OrganizationUnitSelect } from "@/components/basic-info/OrganizationUnit
 import { ClearableInput } from "@/components/ui/ClearableInput";
 import { DateField, MonthField } from "@/components/ui/DateField";
 import { useSectionEdit } from "@/components/my-resume/EditableSection";
+import { NearestStationSelect } from "@/components/ui/NearestStationSelect";
 import { PillSelect } from "@/components/ui/PillSelect";
 import { predictGraduationYearMonth } from "@/lib/graduation";
 import type {
@@ -24,7 +25,7 @@ import type {
 } from "@/lib/organization-unit";
 
 type BasicInfoFormProps = {
-  // register=初回登録画面(保存後にREF004へ遷移)/section=私の経歴書のセクション編集
+  // register=初回登録画面(保存後にmypageへ遷移)/section=私の経歴書のセクション編集
   variant: BasicInfoFormVariant;
   employeeId: string;
   email: string;
@@ -33,6 +34,7 @@ type BasicInfoFormProps = {
     nameKana: string;
     birthDate: string;
     gender: Gender | null;
+    nearestStationPrefecture: string;
     nearestStationLine: string;
     nearestStationName: string;
     finalSchoolType: FinalSchoolType | null;
@@ -116,6 +118,10 @@ export function BasicInfoForm({
             defaultValue={defaultValues.nameKana}
             required
           />
+          {/* PDF出力のイニシャル生成が姓・名の区切りを前提とするため注記を出す */}
+          <p className="text-xs text-zinc-500">
+            姓と名の間にスペースを入れてください（例: ヤマダ タロウ）
+          </p>
           {state.fieldErrors.nameKana ? (
             <p className="text-sm text-red-600">{state.fieldErrors.nameKana}</p>
           ) : null}
@@ -162,32 +168,14 @@ export function BasicInfoForm({
 
         <div className="flex flex-col gap-1">
           <span className="text-sm font-medium">最寄駅</span>
-          {/* 所属組織(内側ラベル付きの3セレクト)と行の高さが揃うよう、
-              こちらも路線名/駅名の内側ラベルを持たせる */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="flex flex-col gap-1">
-              <label htmlFor="nearestStationLine" className="text-sm font-medium">
-                路線名
-              </label>
-              <ClearableInput
-                id="nearestStationLine"
-                name="nearestStationLine"
-                placeholder="例: JR山手線"
-                defaultValue={defaultValues.nearestStationLine}
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="nearestStationName" className="text-sm font-medium">
-                駅名
-              </label>
-              <ClearableInput
-                id="nearestStationName"
-                name="nearestStationName"
-                placeholder="例: 渋谷駅"
-                defaultValue={defaultValues.nearestStationName}
-              />
-            </div>
-          </div>
+          <NearestStationSelect
+            namePrefecture="nearestStationPrefecture"
+            nameLine="nearestStationLine"
+            nameName="nearestStationName"
+            defaultPrefecture={defaultValues.nearestStationPrefecture || null}
+            defaultLine={defaultValues.nearestStationLine || null}
+            defaultName={defaultValues.nearestStationName || null}
+          />
         </div>
 
         <div className="flex flex-col gap-1">

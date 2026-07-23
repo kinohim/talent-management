@@ -20,8 +20,8 @@ type ProjectSkillRowProps = {
   onRemove: () => void;
 };
 
-// 新規追加用の1行コンパクトフォーム(EDT005の使用スキル)。EDT003のSkillRowと
-// 同じ入力形式だが、習熟度に相当する項目はEDT005にはない。
+// 新規追加用の1行コンパクトフォーム(project-formの使用スキル)。mypageのスキルセクションのSkillRowと
+// 同じ入力形式だが、習熟度に相当する項目はproject-formにはない。
 export function ProjectSkillRow({
   index,
   row,

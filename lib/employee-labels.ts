@@ -61,7 +61,7 @@ export function skillLevelSymbol(level: SkillLevel): string {
   return SKILL_LEVEL_SYMBOLS[level];
 }
 
-// 管理職がEDT006/EDT007で登録した氏名は、本人の初回登録(EDT001保存で
+// 管理職がaccount-new/account-editで登録した氏名は、本人の初回登録(basic-info保存で
 // is_registered=true)が済むまで「◯◯（仮登録）」と表示する(docs/decisions.md)。
 // nameには素の氏名のみを保存し、接尾辞は表示時に付与する(表示ルール方式)。
 export function employeeDisplayName(

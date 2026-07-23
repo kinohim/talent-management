@@ -23,13 +23,13 @@ export function parseYearMonth(value: string): Date {
   return new Date(Date.UTC(y, m - 1, 1));
 }
 
-// 日精度の日付を表示用の日本語形式にする(REF003等の閲覧専用画面向け)
+// 日精度の日付を表示用の日本語形式にする(resume-detail等の閲覧画面向け)
 export function toDisplayDate(date: Date | null | undefined): string {
   if (!date) return "";
   return `${date.getUTCFullYear()}年${date.getUTCMonth() + 1}月${date.getUTCDate()}日`;
 }
 
-// 年月精度の日付を表示用の日本語形式にする(REF003等の閲覧専用画面向け)
+// 年月精度の日付を表示用の日本語形式にする(resume-detail等の閲覧画面向け)
 export function toDisplayYearMonth(date: Date | null | undefined): string {
   if (!date) return "";
   return `${date.getUTCFullYear()}年${date.getUTCMonth() + 1}月`;
@@ -59,7 +59,7 @@ export function nowJstClock(now: Date = new Date()): Date {
   return toJstClock(now);
 }
 
-// 日時(TIMESTAMPTZ)を表示用の日本語形式にする(REF007の最終ログイン等)。
+// 日時(TIMESTAMPTZ)を表示用の日本語形式にする(account-listの最終ログイン等)。
 // DATE型のtoDisplayDate等(UTC深夜保存)と異なり、UTC瞬間をJSTに変換して表示する。
 export function toDisplayDateTime(date: Date | null | undefined): string {
   if (!date) return "";

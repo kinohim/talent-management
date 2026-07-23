@@ -32,12 +32,12 @@ import {
   type SkillRowFieldErrors,
 } from "@/lib/skill-schema";
 
-// REF004「私の経歴書」のセクション単位保存のServer Action群。
+// mypage「私の経歴書」のセクション単位保存のServer Action群。
 // 保存成功時はリダイレクトせず`saved: true`を返し、`revalidatePath("/mypage")`で
 // 同一画面のサーバーデータを更新する(フォーム側が`saved`を検知して
 // セクションの編集モードを解除する)。
-// 例外はEDT001(基本情報)の初回登録(variant="register")で、従来どおり
-// REF004へ遷移する(docs/screens.md「保存後の遷移先(共通ルール)」参照)。
+// 例外は基本情報の初回登録(basic-info単独画面、variant="register")で、従来どおり
+// mypageへ遷移する(docs/screens.md「保存後の遷移先(共通ルール)」参照)。
 
 const MYPAGE_PATH = "/mypage";
 
@@ -79,6 +79,7 @@ export async function saveBasicInfo(
         birthDate: parseDateOnly(parsed.data.birthDate),
         gender: parsed.data.gender ?? null,
         organizationUnitId,
+        nearestStationPrefecture: parsed.data.nearestStationPrefecture ?? null,
         nearestStationLine: parsed.data.nearestStationLine ?? null,
         nearestStationName: parsed.data.nearestStationName ?? null,
         finalSchoolType: parsed.data.finalSchoolType ?? null,
@@ -90,7 +91,7 @@ export async function saveBasicInfo(
           : null,
         isRegistered: true,
         updatedBy: session.user.employeeId,
-        updatedProgram: "EDT001",
+        updatedProgram: variant === "register" ? "basic-info" : "mypage",
       },
     });
   } catch {
@@ -101,7 +102,7 @@ export async function saveBasicInfo(
   }
 
   if (variant === "register") {
-    // 初回登録(EDT001単独画面)からの保存はREF004へ遷移する
+    // 初回登録(basic-info単独画面)からの保存はmypageへ遷移する
     redirect(MYPAGE_PATH);
   }
 
@@ -140,7 +141,7 @@ export async function saveCareerSummary(
         careerSummary: parsed.data.careerSummary ?? null,
         selfPr: parsed.data.selfPr ?? null,
         updatedBy: session.user.employeeId,
-        updatedProgram: "EDT002",
+        updatedProgram: "mypage",
       },
     });
   } catch {
@@ -193,9 +194,9 @@ export async function saveSkills(
           skillVersionId: row.skillVersionId ? Number(row.skillVersionId) : null,
           skillLevel: row.skillLevel,
           createdBy: employeeId,
-          createdProgram: "EDT003",
+          createdProgram: "mypage",
           updatedBy: employeeId,
-          updatedProgram: "EDT003",
+          updatedProgram: "mypage",
         })),
       }),
     ]);
@@ -254,9 +255,9 @@ export async function saveCertifications(
             ? parseDateOnly(row.expirationDate)
             : null,
           createdBy: employeeId,
-          createdProgram: "EDT004",
+          createdProgram: "mypage",
           updatedBy: employeeId,
-          updatedProgram: "EDT004",
+          updatedProgram: "mypage",
         })),
       }),
     ]);

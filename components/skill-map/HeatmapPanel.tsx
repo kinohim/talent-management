@@ -100,7 +100,7 @@ export function HeatmapPanel({
         <table className="w-full border-separate border-spacing-1 text-xs">
           <thead>
             <tr>
-              <th className="whitespace-nowrap px-1.5 py-2 text-left" />
+              <th className="w-0 whitespace-nowrap py-2 pl-1.5 pr-8 text-left" />
               {selectedCategories.map((category) => (
                 <th
                   key={category.id}
@@ -124,7 +124,7 @@ export function HeatmapPanel({
                     draggingId.current = null;
                   }}
                   title="ドラッグで行を並び替え"
-                  className="cursor-grab touch-none select-none whitespace-nowrap px-1.5 py-2 text-left font-semibold active:cursor-grabbing"
+                  className="w-0 cursor-grab touch-none select-none whitespace-nowrap py-2 pl-1.5 pr-8 text-left font-semibold active:cursor-grabbing"
                 >
                   <span className="mr-1.5 text-zinc-400" aria-hidden>
                     ⠿

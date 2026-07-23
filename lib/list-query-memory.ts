@@ -1,4 +1,4 @@
-// 一覧画面(REF002/REF007)の検索条件・ソート・ページはURLのsearchParamsに
+// 一覧画面(resume-list/account-list)の検索条件・ソート・ページはURLのsearchParamsに
 // 載っているため、詳細・編集画面へ遷移して「〜に戻る」リンク(クエリなしの
 // 固定パス)で戻ると絞り込みが解除されてしまう。これを防ぐため、一覧画面の
 // 最新クエリをsessionStorageに記憶し、戻り先リンク(BackLink/パンくず)で

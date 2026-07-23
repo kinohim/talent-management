@@ -8,7 +8,10 @@ export function LogoutButton() {
         await signOut({ redirectTo: "/login" });
       }}
     >
-      <button type="submit" className="underline">
+      <button
+        type="submit"
+        className="rounded-full border border-primary px-3.5 py-1.5 text-brand hover:bg-primary/10"
+      >
         ログアウト
       </button>
     </form>

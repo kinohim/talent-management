@@ -5,12 +5,16 @@ import { useActionState, useState, useTransition } from "react";
 import { deleteSite, saveSite } from "@/app/(authenticated)/master/sites/actions";
 import { ClearableInput } from "@/components/ui/ClearableInput";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { NearestStationSelect } from "@/components/ui/NearestStationSelect";
 import type { SiteMasterFormState } from "@/lib/site-master-schema";
 
 export type SiteMasterSite = {
   id: number;
   siteName: string;
   organizationUnitId: number | null;
+  nearestStationPrefecture: string | null;
+  nearestStationLine: string | null;
+  nearestStationName: string | null;
 };
 
 // 主管部署の選択肢(部のみ。表示名は「事業部 / 部」)
@@ -43,6 +47,9 @@ export function SiteMasterRow({
 
   const departmentName =
     departments.find((d) => d.id === site.organizationUnitId)?.name ?? null;
+  const stationLabel = site.nearestStationName
+    ? `${site.nearestStationLine ?? ""} ${site.nearestStationName}`.trim()
+    : null;
 
   function handleDelete() {
     startDeleteTransition(async () => {
@@ -60,21 +67,21 @@ export function SiteMasterRow({
     return (
       <form
         action={formAction}
-        className="flex flex-wrap items-center gap-2 rounded border p-3"
+        className="flex flex-wrap items-center gap-2 rounded-2xl border border-surface-border p-3"
       >
         <span className="inline-flex w-64">
           <ClearableInput
             name="siteName"
             defaultValue={site.siteName}
             maxLength={100}
-            className="h-8 px-2 py-1 text-sm"
+            className="h-8 px-3 py-1 text-sm"
           />
         </span>
         <select
           name="organizationUnitId"
           aria-label="主管部署"
           defaultValue={site.organizationUnitId ?? ""}
-          className="h-8 rounded border px-2 py-1 text-sm"
+          className="h-8 rounded-full border border-surface-border px-3 py-1 text-sm"
         >
           <option value="">主管部署なし</option>
           {departments.map((d) => (
@@ -83,17 +90,25 @@ export function SiteMasterRow({
             </option>
           ))}
         </select>
+        <NearestStationSelect
+          namePrefecture="nearestStationPrefecture"
+          nameLine="nearestStationLine"
+          nameName="nearestStationName"
+          defaultPrefecture={site.nearestStationPrefecture}
+          defaultLine={site.nearestStationLine}
+          defaultName={site.nearestStationName}
+        />
         <button
           type="submit"
           disabled={isPending}
-          className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+          className="rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary-dark"
         >
           {isPending ? "保存中..." : "保存"}
         </button>
         <button
           type="button"
           onClick={() => setMode("view")}
-          className="text-xs text-zinc-500"
+          className="text-xs text-foreground/60"
         >
           キャンセル
         </button>
@@ -107,13 +122,18 @@ export function SiteMasterRow({
   }
 
   return (
-    <div className="flex flex-col gap-1 rounded border p-3">
+    <div className="flex flex-col gap-1 rounded-2xl border border-surface-border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-sm font-medium">
           {site.siteName}
           {departmentName ? (
-            <span className="ml-2 text-xs font-normal text-zinc-500">
+            <span className="ml-2 text-xs font-normal text-foreground/60">
               主管部署: {departmentName}
+            </span>
+          ) : null}
+          {stationLabel ? (
+            <span className="ml-2 text-xs font-normal text-foreground/60">
+              最寄駅: {stationLabel}
             </span>
           ) : null}
         </span>
@@ -121,14 +141,14 @@ export function SiteMasterRow({
           <button
             type="button"
             onClick={() => setMode("edit")}
-            className="rounded border px-2 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-primary px-2 py-1 text-brand hover:bg-primary/10"
           >
             編集
           </button>
           <button
             type="button"
             onClick={() => setShowConfirm(true)}
-            className="rounded border px-2 py-1 text-red-600 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-red-300 px-2 py-1 text-red-600 hover:bg-red-50"
           >
             削除
           </button>

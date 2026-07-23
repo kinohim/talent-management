@@ -1,6 +1,6 @@
 import { githubLoginAction } from "@/app/login/actions";
 
-// AUTH001のSSOログインボタン群(docs/screens.md参照)。実装済みはGitHubのみで、
+// loginのSSOログインボタン群(docs/screens.md参照)。実装済みはGitHubのみで、
 // Azure AD(Microsoft)/Googleは未実装のため「準備中」として先頭に非活性で配置する。
 // GitHubもクレデンシャル未設定の環境(gitHubEnabled=false)では準備中扱いにする。
 // 各ボタンは活性・非活性を問わずプロバイダのイメージカラーで配色し、
@@ -35,33 +35,36 @@ function PendingButton({
     <button
       type="button"
       disabled
-      className={`flex cursor-not-allowed items-center justify-center gap-2 rounded border px-4 py-2 opacity-70 ${className}`}
+      className={`flex cursor-not-allowed items-center justify-center gap-2 whitespace-nowrap rounded-full border px-6 py-3 text-base opacity-70 ${className}`}
     >
       <PendingIcon />
-      <span>{label}(準備中)</span>
+      <span className="whitespace-nowrap">{label}</span>
+      <span className="whitespace-nowrap text-xs font-normal text-foreground/50">
+        (準備中)
+      </span>
     </button>
   );
 }
 
 export function SsoLoginButtons({ gitHubEnabled }: { gitHubEnabled: boolean }) {
   return (
-    <div className="flex w-full max-w-sm flex-col gap-3">
+    <div className="flex w-full flex-col gap-4">
       {/* Microsoft: ブランドブルー #0078D4 */}
       <PendingButton
         label="Microsoftアカウントでログイン"
-        className="border-[#0078D4] bg-[#0078D4]/10 text-[#0078D4] dark:text-[#4da3e3]"
+        className="border-[#0078D4] bg-[#0078D4]/10 text-[#0078D4]"
       />
       {/* Google: 白地 + ブランドブルー #4285F4 */}
       <PendingButton
         label="Googleアカウントでログイン"
-        className="border-[#4285F4] bg-white text-[#4285F4] dark:bg-transparent dark:text-[#7baaf7]"
+        className="border-[#4285F4] bg-white text-[#4285F4]"
       />
       {/* GitHub: ブランドブラック #24292F */}
       {gitHubEnabled ? (
         <form action={githubLoginAction} className="flex flex-col">
           <button
             type="submit"
-            className="rounded bg-[#24292F] px-4 py-2 text-white hover:bg-[#32383f] dark:border dark:border-zinc-500"
+            className="whitespace-nowrap rounded-full bg-[#24292F] px-6 py-3 text-base text-white hover:bg-[#32383f]"
           >
             GitHubアカウントでログイン
           </button>
@@ -69,7 +72,7 @@ export function SsoLoginButtons({ gitHubEnabled }: { gitHubEnabled: boolean }) {
       ) : (
         <PendingButton
           label="GitHubアカウントでログイン"
-          className="border-[#24292F] bg-[#24292F]/10 text-[#24292F] dark:border-zinc-500 dark:text-zinc-300"
+          className="border-[#24292F] bg-[#24292F]/10 text-[#24292F]"
         />
       )}
     </div>

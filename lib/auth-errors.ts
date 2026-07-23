@@ -5,7 +5,7 @@
 // 固定依存しており、package.jsonにも同バージョンを明示的に追加済み)。
 import { CredentialsSignin } from "@auth/core/errors";
 
-// AUTH001のエラー文言(docs/screens.md参照)に対応するcode。
+// loginのエラー文言(docs/screens.md参照)に対応するcode。
 // authorize()内でCredentialsSigninのサブクラスをthrowすると、signIn()の
 // 戻り値(result.error)にそのcodeが伝播する(Auth.jsの仕組み)。
 

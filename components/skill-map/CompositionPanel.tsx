@@ -103,21 +103,21 @@ export function CompositionPanel({
   }
 
   return (
-    <div className="mt-3 flex flex-wrap items-start gap-8">
+    <div className="mt-3 flex flex-wrap items-start gap-10">
       <div
-        className="relative mt-2 h-40 w-40 shrink-0 rounded-full"
+        className="relative mt-2 h-56 w-56 shrink-0 rounded-full"
         style={{ background: conicGradient(parts) }}
         role="img"
         aria-label="構成比ドーナツチャート"
       >
-        <div className="absolute inset-7 rounded-full bg-white" />
+        <div className="absolute inset-10 rounded-full bg-white" />
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
-          <b className="text-2xl">{composition.total}</b>
-          <span className="text-[10px] text-zinc-500">件</span>
+          <b className="text-3xl">{composition.total}</b>
+          <span className="text-xs text-zinc-500">件</span>
         </div>
       </div>
 
-      <div className="min-w-[280px] flex-1">
+      <div className="min-w-[280px] max-w-lg flex-1">
         {composition.top.map((slice, i) => {
           const open = openIds.has(slice.id);
           const tooltip = recommendations?.get(slice.id);
@@ -129,7 +129,7 @@ export function CompositionPanel({
               <button
                 type="button"
                 onClick={() => toggle(slice.id)}
-                className="grid w-full grid-cols-[14px_1fr_52px_16px] items-center gap-2.5 rounded-lg px-1 py-2 text-left text-[13px] hover:bg-[#eef1fd]"
+                className="grid w-full grid-cols-[14px_1fr_60px_16px] items-center gap-2.5 rounded-lg px-1 py-2 text-left text-sm hover:bg-[#eef1fd]"
                 aria-expanded={open}
               >
                 <span
@@ -167,7 +167,7 @@ export function CompositionPanel({
             <button
               type="button"
               onClick={() => toggle("rest")}
-              className="grid w-full grid-cols-[14px_1fr_52px_16px] items-center gap-2.5 rounded-lg px-1 py-2 text-left text-[13px] hover:bg-[#eef1fd]"
+              className="grid w-full grid-cols-[14px_1fr_60px_16px] items-center gap-2.5 rounded-lg px-1 py-2 text-left text-sm hover:bg-[#eef1fd]"
               aria-expanded={openIds.has("rest")}
             >
               <span className="h-3 w-3 rounded-[3px]" style={{ background: REST_COLOR }} />

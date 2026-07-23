@@ -1,9 +1,9 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ResumeBasicInfoSection } from "@/components/resumes/ResumeBasicInfoSection";
 import { ResumeCertificationList } from "@/components/resumes/ResumeCertificationList";
 import { ResumeEducationSection } from "@/components/resumes/ResumeEducationSection";
-import { ResumeExportButtons } from "@/components/resumes/ResumeExportButtons";
 import { ResumeProjectList } from "@/components/resumes/ResumeProjectList";
 import { ResumeSkillList } from "@/components/resumes/ResumeSkillList";
 import { ResumeTextSection } from "@/components/resumes/ResumeTextSection";
@@ -16,19 +16,23 @@ import {
 } from "@/lib/organization-unit";
 import { prisma } from "@/lib/prisma";
 import { groupSkillsByCategory } from "@/lib/resume-view";
+import { getResumeForView } from "@/lib/resume-view-data";
 
 type ResumePageProps = {
   params: Promise<{ employeeId: string }>;
 };
 
+// 経歴書詳細(閲覧専用)。経歴書一覧の「詳細」・skill-mapの保有者名から遷移する。
+// 本人・人事・営業・管理職は常に閲覧可、一般社員は閲覧範囲内のみ
+// (canViewEmployeeResume)。
 export default async function ResumePage({ params }: ResumePageProps) {
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
   }
 
-  // 未登録の一般社員/管理職が直接開いた場合はEDT001へ戻す(既存ページと同じ
-  // 恒常ガード)。HR_SALESはresolveDestinationが常に"/"を返すため、REF003は
+  // 未登録の一般社員/管理職が直接開いた場合はbasic-infoへ戻す(既存ページと同じ
+  // 恒常ガード)。HR_SALESはresolveDestinationが常に"/"を返すため、resume-detailは
   // HR_SALESも閲覧するページとして他ページのようなHR_SALES弾き出しガードは
   // 入れない。
   const destination = await resolveDestination(session.user);
@@ -38,36 +42,7 @@ export default async function ResumePage({ params }: ResumePageProps) {
 
   const { employeeId } = await params;
 
-  const target = await prisma.employee.findUnique({
-    where: { employeeId },
-    include: {
-      organizationUnit: { include: { parent: { include: { parent: true } } } },
-      employeeSkills: {
-        include: {
-          skill: { include: { skillCategory: true } },
-          skillVersion: true,
-        },
-        orderBy: [
-          { skill: { skillCategory: { skillCategoryName: "asc" } } },
-          { skill: { skillName: "asc" } },
-        ],
-      },
-      employeeCertifications: {
-        include: { certification: true },
-        orderBy: { acquiredDate: "asc" },
-      },
-      projects: {
-        where: { deletedAt: null },
-        include: {
-          site: true,
-          projectDetail: true,
-          projectRoleLinks: { include: { projectRole: true } },
-          projectSkills: { include: { skill: true, skillVersion: true } },
-        },
-        orderBy: { startDate: "desc" },
-      },
-    },
-  });
+  const target = await getResumeForView(employeeId);
 
   // 対象社員が存在しない/まだ経歴書が実質存在しない(未登録)場合は安全側の
   // トップへ戻す。
@@ -76,7 +51,9 @@ export default async function ResumePage({ params }: ResumePageProps) {
   }
 
   const isSelf = employeeId === session.user.employeeId;
-  let allowed = isSelf || session.user.role === "HR_SALES" || session.user.role === "MANAGER";
+  const isHrOrManager =
+    session.user.role === "HR_SALES" || session.user.role === "MANAGER";
+  let allowed = isSelf || isHrOrManager;
 
   if (!allowed) {
     const [viewer, units] = await Promise.all([
@@ -103,10 +80,23 @@ export default async function ResumePage({ params }: ResumePageProps) {
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-6">
-      <h1 className="text-lg font-semibold">経歴書詳細</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-lg font-semibold">経歴書詳細</h1>
+        {/* PDF出力(ダウンロード)の権限(本人・人事・営業・管理職)に合わせて
+            表示する(一般社員は自分自身の詳細のみ。docs/screens.md pdf-preview)。
+            配置はpdf-previewのダウンロードボタンと同じ右上・右端揃え */}
+        {(isHrOrManager || isSelf) && (
+          <Link
+            href={`/resumes/${employeeId}/pdf-preview`}
+            className="rounded border bg-zinc-900 px-4 py-2 text-sm text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+          >
+            PDF出力
+          </Link>
+        )}
+      </div>
 
       {/* 戻り導線はグローバルのBackLink(「経歴書一覧に戻る」)に一本化している。
-          本人の編集・確認は REF004「私の経歴書」が担うため、本ページ独自の
+          本人の編集・確認は mypage「私の経歴書」が担うため、本ページ独自の
           戻りリンクは持たない。 */}
 
       <ResumeBasicInfoSection
@@ -136,8 +126,6 @@ export default async function ResumePage({ params }: ResumePageProps) {
       <ResumeCertificationList certifications={target.employeeCertifications} />
 
       <ResumeProjectList projects={target.projects} />
-
-      <ResumeExportButtons />
     </main>
   );
 }

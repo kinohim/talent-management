@@ -9,7 +9,7 @@ const ACCOUNT_STATUS_LABELS: Record<AccountStatus, string> = {
   RETIRED: "退職",
 };
 
-// REF007の状態判定(docs/screens.md「状態の判定」参照)。3条件は文字通りには
+// account-listの状態判定(docs/screens.md「状態の判定」参照)。3条件は文字通りには
 // 排他的でないため、退職を最優先とする(退職済みなら未登録有無を問わず「退職」)。
 export function deriveAccountStatus(employee: {
   isRegistered: boolean;
@@ -68,7 +68,7 @@ function parseColumnOrgUnitIds(
     .filter((v): v is number | "none" => v === "none" || Number.isInteger(v));
 }
 
-// REF007のフィルタをURLのsearchParamsからパースする純粋関数。
+// account-listのフィルタをURLのsearchParamsからパースする純粋関数。
 export function parseAccountFilters(searchParams: SearchParamsInput): AccountFilters {
   const name = (toArray(searchParams.name)[0] ?? "").trim();
 

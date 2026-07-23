@@ -12,7 +12,7 @@ import {
 } from "@/lib/organization-unit-schema";
 import { prisma } from "@/lib/prisma";
 
-const PROGRAM = "MST004";
+const PROGRAM = "master-org-units";
 const PATH = "/master/organization-units";
 
 // 組織単位名は「同一親の配下内」で一意とする(別の親の配下なら同名可。

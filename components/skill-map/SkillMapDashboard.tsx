@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import {
   recommendCertifications,
   type SkillMapDashboardData,
@@ -22,7 +23,7 @@ const SECTIONS: { key: Section; label: string }[] = [
   { key: "heat", label: "ヒートマップ" },
 ];
 
-// REF008 スキルマップ/組織ダッシュボード本体。全社分のDTOを受け取り、
+// skill-map スキルマップ/組織ダッシュボード本体。全社分のDTOを受け取り、
 // 部署・カテゴリ等の絞り込みはすべてクライアント側で行う
 // (docs/dashboard-design.md)。タブ切替で各パネルの状態(フィルタ・展開・
 // 並び順)を保持するため、非表示パネルはアンマウントせずhiddenにする。
@@ -74,15 +75,15 @@ export function SkillMapDashboard({ data }: { data: SkillMapDashboardData }) {
     myCertificationIds,
   });
 
-  const panelClass = "rounded-2xl border border-[#e6e8f0] bg-white px-6 py-5";
+  const panelClass = "rounded-2xl border border-surface-border bg-surface px-6 py-5";
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-lg font-semibold">スキルマップ/組織ダッシュボード</h1>
-        <div className="rounded-xl border border-[#e6e8f0] bg-white px-4 py-2 text-[13px] text-zinc-500">
-          資格保有 <b className="mx-0.5 text-xl text-zinc-900">{data.kpiTotal}</b>件
-          <span className="ml-2 text-xs font-bold text-[#1a9e5c]">
+        <SectionHeading eyebrow="SKILL MAP" title="スキルマップ/組織ダッシュボード" />
+        <div className="rounded-2xl border border-surface-border bg-surface px-4 py-2 text-[13px] text-foreground/60">
+          資格保有 <b className="mx-0.5 text-xl text-brand">{data.kpiTotal}</b>件
+          <span className="ml-2 text-xs font-bold text-brand">
             ▲ +{data.tickerItems.length}件（前年度末比）
           </span>
         </div>
@@ -98,8 +99,8 @@ export function SkillMapDashboard({ data }: { data: SkillMapDashboardData }) {
             onClick={() => setSection(s.key)}
             className={`flex-1 rounded-xl border px-3 py-3 text-sm font-bold ${
               section === s.key
-                ? "border-[#3357d6] bg-[#3357d6] text-white"
-                : "border-[#e6e8f0] bg-white text-zinc-500 hover:bg-[#eef1fd]"
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-surface-border bg-surface text-foreground/60 hover:bg-primary/10"
             }`}
           >
             {s.label}

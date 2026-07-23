@@ -3,16 +3,24 @@ import { redirect } from "next/navigation";
 
 import { AccountFilterForm } from "@/components/accounts/AccountFilterForm";
 import { AccountTable, type AccountRow } from "@/components/accounts/AccountTable";
+import { AppliedFilterChips } from "@/components/ui/AppliedFilterChips";
 import { PaginationControls } from "@/components/ui/PaginationControls";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { UserRole, type Prisma } from "@/generated/prisma/client";
 import {
   ACCOUNT_SORT_KEYS,
+  accountStatusLabel,
   buildAccountOrderBy,
   buildAccountStatusWhere,
   deriveAccountStatus,
   parseAccountFilters,
 } from "@/lib/account-list";
+import {
+  ACCOUNT_APPLIED_FILTER_CLEAR_KEYS,
+  buildAccountAppliedFilterChips,
+} from "@/lib/applied-filter-chips";
 import { auth } from "@/lib/auth";
+import { resolveDestination } from "@/lib/auth-routing";
 import { clampPage, parsePagination, parseSort } from "@/lib/list-query";
 import { getOrganizationUnitOptions } from "@/lib/organization-unit";
 import {
@@ -20,6 +28,7 @@ import {
   resolveEffectiveOrgUnitIds,
 } from "@/lib/organization-unit-tree";
 import { prisma } from "@/lib/prisma";
+import { roleLabel } from "@/lib/role-label";
 
 type AccountsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -30,8 +39,13 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
   if (!session?.user) {
     redirect("/login");
   }
+  // 未登録の管理職はbasic-info(初回登録)へ誘導する(全認証必須ページ共通のガード)
+  const destination = await resolveDestination(session.user);
+  if (destination !== "/") {
+    redirect(destination);
+  }
   if (session.user.role !== UserRole.MANAGER) {
-    // アカウント一覧は管理職専用(REF001参照)
+    // アカウント一覧は管理職専用(home参照)
     redirect("/");
   }
 
@@ -108,7 +122,11 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
 
   const where: Prisma.EmployeeWhereInput = { AND: conditions };
 
-  const totalCount = await prisma.employee.count({ where });
+  // 「検索結果◯件/全◯件」の母数(全◯件)は検索条件を適用しない全アカウント数
+  const [totalCount, baselineTotalCount] = await Promise.all([
+    prisma.employee.count({ where }),
+    prisma.employee.count({ where: { deletedAt: null, user: { isNot: null } } }),
+  ]);
   const { page, skip, pageCount } = clampPage(
     pagination.page,
     totalCount,
@@ -126,6 +144,7 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
   const rows: AccountRow[] = employees.map((employee) => ({
     employeeId: employee.employeeId,
     name: employee.name,
+    isRegistered: employee.isRegistered,
     email: employee.user?.email ?? "",
     organizationUnitName: employee.organizationUnitId
       ? (orgUnitById.get(employee.organizationUnitId)?.unitName ?? null)
@@ -141,13 +160,21 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
     { value: "none", label: "未所属" },
   ];
 
+  // 適用中の検索条件チップ(一覧の上に表示。個別✕解除/一括クリア用)。
+  // 検索フォーム本体の条件のみを対象とし、列フィルタ(col*)は含めない。
+  const appliedChips = buildAccountAppliedFilterChips(filters, {
+    orgUnitName: (id) => orgUnitById.get(id)?.unitName,
+    roleLabel,
+    statusLabel: accountStatusLabel,
+  });
+
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">アカウント一覧</h1>
+        <SectionHeading as="h1" eyebrow="ACCOUNTS" title="アカウント一覧" />
         <Link
           href="/accounts/new"
-          className="rounded bg-zinc-900 hover:bg-zinc-700 px-4 py-2 text-sm text-white dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
+          className="rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary-dark"
         >
           + 新規アカウント登録
         </Link>
@@ -161,11 +188,14 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
         initialStatuses={filters.statuses}
       />
 
+      <AppliedFilterChips chips={appliedChips} clearKeys={ACCOUNT_APPLIED_FILTER_CLEAR_KEYS} />
+
       <div className="flex flex-col gap-2">
         <PaginationControls
           page={page}
           pageCount={pageCount}
           totalCount={totalCount}
+          baselineTotalCount={baselineTotalCount}
           pageSize={pagination.pageSize}
         />
         <AccountTable accounts={rows} orgFilterOptions={orgFilterOptions} />

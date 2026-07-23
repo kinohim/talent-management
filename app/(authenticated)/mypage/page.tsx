@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { BasicInfoForm } from "@/components/basic-info/BasicInfoForm";
@@ -5,14 +6,15 @@ import { CareerSummaryForm } from "@/components/career-summary/CareerSummaryForm
 import { CertificationRowsForm } from "@/components/certifications/CertificationRowsForm";
 import { EditableSection } from "@/components/my-resume/EditableSection";
 import { MyResumeTabs } from "@/components/my-resume/MyResumeTabs";
+import { ProfileCompletionBanner } from "@/components/my-resume/ProfileCompletionBanner";
 import { ProjectListPanel } from "@/components/projects/ProjectListPanel";
 import { ResumeBasicInfoSection } from "@/components/resumes/ResumeBasicInfoSection";
 import { ResumeCertificationList } from "@/components/resumes/ResumeCertificationList";
 import { ResumeEducationSection } from "@/components/resumes/ResumeEducationSection";
-import { ResumeExportButtons } from "@/components/resumes/ResumeExportButtons";
 import { ResumeSkillList } from "@/components/resumes/ResumeSkillList";
 import { ResumeTextSection } from "@/components/resumes/ResumeTextSection";
 import { SkillRowsForm } from "@/components/skills/SkillRowsForm";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { UserRole } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { resolveDestination } from "@/lib/auth-routing";
@@ -25,6 +27,11 @@ import {
   resolveSelectionFromLeaf,
 } from "@/lib/organization-unit";
 import { prisma } from "@/lib/prisma";
+import {
+  PROFILE_SECTION_IDS,
+  calculateProfileCompletion,
+  firstIncompleteSectionId,
+} from "@/lib/profile-completion";
 import { groupSkillsByCategory } from "@/lib/resume-view";
 import { getSkillOptions } from "@/lib/skill-options";
 
@@ -32,21 +39,21 @@ type MyPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-// REF004「私の経歴書」。プレビュー(REF003)と同じ閲覧表示をベースに、
+// mypage「私の経歴書」。resume-detailと同じ閲覧表示をベースに、
 // [表紙]タブでは各セクションを編集モードに切り替えてその場で保存できる。
-// [実績]タブはプロジェクト経歴一覧(登録・編集はEDT005へ遷移)。
+// [実績]タブはプロジェクト経歴一覧(登録・編集はproject-formへ遷移)。
 export default async function MyPage({ searchParams }: MyPageProps) {
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
   }
   if (session.user.role === UserRole.HR_SALES) {
-    // 人事・営業は経歴書を作成しないため対象外(REF001参照)
+    // 人事・営業は経歴書を作成しないため対象外(home参照)
     redirect("/");
   }
 
-  // 未登録の一般社員/管理職が直接/mypageを開いた場合もEDT001へ戻す恒常ガード
-  // (REF001と同じ方針)。
+  // 未登録の一般社員/管理職が直接/mypageを開いた場合もbasic-infoへ戻す恒常ガード
+  // (homeと同じ方針)。
   const destination = await resolveDestination(session.user);
   if (destination !== "/") {
     redirect(destination);
@@ -99,7 +106,27 @@ export default async function MyPage({ searchParams }: MyPageProps) {
     employee.organizationUnitId,
   );
 
-  // 編集フォームの初期値整形(旧EDT003/EDT004の単独ページから移植)
+  const completionInput = {
+    name: employee.name,
+    nameKana: employee.nameKana,
+    birthDate: employee.birthDate,
+    gender: employee.gender,
+    nearestStationLine: employee.nearestStationLine,
+    nearestStationName: employee.nearestStationName,
+    finalSchoolType: employee.finalSchoolType,
+    finalSchoolName: employee.finalSchoolName,
+    finalDepartmentName: employee.finalDepartmentName,
+    graduationYearMonth: employee.graduationYearMonth,
+    graduationStatus: employee.graduationStatus,
+    careerSummary: employee.careerSummary,
+    selfPr: employee.selfPr,
+    skillCount: employee.employeeSkills.length,
+    certificationCount: employee.employeeCertifications.length,
+  };
+  const profileCompletion = calculateProfileCompletion(completionInput);
+  const incompleteSectionId = firstIncompleteSectionId(completionInput);
+
+  // 編集フォームの初期値整形(旧スキル登録・資格登録の単独ページから移植)
   const initialSkillRows = employee.employeeSkills.map((employeeSkill) => ({
     skillCategoryId: String(employeeSkill.skill.skillCategoryId),
     skillId: String(employeeSkill.skillId),
@@ -126,11 +153,13 @@ export default async function MyPage({ searchParams }: MyPageProps) {
   const coverPanel = (
     <div className="flex flex-col gap-6">
       <EditableSection
+        id={PROFILE_SECTION_IDS.basicInfo}
         title="基本情報"
         view={
           <div className="flex flex-col gap-8">
             <ResumeBasicInfoSection
               hideTitle
+              promptEmptyFields
               name={employee.name ?? ""}
               nameKana={employee.nameKana ?? ""}
               birthDate={employee.birthDate}
@@ -141,6 +170,7 @@ export default async function MyPage({ searchParams }: MyPageProps) {
               experienceMonths={employee.experienceMonths}
             />
             <ResumeEducationSection
+              promptEmptyFields
               finalSchoolType={employee.finalSchoolType}
               finalSchoolName={employee.finalSchoolName ?? ""}
               finalDepartmentName={employee.finalDepartmentName ?? ""}
@@ -159,6 +189,7 @@ export default async function MyPage({ searchParams }: MyPageProps) {
               nameKana: employee.nameKana ?? "",
               birthDate: toDateInputValue(employee.birthDate),
               gender: employee.gender,
+              nearestStationPrefecture: employee.nearestStationPrefecture ?? "",
               nearestStationLine: employee.nearestStationLine ?? "",
               nearestStationName: employee.nearestStationName ?? "",
               finalSchoolType: employee.finalSchoolType,
@@ -174,11 +205,16 @@ export default async function MyPage({ searchParams }: MyPageProps) {
       />
 
       <EditableSection
+        id={PROFILE_SECTION_IDS.careerSummary}
         title="経歴概要・自己PR"
         view={
           <div className="flex flex-col gap-8">
-            <ResumeTextSection title="経歴概要" content={employee.careerSummary ?? ""} />
-            <ResumeTextSection title="自己PR" content={employee.selfPr ?? ""} />
+            <ResumeTextSection
+              promptEmpty
+              title="経歴概要"
+              content={employee.careerSummary ?? ""}
+            />
+            <ResumeTextSection promptEmpty title="自己PR" content={employee.selfPr ?? ""} />
           </div>
         }
         form={
@@ -192,12 +228,14 @@ export default async function MyPage({ searchParams }: MyPageProps) {
       />
 
       <EditableSection
+        id={PROFILE_SECTION_IDS.skills}
         title="スキル"
         view={<ResumeSkillList hideTitle groups={skillGroups} />}
         form={<SkillRowsForm options={skillOptions} initialRows={initialSkillRows} />}
       />
 
       <EditableSection
+        id={PROFILE_SECTION_IDS.certifications}
         title="資格"
         view={<ResumeCertificationList hideTitle certifications={employee.employeeCertifications} />}
         form={
@@ -208,7 +246,6 @@ export default async function MyPage({ searchParams }: MyPageProps) {
         }
       />
 
-      <ResumeExportButtons />
     </div>
   );
 
@@ -228,10 +265,23 @@ export default async function MyPage({ searchParams }: MyPageProps) {
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
-      <h1 className="text-lg font-semibold">私の経歴書</h1>
+      <SectionHeading as="h1" eyebrow="MY RESUME" title="私の経歴書" />
+      <ProfileCompletionBanner
+        completion={profileCompletion}
+        incompleteSectionId={incompleteSectionId}
+      />
       <MyResumeTabs
         initialTab={initialTab}
         coverPanel={coverPanel}
+        actions={
+          /* PDF出力はタブ行の右端(pdf-previewのダウンロードボタンと同じ配置イメージ) */
+          <Link
+            href="/mypage/pdf-preview"
+            className="rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary-dark"
+          >
+            PDF出力
+          </Link>
+        }
         projectsPanel={projectsPanel}
       />
     </main>

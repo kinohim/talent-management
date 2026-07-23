@@ -9,11 +9,11 @@ export async function isEmployeeRegistered(employeeId: string): Promise<boolean>
   return employee?.isRegistered ?? false;
 }
 
-export type Destination = "/" | "/register";
+export type Destination = "/" | "/basic-info";
 
-// ログイン成功直後、およびREF001自体を開いたときの恒常ガードの両方から呼ばれる、
+// ログイン成功直後、およびhome自体を開いたときの恒常ガードの両方から呼ばれる、
 // 「今どこへ行くべきか」を1箇所に集約した関数。人事・営業(HR_SALES)は経歴書を
-// 作成しないためEDT001を経ずREF001へ直行する(docs/screens.md AUTH001参照)。
+// 作成しないためbasic-infoを経ずhomeへ直行する(docs/screens.md login参照)。
 export async function resolveDestination(user: {
   employeeId: string;
   role: UserRole;
@@ -22,5 +22,5 @@ export async function resolveDestination(user: {
     return "/";
   }
   const registered = await isEmployeeRegistered(user.employeeId);
-  return registered ? "/" : "/register";
+  return registered ? "/" : "/basic-info";
 }

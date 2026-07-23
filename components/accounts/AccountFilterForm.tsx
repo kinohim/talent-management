@@ -11,6 +11,10 @@ import {
 } from "@/components/ui/CollapsibleSearchCard";
 import { LoadingOverlay } from "@/components/ui/LoadingOverlay";
 import { PillMultiSelect } from "@/components/ui/PillMultiSelect";
+import {
+  SearchFilterField,
+  SearchFilterGrid,
+} from "@/components/ui/SearchFilterGrid";
 import type { OrganizationUnitNode } from "@/lib/organization-unit-tree";
 
 const ROLE_OPTIONS = [
@@ -33,10 +37,10 @@ type AccountFilterFormProps = {
   initialStatuses: string[];
 };
 
-// REF007のフィルタは検索条件をURLのsearchParamsに反映することで管理する
+// account-listのフィルタは検索条件をURLのsearchParamsに反映することで管理する
 // (Server Componentの`page.tsx`がそのままDBクエリのwhere条件に変換する)。
 // 送信は`router.push`によるクライアント側ナビゲーションで行う。
-// 項目順: 氏名カナ→所属組織→権限→状態→検索/クリア(docs/screens.md REF007)
+// 項目順: 氏名カナ→所属組織→権限→状態→検索/クリア(docs/screens.md account-list)
 export function AccountFilterForm({
   orgTree,
   initialName,
@@ -78,72 +82,50 @@ export function AccountFilterForm({
     setStatuses([]);
   }
 
+  // 全項目をSearchFilterGridの4列グリッドに並べる(resume-listと共通の
+  // レイアウト)。氏名カナ→所属組織→権限→状態でちょうど1行4列に収まる。
   // ローディングはカードの外に置く(検索後に閉じる=ONだと検索直後にカードの
   // 中身がhiddenになり、内側に置くとオーバーレイごと消えてしまうため)
   return (
     <>
       <LoadingOverlay show={isSearching} />
       <CollapsibleSearchCard storageKey="/accounts">
-        <form onSubmit={applyFilters} className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2 xl:grid-cols-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium">氏名カナ</label>
-              <ClearableInput
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="氏名・カナで検索"
-                className="max-w-64 text-sm"
-              />
-            </div>
+        <SearchFilterGrid onSubmit={applyFilters} onClear={clearFilters}>
+          <SearchFilterField label="氏名カナ">
+            <ClearableInput
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="氏名・カナで検索"
+              className="w-full text-sm"
+            />
+          </SearchFilterField>
 
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-medium">所属組織</span>
-              <CascadingOrganizationUnitFilter
-                tree={orgTree}
-                values={orgUnitIds}
-                onChange={setOrgUnitIds}
-              />
-            </div>
+          <SearchFilterField label="所属組織">
+            <CascadingOrganizationUnitFilter
+              tree={orgTree}
+              values={orgUnitIds}
+              onChange={setOrgUnitIds}
+            />
+          </SearchFilterField>
 
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-medium">権限</span>
-                <PillMultiSelect
-                  name="role"
-                  options={ROLE_OPTIONS}
-                  values={roles}
-                  onChange={setRoles}
-                />
-              </div>
+          <SearchFilterField label="権限">
+            <PillMultiSelect
+              name="role"
+              options={ROLE_OPTIONS}
+              values={roles}
+              onChange={setRoles}
+            />
+          </SearchFilterField>
 
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-medium">状態</span>
-                <PillMultiSelect
-                  name="status"
-                  options={STATUS_OPTIONS}
-                  values={statuses}
-                  onChange={setStatuses}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              className="rounded bg-zinc-900 hover:bg-zinc-700 px-4 py-2 text-sm text-white dark:bg-zinc-100 dark:hover:bg-zinc-300 dark:text-zinc-900"
-            >
-              検索
-            </button>
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="rounded border px-4 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
-            >
-              クリア
-            </button>
-          </div>
-        </form>
+          <SearchFilterField label="状態">
+            <PillMultiSelect
+              name="status"
+              options={STATUS_OPTIONS}
+              values={statuses}
+              onChange={setStatuses}
+            />
+          </SearchFilterField>
+        </SearchFilterGrid>
       </CollapsibleSearchCard>
     </>
   );

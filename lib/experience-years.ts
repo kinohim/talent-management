@@ -54,7 +54,7 @@ export function calculateExperienceMonths(
   return sumUnionMonths(intervals);
 }
 
-// 経験年数の表示用文言(REF003/REF004)。「◯年◯か月」。
+// 経験年数の表示用文言(resume-detail/mypage)。「◯年◯か月」。
 // 端数のない側は省略する(0年3か月→「3か月」、5年0か月→「5年」、0か月→「0か月」)。
 export function formatExperienceMonths(months: number): string {
   const years = Math.floor(months / 12);

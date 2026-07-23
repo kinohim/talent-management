@@ -71,7 +71,7 @@ export async function resolveOrganizationUnitId(selection: {
   return unit?.id ?? null;
 }
 
-// 一般社員が他の社員の経歴書を閲覧できるかの判定(REF002冒頭の判定ルール(a)(b)(c))。
+// 一般社員が他の社員の経歴書を閲覧できるかの判定(resume-list冒頭の判定ルール(a)(b)(c))。
 // 双方とも部署以下(部署/Gr)に所属していれば部署の一致、どちらかが事業部直下
 // 所属なら事業部の一致で判定する。unitsはDBを1回だけ取得したものを呼び出し側が渡す。
 export function isWithinResumeViewScope(
@@ -97,13 +97,13 @@ export function isWithinResumeViewScope(
   return viewer.departmentId === target.departmentId; // (a)
 }
 
-// REF002(経歴書一覧)で一般社員が検索対象にできる組織単位id集合(閲覧範囲
+// 一般社員が経歴書詳細を閲覧できる相手(閲覧範囲)の組織単位id集合。
+// resume-list(経歴書一覧)で「詳細」導線を出し分けるのに使う(閲覧範囲
 // ルールa/bをまとめて1回の集合計算に落とし込んだもの。判定ロジック自体は
 // isWithinResumeViewScopeと同じ規則)。事業部直下所属なら事業部全体、
 // 部署以下所属なら遡って到達する部署とその配下(Gr)に加え、事業部直下所属者
 // (ルールbで相手が事業部直下なら双方向で許可されるため)も対象に含める。
-// 未所属なら空集合を返す(ルールc。本人はemployeeIdの別枠一致で引き続き
-// 検索可能)。
+// 未所属なら空集合を返す(ルールc。本人の行はisSelfの別枠判定で導線を出す)。
 export function resolveResumeViewScopeUnitIds(
   units: OrganizationUnitOption[],
   viewerOrganizationUnitId: number | null,
@@ -119,8 +119,8 @@ export function resolveResumeViewScopeUnitIds(
   return scope;
 }
 
-// REF003(経歴書詳細)のアクセス可否。本人・人事・営業・管理職は常に閲覧可、
-// 一般社員が他社員を見る場合のみ閲覧範囲判定に従う。
+// 経歴書詳細(resume-detail)のアクセス可否。本人・人事・営業・管理職は常に
+// 閲覧可、一般社員が他社員を見る場合のみ閲覧範囲判定に従う。
 export function canViewEmployeeResume(params: {
   viewerRole: UserRole;
   isSelf: boolean;
@@ -149,7 +149,7 @@ type OrganizationUnitPathNode = {
   parent?: OrganizationUnitPathNode | null;
 };
 
-// 所属組織を「事業部 / 部署 / Gr」の形式で連結する(REF003の所属組織表示用)。
+// 所属組織を「事業部 / 部署 / Gr」の形式で連結する(経歴書閲覧の所属組織表示用)。
 export function formatOrganizationUnitPath(
   leaf: OrganizationUnitPathNode | null,
 ): string {
@@ -163,7 +163,7 @@ export function formatOrganizationUnitPath(
   return names.join(" / ");
 }
 
-// MST004の削除制約(docs/screens.md「配下または所属社員が存在する行は削除
+// master-org-unitsの削除制約(docs/screens.md「配下または所属社員が存在する行は削除
 // 不可」)。ブロック理由があればエラーメッセージを、削除可能ならnullを返す。
 export async function getOrganizationUnitDeleteBlockReason(
   unitId: number,
@@ -175,7 +175,7 @@ export async function getOrganizationUnitDeleteBlockReason(
     prisma.employee.count({
       where: { organizationUnitId: unitId, deletedAt: null },
     }),
-    // 現場マスタの主管部署としての参照(MST005)
+    // 現場マスタの主管部署としての参照(master-sites)
     prisma.site.count({
       where: { organizationUnitId: unitId, deletedAt: null },
     }),

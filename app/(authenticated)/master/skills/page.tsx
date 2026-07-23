@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 
 import { SkillMasterManager } from "@/components/master/SkillMasterManager";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { UserRole } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
+import { resolveDestination } from "@/lib/auth-routing";
 import { prisma } from "@/lib/prisma";
 
 export default async function SkillMasterPage() {
@@ -10,8 +12,13 @@ export default async function SkillMasterPage() {
   if (!session?.user) {
     redirect("/login");
   }
+  // 未登録の管理職はbasic-info(初回登録)へ誘導する(全認証必須ページ共通のガード)
+  const destination = await resolveDestination(session.user);
+  if (destination !== "/") {
+    redirect(destination);
+  }
   if (session.user.role !== UserRole.MANAGER) {
-    // マスタ管理は管理職専用(REF001参照)
+    // マスタ管理は管理職専用(home参照)
     redirect("/");
   }
 
@@ -49,7 +56,7 @@ export default async function SkillMasterPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
-      <h1 className="text-lg font-semibold">スキルマスタ管理</h1>
+      <SectionHeading as="h1" eyebrow="SKILLS" title="スキルマスタ管理" />
       <SkillMasterManager categories={categoryOptions} skills={skillRows} />
     </main>
   );

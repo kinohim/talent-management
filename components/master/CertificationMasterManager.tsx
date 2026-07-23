@@ -44,7 +44,10 @@ function CategoryCertificationAddForm({
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-2 rounded border border-dashed p-3">
+    <form
+      action={formAction}
+      className="flex flex-col gap-2 rounded-2xl border border-dashed border-surface-border p-3"
+    >
       <input type="hidden" name="categoryId" value={categoryId} />
       <div className="flex flex-wrap items-center gap-2">
         <input
@@ -53,23 +56,23 @@ function CategoryCertificationAddForm({
           placeholder="資格名"
           maxLength={100}
           autoFocus
-          className="w-64 rounded border px-2 py-1 text-sm"
+          className="w-64 rounded-full border border-surface-border px-3 py-1 text-sm"
         />
         <input
           type="text"
           name="certificationOrganization"
           placeholder="認定団体"
           maxLength={100}
-          className="w-48 rounded border px-2 py-1 text-sm"
+          className="w-48 rounded-full border border-surface-border px-3 py-1 text-sm"
         />
         <button
           type="submit"
           disabled={isPending}
-          className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+          className="rounded-full border border-primary px-3 py-1 text-xs text-brand hover:bg-primary/10"
         >
           {isPending ? "追加中..." : "追加"}
         </button>
-        <button type="button" onClick={onClose} className="text-xs text-zinc-500">
+        <button type="button" onClick={onClose} className="text-xs text-foreground/60">
           キャンセル
         </button>
       </div>
@@ -105,7 +108,7 @@ function CertificationCategorySection({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded border px-3 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-surface-border bg-background px-3 py-2">
         <div className="flex items-center gap-2">
           {sortedCertifications.length > 0 ? (
             <button
@@ -113,16 +116,16 @@ function CertificationCategorySection({
               onClick={() => setExpanded((v) => !v)}
               aria-expanded={expanded}
               aria-label={expanded ? "カテゴリを閉じる" : "カテゴリを開く"}
-              className="w-5 text-center text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+              className="w-5 text-center text-xs text-brand/70 hover:text-brand"
             >
               {expanded ? "▼" : "▶"}
             </button>
           ) : (
             <span aria-hidden="true" className="w-5" />
           )}
-          <h3 className="text-sm font-semibold">
+          <h3 className="text-sm font-semibold text-brand">
             {category.name}
-            <span className="ml-2 text-xs font-normal text-zinc-400">
+            <span className="ml-2 text-xs font-normal text-foreground/50">
               {sortedCertifications.length}件
             </span>
           </h3>
@@ -133,7 +136,7 @@ function CertificationCategorySection({
             setShowAddForm(true);
             setExpanded(true);
           }}
-          className="rounded border px-2 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+          className="rounded-full border border-primary px-3 py-1 text-xs text-brand hover:bg-primary/10"
         >
           + 追加
         </button>
@@ -189,7 +192,7 @@ export function CertificationMasterManager({
     );
 
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div className="flex max-w-5xl flex-col gap-6">
       {/* カテゴリの追加フィールドは最上部に常時表示。資格自体の追加は
           各カテゴリ見出しの[+ 追加]から行う */}
       <InlineAddForm
@@ -211,7 +214,7 @@ export function CertificationMasterManager({
 
       <div className="flex flex-col gap-3">
         {sortedCategories.length === 0 ? (
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-foreground/60">
             {normalizedFilter
               ? "絞り込みに一致する資格はありません。"
               : "登録済みのカテゴリはありません。"}

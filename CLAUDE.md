@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-業務経歴書 Web アプリ(PWA)。Next.js App Router + Prisma + Neon + Auth.js 構成。
+経歴書 Web アプリ(PWA)。Next.js App Router + Prisma + Neon + Auth.js 構成。
 
 <!--
 このファイルの役割:
@@ -39,7 +39,7 @@
 
 - `docs/schema.md` — DB スキーマ全 19 テーブルの定義。**スキーマや Prisma モデルに
   触れる変更の前には必ず読むこと**
-- `docs/screens.md` — 全 22 画面の仕様。画面の新規実装・修正の前に該当画面の節を読むこと
+- `docs/screens.md` — 全 18 画面の仕様。画面の新規実装・修正の前に該当画面の節を読むこと
 - `docs/er-diagram.md` — ER 図 (Mermaid)。テーブル間のリレーションを確認したいとき
 - `docs/screen-flow.md` — 画面遷移図 (Mermaid)。導線に関わる変更のとき
 - `docs/decisions.md` — 設計判断の経緯。**既存の設計に疑問を持ったり変更を提案する前に、
@@ -228,3 +228,8 @@ scripts/        # verify.sh 等の開発スクリプト
 
 このプロジェクトの開発ハーネス(hooks・permissions・コマンド等)の全体像と
 設計思想は `HARNESS.md` にまとまっている(主に人間向けの説明)。
+
+## Git操作のルール
+
+- git commit, git push は必ずユーザーの明示的な許可を得てから実行すること
+- 許可なく自動でコミット・プッシュしてはいけない

@@ -40,7 +40,8 @@ scripts/
   (下記「作業可視化の機械的な後押し」参照)
 ├── skills/
 │   ├── db-migration/         スキーマ変更の手順書(Claudeが必要時に自動で読む)
-│   └── new-screen/           画面実装の手順書
+│   ├── new-screen/           画面実装の手順書
+│   └── change-flow/          修正・変更の標準フロー(計画→設計書→テスト仕様書→テスト→実装→検証)
 ├── agents/
 │   ├── verifier.md           検証専門の子エージェント(修正権限なし)
 │   ├── code-reviewer.md      コードレビュー専門の子エージェント(修正権限なし)
@@ -56,6 +57,7 @@ scripts/
 | コマンド | 用途 |
 |---|---|
 | `/implement-screen <画面名>` | docs/screens.md の仕様に従って画面を実装 |
+| `/change <修正内容>` | change-flow スキルの標準フローで修正(仕様先行・テスト先行) |
 | `/db-change <変更内容>` | 手順書に沿った DB スキーマ変更 |
 | `/review` | 独立エージェントによるコードレビュー(must 解消まで) |
 | `/fix-issue <issue番号>` | GitHub Issue を読んで修正・検証・報告 |

@@ -2,7 +2,7 @@
 
 import type { DashboardCategory, DepartmentBucket } from "@/lib/skill-map";
 
-// REF008の共通フィルタ部品(部署タブ・カテゴリチップ・セグメント切替)。
+// skill-mapの共通フィルタ部品(部署タブ・カテゴリチップ・セグメント切替)。
 // タブ・チップが表示幅に収まらない場合は折り返さず横スクロールする
 // (docs/dashboard-design.md「共通フィルタ」)。
 

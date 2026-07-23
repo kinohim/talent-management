@@ -13,7 +13,7 @@ export function OrganizationUnitManager({
   tree: OrganizationUnitNode[];
 }) {
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div className="flex max-w-5xl flex-col gap-6">
       {/* 事業部の追加フィールドは最上部に常時表示(「配下に追加」と同じ
           コンパクトな1行形) */}
       <InlineAddForm
@@ -25,7 +25,7 @@ export function OrganizationUnitManager({
 
       <div className="flex flex-col gap-1">
         {tree.length === 0 ? (
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-foreground/60">
             登録済みの組織単位はありません。
           </p>
         ) : (

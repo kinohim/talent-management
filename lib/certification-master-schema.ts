@@ -24,7 +24,7 @@ export type CategoryNameParseResult =
   | { success: true; data: string }
   | { success: false; error: string };
 
-// MST002の「カテゴリを追加」フォーム(カテゴリのみ新規作成)用。
+// master-certificationsの「カテゴリを追加」フォーム(カテゴリのみ新規作成)用。
 export function parseCategoryNameForm(formData: FormData): CategoryNameParseResult {
   const parsed = categoryNameSchema.safeParse(formData.get("categoryName"));
   if (!parsed.success) {
@@ -48,7 +48,7 @@ export type CertificationMasterFormParseResult =
   | { success: false; error: string };
 
 // カテゴリの選択方式: categoryId="new"なら`newCategoryName`を新規カテゴリ名として
-// 扱う(MST002「選択(既存)/新規入力」の入力形式。MST001のparseSkillMasterFormと
+// 扱う(master-certifications「選択(既存)/新規入力」の入力形式。master-skillsのparseSkillMasterFormと
 // 同型)。
 export function parseCertificationMasterForm(
   formData: FormData,

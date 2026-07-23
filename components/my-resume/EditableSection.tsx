@@ -9,8 +9,8 @@ import {
   type ReactNode,
 } from "react";
 
-// REF004「私の経歴書」のセクション単位編集で、フォーム側とセクション側を
-// つなぐContext。単独画面(/registerの初回登録等)ではProviderが無いため
+// mypage「私の経歴書」のセクション単位編集で、フォーム側とセクション側を
+// つなぐContext。単独画面(/basic-infoの初回登録等)ではProviderが無いため
 // nullになり、フォームは自前の保存ボタンを表示して従来どおり動く。
 // - onSaved: 保存成功をフォームから通知(編集モード解除)
 // - formId: ヘッダの保存ボタン(form属性)と<form>を関連付けるid
@@ -27,10 +27,12 @@ export function useSectionEdit() {
 
 type EditableSectionProps = {
   title: string;
-  // 閲覧表示(REF003と同じResume*コンポーネント。見出しは各コンポーネント側が持つ)
+  // 閲覧表示(resume-detailと同じResume*コンポーネント。見出しは各コンポーネント側が持つ)
   view: ReactNode;
-  // 編集フォーム(既存のEDT001〜004のフォームコンポーネント)
+  // 編集フォーム(基本情報〜資格の各セクションで使う既存フォームコンポーネント)
   form: ReactNode;
+  // 入力率バナーの「未入力項目を入力する」リンク先(スクロール先)のDOM id
+  id?: string;
 };
 
 // 閲覧表示と編集フォームを切り替えるセクション枠。view/formはServer Componentから
@@ -39,7 +41,7 @@ type EditableSectionProps = {
 // 見出しは編集/非編集を問わず本コンポーネントが同じ位置に表示する。
 // 編集中はヘッダに[保存][キャンセル]を横並びで表示し、保存はform属性経由で
 // フォームをsubmitする(フォーム内には保存ボタンを置かない)。
-export function EditableSection({ title, view, form }: EditableSectionProps) {
+export function EditableSection({ title, view, form, id }: EditableSectionProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editSession, setEditSession] = useState(0);
   const [isPending, setIsPending] = useState(false);
@@ -55,16 +57,19 @@ export function EditableSection({ title, view, form }: EditableSectionProps) {
   );
 
   return (
-    <section className="flex flex-col gap-3 rounded border p-4">
+    <section
+      id={id}
+      className="flex scroll-mt-32 flex-col gap-3 rounded-2xl border border-surface-border p-4"
+    >
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold">{title}</h2>
+        <h2 className="text-base font-semibold text-brand">{title}</h2>
         {isEditing ? (
           <div className="flex items-center gap-2">
             <button
               type="submit"
               form={formId}
               disabled={isPending}
-              className="rounded bg-zinc-900 px-4 py-1 text-xs text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+              className="rounded-full bg-primary px-4 py-1 text-xs text-primary-foreground hover:bg-primary-dark disabled:opacity-50"
             >
               {isPending ? "保存中..." : "保存"}
             </button>
@@ -74,7 +79,7 @@ export function EditableSection({ title, view, form }: EditableSectionProps) {
                 setIsEditing(false);
                 setIsPending(false);
               }}
-              className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              className="rounded-full border border-surface-border px-3 py-1 text-xs hover:bg-primary/10"
             >
               キャンセル
             </button>
@@ -87,7 +92,7 @@ export function EditableSection({ title, view, form }: EditableSectionProps) {
               setIsPending(false);
               setIsEditing(true);
             }}
-            className="rounded border px-3 py-1 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-full border border-primary px-3 py-1 text-xs text-brand hover:bg-primary/10"
           >
             編集
           </button>
